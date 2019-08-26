@@ -1,11 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
-import {BrowserRouter, Route, Link} from 'react-router-dom';
+import {BrowserRouter, Route, Link, Redirect} from 'react-router-dom';
+import {Login} from './components/Login';
 import './App.css';
 import './utils/Authentication'
 
+
 interface AppState {
-  currentUser: string;
+  currentUser: string | null;
 }
 
 interface AppProps {
@@ -13,12 +14,25 @@ interface AppProps {
 }
 
 export class App extends React.Component<AppProps, AppState> {
-
+  state: AppState = {
+    currentUser: null
+  }
   
+  renderLoginOrHome = () => {
+    if (this.state.currentUser === null) {
+      console.log("No cached creds");
+      return (
+        <>
+          <Redirect to='/login'/>
+        </>
+      )
+    }
+  }
   render () {
     return (
       <div className="App">
         <BrowserRouter>
+          <Route exact path='/login' component={Login}/>
           <Route exact path='/' render={this.renderLoginOrHome}/>
         </BrowserRouter>
       </div>
