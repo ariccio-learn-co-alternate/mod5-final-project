@@ -10,9 +10,7 @@ class UsersController < ApplicationController
     begin
       @user = User.create!(user_params)
       token = encode_token(user_id: @user_id)
-      render json: {
-        jwt: token
-      }, status: :created
+      render json: { jwt: token }, status: :created
     rescue ActiveRecord::RecordInvalid => invalid
       render json: {
         errors: create_error("User info not valid!", invalid.record.errors)
