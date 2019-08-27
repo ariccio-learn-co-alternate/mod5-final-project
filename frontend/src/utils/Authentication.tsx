@@ -45,11 +45,11 @@ export function signUpRequestOptions(name: string, email: string, password: stri
 // Very helpful:
 // https://jasonwatmore.com/post/2019/04/06/react-jwt-authentication-tutorial-example#authentication-service-js
 // Return String is jwt token 
-export function fromLocalStorage(): string | null {
+export function fromLocalStorage(): string {
     const item: string | null = localStorage.getItem('currentUser');
     if ((item === null) || (item === undefined) || (item === "undefined")) {
         console.log('No cached login creds.');
-        return null;
+        return '';
     }
     const parsed = JSON.parse(item);
     return parsed;
@@ -71,7 +71,8 @@ export interface SignupResponse {
 
 export function login(username: string, password: string): Promise<LoginResponse> {
     const requestOptions: RequestInit = loginRequestOptions(username, password);
-    return fetch("http://localhost:3000/login", requestOptions)
+    debugger;
+    return fetch("/login", requestOptions)
         .then(response => response.json())
         .then(response => {
             // console.log(response);
@@ -89,7 +90,8 @@ export function login(username: string, password: string): Promise<LoginResponse
 
 export function signup(name: string, username: string, password: string): Promise<SignupResponse> {
     const requestOptions: RequestInit = signUpRequestOptions(name, username, password);
-    return fetch("http://localhost:3000/users", requestOptions)
+    debugger;
+    return fetch("/users", requestOptions)
         .then(response => response.json())
         .then(response => {
             // render json: { jwt: token }, status: :created

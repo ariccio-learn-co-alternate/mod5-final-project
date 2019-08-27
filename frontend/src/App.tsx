@@ -1,37 +1,55 @@
 import React from 'react';
-import {BrowserRouter, Route, Link, Redirect} from 'react-router-dom';
-import { connect, Provider } from 'react-redux';
+import {Route, Redirect} from 'react-router-dom';
+import { connect } from 'react-redux';
 // import { switchStatement } from '@babel/types';
 
-import {AppProps, AppState} from './index'
+import {AppState} from './index'
 import {Login} from './components/Login';
 import './App.css';
-import './utils/Authentication';
+import {clearLocalStorage} from './utils/Authentication';
+import {NavBar} from './components/Nav'
+
+export interface AppProps {
+  // Nothing yet
+  currentUser: string
+}
+
+const notImpl = () => 
+  <h1>notimpl</h1>
 
 
+const loginRedirect = () =>
+    <Redirect to='/login'/>
+
+
+const logoutRender = () => {
+  clearLocalStorage();
+  return (
+    loginRedirect()
+  );
+}
 export class App extends React.Component<AppProps, AppState> {
-  state: AppState = {
-    currentUser: null
-  }
-
   renderLoginOrHome = () => {
-    if (this.state.currentUser === null) {
+    if (this.props.currentUser === '') {
       console.log("No cached creds");
-      return (
-        <>
-          <Redirect to='/login'/>
-        </>
-      )
+      return loginRedirect();
     }
+
   }
   render () {
     return (
-      <div className="App">
-        <BrowserRouter>
-          <Route exact path='/login' component={Login}/>
-          <Route exact path='/' render={this.renderLoginOrHome}/>
-        </BrowserRouter>
-      </div>
+      <>
+        <Route exact path='/login' component={Login}/>
+        <Route exact path='/play' render={notImpl}/>
+        <Route exact path='/scoreboard' render={notImpl}/>
+        <Route exact path='/discover' render={notImpl}/>
+        <Route exact path='/profile' render={notImpl}/>
+        <Route exact path='/logout' render={logoutRender}/>
+        <Route exact path='/' render={this.renderLoginOrHome}/>
+        <div className="App">
+            <NavBar/>
+        </div>
+      </>
     );
 
   }

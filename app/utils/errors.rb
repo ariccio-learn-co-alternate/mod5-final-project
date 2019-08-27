@@ -1,6 +1,6 @@
 def create_error(message, error)
   {
-    message: [message];
+    message: [message],
     error: [error]
   }
 end

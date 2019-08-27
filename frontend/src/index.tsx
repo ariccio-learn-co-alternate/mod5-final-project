@@ -1,34 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {createStore} from 'redux';
+import {Provider} from 'react-redux';
 import { createReducer } from 'typesafe-actions';
+import {BrowserRouter} from 'react-router-dom';
+
+import App from './App';
+import {fromLocalStorage} from './utils/Authentication'
 
 // Should be a DeepReadonly?
 export interface AppState {
-    readonly currentUser: string | null;
+    readonly currentUser: string;
 }
   
 const initialState: AppState = {
-    currentUser: null
+    currentUser: fromLocalStorage()
 }
   
-export interface AppProps {
-    // Nothing yet
-}
   
 function reducer(state: AppState = initialState, action: any): any {
+    console.log(state);
     switch(action.type) {
-      case "LOGIN":
-        return {
-          ...state,
-          currentUser: action.user
+        case "LOGIN":
+            console.log("login action");
+            return {
+                ...state,
+                currentUser: action.user
         }
         default:
-          console.assert(false);
-          return {...state};
+            console.log("default action: ", action);
+            return {...state};
     }
 }
   
@@ -36,7 +39,11 @@ const store = createStore(reducer);
   
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <Provider store={store}>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </Provider>
     </React.StrictMode>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
