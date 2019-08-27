@@ -1,26 +1,30 @@
 import React from 'react';
 import {Redirect, Link} from 'react-router-dom';
 import { connect } from 'react-redux';
-// import {Dispatch} from 'redux'
-import {loginUser} from '../Actions';
-import {login} from '../utils/Authentication';
+import {signupUser} from '../Actions';
+import {signup} from '../utils/Authentication';
 
-interface LoginProps {
+
+interface SignupState {
+    username: string,
+    email: string,
+    password: string
+}
+
+const defaultsignupState: SignupState = {
+    username: '',
+    email: '',
+    password: ''
+}
+
+interface SignupProps {
     currentUser: string,
     dispatch: any
 }
 
-interface LoginState {
-    username: string,
-    password: string
-}
+class _Signup extends React.Component<SignupProps, SignupState> {
+    state: SignupState = defaultsignupState; 
 
-const defaultLoginState: LoginState = {
-    username: '',
-    password: ''
-}
-class _Login extends React.Component<LoginProps, LoginState> {
-    state: LoginState = defaultLoginState;
     unameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({username: event.target.value})
     }
@@ -28,22 +32,28 @@ class _Login extends React.Component<LoginProps, LoginState> {
         this.setState({password: event.target.value})
     }
 
-    onSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
+    emailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({email: event.target.value});
+    }
+
+    onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("signup state: ", this.state)
         try {
-            await login(this.state.username, this.state.password);
+            await signup(this.state.username, this.state.email, this.state.password);
         }
         catch(err) {
             console.error(err);
         }
-        this.props.dispatch(loginUser(this.state.username, this.state.password));
-    
-    } 
+        console.log("signup props: ", this.props);
+        this.props.dispatch(signupUser(this.state.username, this.state.email, this.state.password));
+
+    }
 
     componentDidMount() {
-        console.log("Login props: ", this.props);
+        console.log("signup props: ", this.props);
         if (this.props.currentUser !== '') {
-            console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
+            console.log(`current user (${this.props.currentUser}) not empty, leaving signup page`)
             return (<Redirect to='/'/>);
         }
     }
@@ -53,15 +63,16 @@ class _Login extends React.Component<LoginProps, LoginState> {
             <>
                 <form onSubmit={ this.onSubmit}>
                     <input name="username" type="text" placeholder="username" value={this.state.username} onChange={this.unameChange}/>
+                    <input name="email" type="text" placeholder="example@example.com" value={this.state.email} onChange={this.emailChange}/>
                     <input name="password" type="password" value={this.state.password} onChange={this.passwordChange}/>
                     <button type="submit">Login</button>
                 </form>
 
-                <Link to='/signup'>Sign up</Link>
             </>
-        )
+        );
     }
 }
+
 
 // Don't know the types yet.
 const mapStateToProps = (state: any): any => {
@@ -73,7 +84,9 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: any): any => {
     return {
-        loginUser: (username: string, password: string) => dispatch(loginUser(username, password))
+        signupUser: (username: string, email: string, password: string) => dispatch(signupUser(username, email, password))
     }
 }
-export const Login = connect(mapStateToProps, mapDispatchToProps)(_Login);
+
+
+export const Signup = connect(mapStateToProps, mapDispatchToProps)(_Signup);

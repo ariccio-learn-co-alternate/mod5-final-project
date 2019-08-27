@@ -7,3 +7,14 @@ export function loginUser(username: string, password: string): object {
         password: password
     }
 }
+
+export const SIGNUP_ACTION = 'SIGNUP';
+
+export function signupUser(username: string, email: string, password: string): object {
+    return {
+        type: SIGNUP_ACTION,
+        username: username,
+        email: email,
+        password: password
+    }
+}

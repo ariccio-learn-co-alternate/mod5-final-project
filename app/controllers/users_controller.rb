@@ -6,6 +6,8 @@ require_relative '../utils/errors.rb'
 class UsersController < ApplicationController
   skip_before_action :authorized, only: [:create]
 
+  include Errors
+
   def create
     begin
       @user = User.create!(user_params)
@@ -13,7 +15,7 @@ class UsersController < ApplicationController
       render json: { jwt: token }, status: :created
     rescue ActiveRecord::RecordInvalid => invalid
       render json: {
-        errors: create_error("User info not valid!", invalid.record.errors)
+        errors: create_activerecord_error("User info not valid!", invalid)
       }, status: :unauthorized
     end
   end

@@ -25,6 +25,8 @@ class ApplicationController < ActionController::API
   # https://learn.co/tracks/module-4-web-development-immersive-2-1/auth/jwt-auth-in-rails/jwt-auth-rails
   before_action :authorized
 
+  include Errors
+
   def encode_token(payload)
     encode_with_jwt(payload)
   end
@@ -61,7 +63,7 @@ class ApplicationController < ActionController::API
   def authorized
     if !(logged_in?)
       render json: {
-        errors: create_error("Please log in", :unauthorized.to_s),
+        errors: Errors::create_error("Please log in", :unauthorized.to_s),
         status: :unauthorized,
       }
     end

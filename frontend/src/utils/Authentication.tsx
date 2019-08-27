@@ -1,4 +1,4 @@
-
+import {formatErrors} from './ErrorObject';
 // interface HeaderType {
 //     'Content-Type' : String
 // }
@@ -25,7 +25,7 @@ export function loginRequestOptions(username: string, password: string): Request
     return requestOptions;
 }
 
-export function signUpRequestOptions(name: string, email: string, password: string): RequestInit {
+export function signUpRequestOptions(username: string, email: string, password: string): RequestInit {
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -33,7 +33,7 @@ export function signUpRequestOptions(name: string, email: string, password: stri
         },
         body: JSON.stringify({
             user: {
-                name,
+                username,
                 email,
                 password
             }
@@ -69,38 +69,41 @@ export interface SignupResponse {
     jwt: string;
 }
 
-export function login(username: string, password: string): Promise<LoginResponse> {
+export async function login(username: string, password: string): Promise<void> {
     const requestOptions: RequestInit = loginRequestOptions(username, password);
-    debugger;
-    return fetch("/login", requestOptions)
-        .then(response => response.json())
-        .then(response => {
-            // console.log(response);
-            // render json: { username: @user.email, jwt: token }, status: :accepted
-            console.assert(response != null);
-            console.assert(response !== undefined);
-            console.assert(response !== "undefined");
-            if (response.errors === undefined) {
-                console.assert(response.jwt !== undefined)
-                localStorage.setItem('currentUser', JSON.stringify(response.jwt))
-            }
-            return response;
-        })
+    const rawFetchResponse: Promise<Response> = fetch("/login", requestOptions);
+    const jsonResponse: Promise<any> = (await rawFetchResponse).json();
+    const response = await jsonResponse;
+    // console.log(response);
+    // render json: { username: @user.email, jwt: token }, status: :accepted
+    console.assert(response != null);
+    console.assert(response !== undefined);
+    console.assert(response !== "undefined");
+    if (response.errors === undefined) {
+        console.assert(response.jwt !== undefined);
+        localStorage.setItem('currentUser', JSON.stringify(response.jwt));
+    }
+    else {
+        console.error(formatErrors(response.errors));
+        alert(formatErrors(response.errors));
+    }
 }
 
-export function signup(name: string, username: string, password: string): Promise<SignupResponse> {
-    const requestOptions: RequestInit = signUpRequestOptions(name, username, password);
-    debugger;
-    return fetch("/users", requestOptions)
-        .then(response => response.json())
-        .then(response => {
-            // render json: { jwt: token }, status: :created
-            console.assert(response != null);
-            console.assert(response !== undefined);
-            console.assert(response !== "undefined");
-            if (response.errors === undefined) {
-                localStorage.setItem('currentUser', JSON.stringify(response.jwt));
-            }
-            return response;
-        })
+export async function signup(username: string, email: string, password: string): Promise<void> {
+    const requestOptions: RequestInit = signUpRequestOptions(username, email, password);
+    const rawFetchResponse: Promise<Response> = fetch("/users", requestOptions);
+    const jsonResponse: Promise<any> = (await rawFetchResponse).json();
+    const response = await jsonResponse;
+    // render json: { jwt: token }, status: :created
+    console.assert(response != null);
+    console.assert(response !== undefined);
+    console.assert(response !== "undefined");
+    if (response.errors === undefined) {
+        localStorage.setItem('currentUser', JSON.stringify(response.jwt));
+    }
+    else {
+        console.error(formatErrors(response.errors));
+        alert(formatErrors(response.errors))
+    }
+    return response;
 }
