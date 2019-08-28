@@ -7,4 +7,6 @@ class User < ApplicationRecord
   validates :password_digest, presence: true
   has_many :score
   has_many :level, through: :score
+  has_many :friend, foreign_key: :friend_id, class_name: 'UserFriend'
+  # has_many
 end
