@@ -51,7 +51,7 @@ export function fromLocalStorage(): string {
         console.log('No cached login creds.');
         return '';
     }
-    const parsed = JSON.parse(item);
+    const parsed = item;
     return parsed;
 }
 
@@ -61,15 +61,16 @@ export function clearLocalStorage(): void {
 }
 
 export interface LoginResponse {
-    username: string;
-    jwt: string;
+    username: string,
+    email: string,
+    jwt: string
 }
 
 export interface SignupResponse {
     jwt: string;
 }
 
-export async function login(username: string, password: string): Promise<void> {
+export async function login(username: string, password: string): Promise<LoginResponse | null> {
     const requestOptions: RequestInit = loginRequestOptions(username, password);
     const rawFetchResponse: Promise<Response> = fetch("/login", requestOptions);
     const jsonResponse: Promise<any> = (await rawFetchResponse).json();
@@ -81,15 +82,18 @@ export async function login(username: string, password: string): Promise<void> {
     console.assert(response !== "undefined");
     if (response.errors === undefined) {
         console.assert(response.jwt !== undefined);
-        localStorage.setItem('currentUser', JSON.stringify(response.jwt));
+        console.log("Successful response from server: ", response)
+        localStorage.setItem('currentUser', response.jwt);
+        return response
     }
     else {
         console.error(formatErrors(response.errors));
         alert(formatErrors(response.errors));
+        return null;
     }
 }
 
-export async function signup(username: string, email: string, password: string): Promise<void> {
+export async function signup(username: string, email: string, password: string): Promise<SignupResponse | null> {
     const requestOptions: RequestInit = signUpRequestOptions(username, email, password);
     const rawFetchResponse: Promise<Response> = fetch("/users", requestOptions);
     const jsonResponse: Promise<any> = (await rawFetchResponse).json();
@@ -99,11 +103,13 @@ export async function signup(username: string, email: string, password: string):
     console.assert(response !== undefined);
     console.assert(response !== "undefined");
     if (response.errors === undefined) {
-        localStorage.setItem('currentUser', JSON.stringify(response.jwt));
+        localStorage.setItem('currentUser', response.jwt);
+        return response;
     }
     else {
         console.error(formatErrors(response.errors));
         alert(formatErrors(response.errors))
+        return null
     }
     return response;
 }

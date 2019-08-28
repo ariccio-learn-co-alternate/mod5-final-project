@@ -63,7 +63,7 @@ class ApplicationController < ActionController::API
   def authorized
     if !(logged_in?)
       render json: {
-        errors: Errors::create_error("Please log in", :unauthorized.to_s),
+        errors: create_error("Please log in", :unauthorized.to_s),
         status: :unauthorized,
       }
     end

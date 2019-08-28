@@ -2,7 +2,7 @@ import React from 'react';
 import {Redirect, Link} from 'react-router-dom';
 import { connect } from 'react-redux';
 import {signupUser} from '../Actions';
-import {signup} from '../utils/Authentication';
+import {signup, SignupResponse} from '../utils/Authentication';
 
 
 interface SignupState {
@@ -41,13 +41,16 @@ class _Signup extends React.Component<SignupProps, SignupState> {
         e.preventDefault();
         console.log("signup state: ", this.state)
         try {
-            await signup(this.state.username, this.state.email, this.state.password);
+            const response: SignupResponse | null = await signup(this.state.username, this.state.email, this.state.password);
+            if (response === null) {
+                return;
+            }
+            console.log("signup props: ", this.props);
+            this.props.signupUser(this.state.username, this.state.email, response.jwt);
         }
         catch(err) {
             console.error(err);
         }
-        console.log("signup props: ", this.props);
-        this.props.signupUser(this.state.username, this.state.email, this.state.password);
 
     }
 

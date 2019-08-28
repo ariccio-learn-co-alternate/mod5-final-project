@@ -3,7 +3,7 @@ import {Redirect, Link} from 'react-router-dom';
 import { connect } from 'react-redux';
 // import {Dispatch} from 'redux'
 import {loginUser} from '../Actions';
-import {login} from '../utils/Authentication';
+import {login, LoginResponse} from '../utils/Authentication';
 
 interface LoginProps {
     currentUser: string,
@@ -31,12 +31,19 @@ class _Login extends React.Component<LoginProps, LoginState> {
     onSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await login(this.state.username, this.state.password);
+            const response: LoginResponse | null = await login(this.state.username, this.state.password);
+            if (response === null) {
+                this.setState({username: '', password: ''});
+                return;
+            }
+            this.props.loginUser(response.username, response.email, response.jwt)
+            // <Redirect to='/'/>
+            alert("TODO: redirect here. For now please refresh.")
+            
         }
         catch(err) {
             console.error(err);
         }
-        this.props.loginUser(this.state.username, this.state.password);
     
     } 
 
@@ -73,7 +80,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: any): any => {
     return {
-        loginUser: (username: string, password: string) => dispatch(loginUser(username, password))
+        loginUser: (username: string, email: string, jwt: string) => dispatch(loginUser(username, email, jwt))
     }
 }
 export const Login = connect(mapStateToProps, mapDispatchToProps)(_Login);

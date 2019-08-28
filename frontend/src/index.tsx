@@ -7,18 +7,22 @@ import {Provider} from 'react-redux';
 import { createReducer } from 'typesafe-actions';
 import {BrowserRouter} from 'react-router-dom';
 
-import App from './App';
+import {App} from './App';
 import {fromLocalStorage} from './utils/Authentication'
-import {LOGIN_ACTION, SIGNUP_ACTION} from './Actions';
+import {LOGIN_ACTION, SIGNUP_ACTION, SET_USERNAME_AND_EMAIL} from './Actions';
 
 
 // Should be a DeepReadonly?
 export interface AppState {
-    readonly currentUser: string;
+    readonly currentUser: string,
+    readonly username: string,
+    readonly email: string
 }
   
 const initialState: AppState = {
-    currentUser: fromLocalStorage()
+    currentUser: fromLocalStorage(),
+    username: '',
+    email: ''
 }
   
   
@@ -29,13 +33,24 @@ function reducer(state: AppState = initialState, action: any): any {
             console.log("login action");
             return {
                 ...state,
-                currentUser: action.user
+                currentUser: action.jwt,
+                username: action.username,
+                email: action.email
         }
         case SIGNUP_ACTION:
             console.log('signup action');
             return {
                 ...state,
-                currentUser: fromLocalStorage()
+                currentUser: action.jwt,
+                username: action.username,
+                email: action.email
+            }
+        case SET_USERNAME_AND_EMAIL:
+            console.log('setting username and email');
+            return {
+                ...state,
+                username: action.username,
+                email: action.email
             }
         default:
             console.log("default action: ", action);

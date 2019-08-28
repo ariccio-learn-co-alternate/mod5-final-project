@@ -14,7 +14,7 @@ class AuthController < ApplicationController
     if @user && @user.authenticate(user_login_params[:password])
       # encode token comes from ApplicationController
       token = encode_token({ user_id: @user.id })
-      render json: { username: @user.email, jwt: token }, status: :accepted
+      render json: { username: @user.email, email: @user.email, jwt: token }, status: :accepted
     else
       render json: {
         errors: create_error('Invalid username or password!', :not_acceptable.to_s)
