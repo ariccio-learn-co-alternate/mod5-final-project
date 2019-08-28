@@ -9,6 +9,8 @@ import {BrowserRouter} from 'react-router-dom';
 
 import App from './App';
 import {fromLocalStorage} from './utils/Authentication'
+import {LOGIN_ACTION, SIGNUP_ACTION} from './Actions';
+
 
 // Should be a DeepReadonly?
 export interface AppState {
@@ -23,12 +25,18 @@ const initialState: AppState = {
 function reducer(state: AppState = initialState, action: any): any {
     console.log(state);
     switch(action.type) {
-        case "LOGIN":
+        case LOGIN_ACTION:
             console.log("login action");
             return {
                 ...state,
                 currentUser: action.user
         }
+        case SIGNUP_ACTION:
+            console.log('signup action');
+            return {
+                ...state,
+                currentUser: fromLocalStorage()
+            }
         default:
             console.log("default action: ", action);
             return {...state};

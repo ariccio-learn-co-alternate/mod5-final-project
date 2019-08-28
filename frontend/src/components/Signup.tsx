@@ -19,7 +19,8 @@ const defaultsignupState: SignupState = {
 
 interface SignupProps {
     currentUser: string,
-    dispatch: any
+    dispatch: any,
+    signupUser: any
 }
 
 class _Signup extends React.Component<SignupProps, SignupState> {
@@ -46,7 +47,7 @@ class _Signup extends React.Component<SignupProps, SignupState> {
             console.error(err);
         }
         console.log("signup props: ", this.props);
-        this.props.dispatch(signupUser(this.state.username, this.state.email, this.state.password));
+        this.props.signupUser(this.state.username, this.state.email, this.state.password);
 
     }
 
