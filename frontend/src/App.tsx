@@ -56,12 +56,9 @@ class _App extends React.Component<AppProps, AppState> {
     console.log("currentUser at mount: ", this.props.currentUser);
   }
 
-  render () {
+  routes = () => {
     return (
       <>
-        <div className="App">
-            <NavBar/>
-        </div>
         <Route exact path='/login' component={Login}/>
         <Route exact path='/play' component={Play}/>
         <Route exact path='/scoreboard' render={notImpl}/>
@@ -70,6 +67,17 @@ class _App extends React.Component<AppProps, AppState> {
         <Route exact path='/logout' render={logoutRender}/>
         <Route exact path='/signup' component={Signup}/>
         <Route exact path='/' render={this.renderLoginOrHome}/>
+      </>
+    );
+  }
+
+  render () {
+    return (
+      <>
+        <div className="App">
+            <NavBar/>
+        </div>
+        {this.routes()}
       </>
     );
 
