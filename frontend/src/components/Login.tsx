@@ -7,7 +7,7 @@ import {login} from '../utils/Authentication';
 
 interface LoginProps {
     currentUser: string,
-    dispatch: any
+    loginUser: any
 }
 
 interface LoginState {
@@ -36,7 +36,7 @@ class _Login extends React.Component<LoginProps, LoginState> {
         catch(err) {
             console.error(err);
         }
-        this.props.dispatch(loginUser(this.state.username, this.state.password));
+        this.props.loginUser(this.state.username, this.state.password);
     
     } 
 

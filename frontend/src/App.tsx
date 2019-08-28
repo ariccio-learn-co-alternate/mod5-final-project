@@ -2,12 +2,15 @@ import React from 'react';
 import {Route, Redirect} from 'react-router-dom';
 import { connect } from 'react-redux';
 // import { switchStatement } from '@babel/types';
+import './App.css';
+
+import {clearLocalStorage} from './utils/Authentication';
+
 
 import {AppState} from './index'
 import {Login} from './components/Login';
 import {Signup} from './components/Signup';
-import './App.css';
-import {clearLocalStorage} from './utils/Authentication';
+import {Play} from './components/Play';
 import {NavBar} from './components/Nav'
 
 export interface AppProps {
@@ -48,7 +51,7 @@ export class App extends React.Component<AppProps, AppState> {
             <NavBar/>
         </div>
         <Route exact path='/login' component={Login}/>
-        <Route exact path='/play' render={notImpl}/>
+        <Route exact path='/play' component={Play}/>
         <Route exact path='/scoreboard' render={notImpl}/>
         <Route exact path='/discover' render={notImpl}/>
         <Route exact path='/profile' render={notImpl}/>
