@@ -16,45 +16,72 @@ const defaultPlayState = {
 }
 
 interface CanvasState {
-    // angle: number
+    angle: number
 }
 
 const defaultCanvasState: CanvasState = {
     angle: 0
 }
 
+const CANVAS_ID: string = "game-canvas-element-id";
+const gameCanvas: HTMLCanvasElement = document.createElement('canvas');
+gameCanvas.id = CANVAS_ID;
+
+function getCanvasCtx(): CanvasRenderingContext2D {
+    const canvas: HTMLCanvasElement = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
+    if (canvas === null) {
+        console.log("null canvas")
+        throw new Error;
+    }
+    const ctx = canvas.getContext("2d")
+    if (ctx === null) {
+        console.log("null context");
+        throw new Error;
+    }
+    return ctx
+}
+
+
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class Canvas extends React.Component<{}, CanvasState> {
     state = defaultCanvasState;
 
-    canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
+    // canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
+    canvasContainerRef: React.RefObject<HTMLDivElement> = React.createRef();
 
-    getCanvasCtx() {
-        const canvas = this.canvasRef.current;
-        if (canvas === null) {
-            console.log("null canvas")
-            return null;
-        }
-        const ctx = canvas.getContext("2d")
-        if (ctx === null) {
-            console.log("null context");
-            return null;
-        }
-        return ctx
-    }
+    // updateCanvas() {
+    //     const ctx = this.getCanvasCtx();
+    //     if (ctx === null) {
+    //         return;
+    //     }
+    //     ctx.rotate((Math.PI / 180) * this.state.angle);
+    //     console.log("angle: ", this.state.angle);
+    //     this.setState({angle: ((this.state.angle +1) % 360)});
+    //     this.forceUpdate();
+    //     requestAnimationFrame(this.updateCanvas.bind(this));
+    // }
     componentDidMount() {
-        const ctx = this.getCanvasCtx();
+        if (this.canvasContainerRef === null) {
+            return;
+        }
+        if (this.canvasContainerRef.current === null) {
+            return;
+        }
+        this.canvasContainerRef.current.appendChild(gameCanvas);
+
+        const ctx = getCanvasCtx();
         if (ctx === null) {
             return;
         }
         ctx.fillText("notimpl", 210, 75)
+        // requestAnimationFrame(this.updateCanvas.bind(this));
     }
     
       render() {
         return(
-          <>
-            <canvas ref={this.canvasRef} width={640} height={425} />
-          </>
+          <div id="game-canvas-container" ref={this.canvasContainerRef}>
+            
+          </div>
         )
       }
     
