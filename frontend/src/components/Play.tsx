@@ -73,7 +73,7 @@ class Canvas extends React.Component<{}, CanvasState> {
         if (ctx === null) {
             return;
         }
-        ctx.fillText("notimpl", 210, 75)
+        ctx.fillText("Not implemented yet.", 210, 75)
         // requestAnimationFrame(this.updateCanvas.bind(this));
     }
     

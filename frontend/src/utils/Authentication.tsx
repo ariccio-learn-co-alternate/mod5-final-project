@@ -48,7 +48,7 @@ export function signUpRequestOptions(username: string, email: string, password: 
 export function fromLocalStorage(): string {
     const item: string | null = localStorage.getItem('currentUser');
     if ((item === null) || (item === undefined) || (item === "undefined")) {
-        console.log('No cached login creds.');
+        console.log('No cached login credentials.');
         return '';
     }
     const parsed = item;

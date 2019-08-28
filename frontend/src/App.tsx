@@ -25,7 +25,7 @@ interface AppProps {
 }
 
 const notImpl = () => 
-  <h1>notimpl</h1>
+  <h1>Not implemented.</h1>
 
 
 const logoutRender = () => {
@@ -41,7 +41,7 @@ const renderLogin = () => {
 class _App extends React.Component<AppProps, AppState> {
   renderLoginOrHome = () => {
     if (this.props.currentUser === '') {
-      console.log("No cached creds");
+      console.log("No cached credentials");
       return renderLogin();
     }
     if ((this.props.username === '') || (this.props.email === '') ) {

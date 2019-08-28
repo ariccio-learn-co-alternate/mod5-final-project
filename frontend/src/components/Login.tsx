@@ -19,9 +19,10 @@ const defaultLoginState: LoginState = {
     username: '',
     password: ''
 }
+
 class _Login extends React.Component<LoginProps, LoginState> {
     state: LoginState = defaultLoginState;
-    unameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    usernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({username: event.target.value})
     }
     passwordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,21 +31,14 @@ class _Login extends React.Component<LoginProps, LoginState> {
 
     onSubmit = async (e : React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        try {
-            const response: LoginResponse | null = await login(this.state.username, this.state.password);
-            if (response === null) {
-                this.setState({username: '', password: ''});
-                return;
-            }
-            this.props.loginUser(response.username, response.email, response.jwt)
-            // <Redirect to='/'/>
-            alert("TODO: redirect here. For now please refresh.")
-            
+        const response: LoginResponse | null = await login(this.state.username, this.state.password);
+        if (response === null) {
+            this.setState({username: '', password: ''});
+            return;
         }
-        catch(err) {
-            console.error(err);
-        }
-    
+        this.props.loginUser(response.username, response.email, response.jwt)
+        // <Redirect to='/'/>
+        alert("TODO: redirect here. For now please refresh.")
     } 
 
     componentDidMount() {
@@ -59,7 +53,7 @@ class _Login extends React.Component<LoginProps, LoginState> {
         return (
             <>
                 <form onSubmit={ this.onSubmit}>
-                    <input name="username" type="text" placeholder="username" value={this.state.username} onChange={this.unameChange}/>
+                    <input name="username" type="text" placeholder="username" value={this.state.username} onChange={this.usernameChange}/>
                     <input name="password" type="password" value={this.state.password} onChange={this.passwordChange}/>
                     <button type="submit">Login</button>
                 </form>
