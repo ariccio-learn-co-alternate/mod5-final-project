@@ -20,11 +20,29 @@ const defaultLoginState: LoginState = {
     password: ''
 }
 
+
+const controlledInputElement = (
+    fieldName: string,
+    fieldType: string,
+    placeholderText: string | undefined,
+    value: string,
+    changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
+) =>
+    <input
+        name={fieldName}
+        type={fieldType}
+        placeholder={placeholderText}
+        value={value}
+        onChange={changeHandler}
+    />
+
+
 class _Login extends React.Component<LoginProps, LoginState> {
     state: LoginState = defaultLoginState;
     usernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({username: event.target.value})
     }
+
     passwordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({password: event.target.value})
     }
@@ -52,9 +70,21 @@ class _Login extends React.Component<LoginProps, LoginState> {
     render() {
         return (
             <>
-                <form onSubmit={ this.onSubmit}>
-                    <input name="username" type="text" placeholder="username" value={this.state.username} onChange={this.usernameChange}/>
-                    <input name="password" type="password" value={this.state.password} onChange={this.passwordChange}/>
+                <form onSubmit={this.onSubmit}>
+                    {controlledInputElement(
+                        "username",
+                        "text",
+                        "username",
+                        this.state.username,
+                        this.usernameChange
+                    )}
+                    {controlledInputElement(
+                        "password",
+                        "password",
+                        undefined,
+                        this.state.password,
+                        this.passwordChange
+                    )}
                     <button type="submit">Login</button>
                 </form>
 

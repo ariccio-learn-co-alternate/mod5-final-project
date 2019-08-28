@@ -1,5 +1,5 @@
 import React from 'react';
-import {Redirect, Link} from 'react-router-dom';
+import {Redirect} from 'react-router-dom';
 import { connect } from 'react-redux';
 import {signupUser} from '../Actions';
 import {signup, SignupResponse} from '../utils/Authentication';
@@ -29,6 +29,7 @@ class _Signup extends React.Component<SignupProps, SignupState> {
     usernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({username: event.target.value})
     }
+
     passwordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({password: event.target.value})
     }
@@ -40,18 +41,12 @@ class _Signup extends React.Component<SignupProps, SignupState> {
     onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("signup state: ", this.state)
-        try {
-            const response: SignupResponse | null = await signup(this.state.username, this.state.email, this.state.password);
-            if (response === null) {
-                return;
-            }
-            console.log("signup props: ", this.props);
-            this.props.signupUser(this.state.username, this.state.email, response.jwt);
+        const response: SignupResponse | null = await signup(this.state.username, this.state.email, this.state.password);
+        if (response === null) {
+            return;
         }
-        catch(err) {
-            console.error(err);
-        }
-
+        console.log("signup props: ", this.props);
+        this.props.signupUser(this.state.username, this.state.email, response.jwt);
     }
 
     componentDidMount() {
@@ -66,9 +61,26 @@ class _Signup extends React.Component<SignupProps, SignupState> {
         return (
             <>
                 <form onSubmit={ this.onSubmit}>
-                    <input name="username" type="text" placeholder="username" value={this.state.username} onChange={this.usernameChange}/>
-                    <input name="email" type="text" placeholder="example@example.com" value={this.state.email} onChange={this.emailChange}/>
-                    <input name="password" type="password" value={this.state.password} onChange={this.passwordChange}/>
+                    <input
+                        name="username"
+                        type="text"
+                        placeholder="username"
+                        value={this.state.username}
+                        onChange={this.usernameChange}
+                    />
+                    <input
+                        name="email"
+                        type="text"
+                        placeholder="example@example.com"
+                        value={this.state.email}
+                        onChange={this.emailChange}
+                    />
+                    <input
+                        name="password"
+                        type="password"
+                        value={this.state.password}
+                        onChange={this.passwordChange}
+                    />
                     <button type="submit">Login</button>
                 </form>
 

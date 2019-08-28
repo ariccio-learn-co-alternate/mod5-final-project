@@ -9,30 +9,22 @@ type NavBarProps = {
 
 const UserNav: FunctionComponent<{}> = () => 
     <>
-        <li><Link to='/play'>Play</Link></li>
-        <li><Link to='/scoreboard'>Scoreboard</Link></li>
-        <li><Link to='/discover'>Discover</Link></li>
-        <li><Link to='/profile'>Profile</Link></li>
-        <li><Link to='/logout'>Logout</Link></li>
+        <nav>
+            <ul>
+                <li><Link to='/play'>Play</Link></li>
+                <li><Link to='/scoreboard'>Scoreboard</Link></li>
+                <li><Link to='/discover'>Discover</Link></li>
+                <li><Link to='/profile'>Profile</Link></li>
+                <li><Link to='/logout'>Logout</Link></li>
+            </ul>
+        </nav>
     </>
 
 const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
     if (props.currentUser === '') {
         return <Redirect to='/'/>;
     }
-    return (
-        <>
-            <nav>
-                <ul>
-                    <li><Link to='/play'>Play</Link></li>
-                    <li><Link to='/scoreboard'>Scoreboard</Link></li>
-                    <li><Link to='/discover'>Discover</Link></li>
-                    <li><Link to='/profile'>Profile</Link></li>
-                    <li><Link to='/logout'>Logout</Link></li>
-                </ul>
-            </nav>
-        </>
-    );
+    return <UserNav/>;
 
 }
 

@@ -86,11 +86,9 @@ export async function login(username: string, password: string): Promise<LoginRe
         localStorage.setItem('currentUser', response.jwt);
         return response
     }
-    else {
-        console.error(formatErrors(response.errors));
-        alert(formatErrors(response.errors));
-        return null;
-    }
+    console.error(formatErrors(response.errors));
+    alert(formatErrors(response.errors));
+    return null;
 }
 
 export async function signup(username: string, email: string, password: string): Promise<SignupResponse | null> {
@@ -106,10 +104,7 @@ export async function signup(username: string, email: string, password: string):
         localStorage.setItem('currentUser', response.jwt);
         return response;
     }
-    else {
-        console.error(formatErrors(response.errors));
-        alert(formatErrors(response.errors))
-        return null
-    }
-    return response;
+    console.error(formatErrors(response.errors));
+    alert(formatErrors(response.errors))
+    return null
 }

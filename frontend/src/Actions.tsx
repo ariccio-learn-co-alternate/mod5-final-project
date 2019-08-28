@@ -11,7 +11,6 @@ export function loginUser(username: string, email: string, jwt: string): object 
     }
 }
 
-
 export function signupUser(username: string, email: string, jwt: string): object {
     return {
         type: SIGNUP_ACTION,
@@ -20,7 +19,6 @@ export function signupUser(username: string, email: string, jwt: string): object
         jwt: jwt
     }
 }
-
 
 export function setUsernameAndEmail(username: string, email: string): object {
     return {

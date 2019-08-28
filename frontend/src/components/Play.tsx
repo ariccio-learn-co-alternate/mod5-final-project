@@ -1,5 +1,4 @@
 import React from 'react';
-import {Redirect, Link} from 'react-router-dom';
 import { connect } from 'react-redux';
 
 
@@ -11,9 +10,9 @@ interface PlayProps {
     currentUser: string
 }
 
-const defaultPlayState = {
-    currentUser: ''
-}
+// const defaultPlayState = {
+//     currentUser: ''
+// }
 
 interface CanvasState {
     angle: number
@@ -31,12 +30,12 @@ function getCanvasCtx(): CanvasRenderingContext2D {
     const canvas: HTMLCanvasElement = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
     if (canvas === null) {
         console.log("null canvas")
-        throw new Error;
+        throw new Error();
     }
     const ctx = canvas.getContext("2d")
     if (ctx === null) {
         console.log("null context");
-        throw new Error;
+        throw new Error();
     }
     return ctx
 }

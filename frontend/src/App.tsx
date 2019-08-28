@@ -14,7 +14,7 @@ import {Play} from './components/Play';
 import {NavBar} from './components/Nav'
 import {Profile} from './components/Profile'
 
-import {setUsernameAndEmail, SET_USERNAME_AND_EMAIL} from './Actions'
+import {setUsernameAndEmail} from './Actions'
 
 interface AppProps {
   // Nothing yet
