@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 // import { switchStatement } from '@babel/types';
 import './App.css';
 
-import {clearLocalStorage} from './utils/Authentication';
 import {queryUserInfo} from './utils/QueryUserInfo'
 
 import {AppState} from './index'
@@ -15,31 +14,35 @@ import {NavBar} from './components/Nav'
 import {Profile} from './components/Profile'
 import {Scoreboard} from './components/Scoreboard'
 
-import {setUsernameAndEmail} from './Actions'
+import {setUsernameAndEmail, logoutUser} from './Actions'
 
 interface AppProps {
   // Nothing yet
   currentUser: string,
   username: string,
   email: string,
-  setUsernameAndEmail: any
+  setUsernameAndEmail: any,
+  logoutUser: any
 }
 
 const notImpl = () => 
   <h1>Not implemented.</h1>
 
 
-const logoutRender = () => {
-  clearLocalStorage();
-  return (
-    renderLogin()
-  );
-}
 
 const renderLogin = () => {
   return( <><Redirect to='/login'/></>);
 }
 class _App extends React.Component<AppProps, AppState> {
+
+  logoutRender = () => {
+    this.props.logoutUser();
+    return (
+      renderLogin()
+    );
+  }
+  
+
   renderLoginOrHome = () => {
     if (this.props.currentUser === '') {
       console.log("No cached credentials");
@@ -65,7 +68,7 @@ class _App extends React.Component<AppProps, AppState> {
         <Route exact path='/scoreboard' component={Scoreboard}/>
         <Route exact path='/discover' render={notImpl}/>
         <Route exact path='/profile' component={Profile}/>
-        <Route exact path='/logout' render={logoutRender}/>
+        <Route exact path='/logout' render={this.logoutRender}/>
         <Route exact path='/signup' component={Signup}/>
         <Route exact path='/' render={this.renderLoginOrHome}/>
       </>
@@ -107,4 +110,4 @@ const mapStateToProps = (state: any) => {
 // }
 // Bizarrely this works instead of mapDispatchToProps
 // Thanks to: https://stackoverflow.com/questions/53994860/mapdispatchtoprops-causes-typescript-error-in-parent-component-expecting-action
-export const App = connect(mapStateToProps, {setUsernameAndEmail})(_App);
+export const App = connect(mapStateToProps, {setUsernameAndEmail, logoutUser})(_App);

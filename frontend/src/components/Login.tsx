@@ -20,7 +20,6 @@ const defaultLoginState: LoginState = {
     password: ''
 }
 
-
 const controlledInputElement = (
     fieldName: string,
     fieldType: string,
@@ -96,7 +95,7 @@ class _Login extends React.Component<LoginProps, LoginState> {
 
 // Don't know the types yet.
 const mapStateToProps = (state: any): any => {
-    console.log(state)
+    // console.log(state)
     return {
       currentUser: state.currentUser
     }

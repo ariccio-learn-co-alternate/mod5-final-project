@@ -27,7 +27,7 @@ type NavBarProps = {
 const UserNav: FunctionComponent<{}> = () =>
     <Navbar bg="dark" variant="dark">
         <Navbar.Collapse>
-            <Nav>
+            <Nav variant="tabs" >
                 <LinkContainer to='/play'><NavItem>Play</NavItem></LinkContainer>
                 <LinkContainer to='/scoreboard'><NavItem>Scoreboard</NavItem></LinkContainer>
                 <LinkContainer to='/discover'><NavItem>Discover</NavItem></LinkContainer>

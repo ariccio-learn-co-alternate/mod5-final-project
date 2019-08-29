@@ -1,6 +1,6 @@
 import {AppState} from '../index'
-import {fromLocalStorage} from '../utils/Authentication'
-import {LOGIN_ACTION, SIGNUP_ACTION, SET_USERNAME_AND_EMAIL} from '../Actions';
+import {fromLocalStorage, clearLocalStorage} from '../utils/Authentication'
+import {LOGIN_ACTION, SIGNUP_ACTION, SET_USERNAME_AND_EMAIL, LOGOUT_ACTION} from '../Actions';
 
 const initialState: AppState = {
     currentUser: fromLocalStorage(),
@@ -33,6 +33,15 @@ export function reducer(state: AppState = initialState, action: any): any {
                 ...state,
                 username: action.username,
                 email: action.email
+            }
+        case LOGOUT_ACTION:
+            console.log('clearing stored state...');
+            clearLocalStorage();
+            return {
+                ...state,
+                username: action.username,
+                email: action.email,
+                currentUser: action.currentUser
             }
         default:
             console.log("default action: ", action);
