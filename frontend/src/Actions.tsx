@@ -1,6 +1,8 @@
 export const LOGIN_ACTION = 'LOGIN';
 export const SET_USERNAME_AND_EMAIL = 'SET_USERNAME_AND_EMAIL';
 export const SIGNUP_ACTION = 'SIGNUP';
+// export const GET_USER_INFO = 'GET_USER_INFO';
+
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -27,3 +29,5 @@ export function setUsernameAndEmail(username: string, email: string): object {
         email: email
     }
 }
+
+// export function getUserInfo()

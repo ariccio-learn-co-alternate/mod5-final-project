@@ -1,24 +1,26 @@
 # frozen_string_literal: true
+
 require_relative '../utils/errors.rb'
 
 # I am literally pulling this whole file from my mod 4 project.
 
 KEY_PATH = Rails.root.join('config', 'keys', 'private_key.key')
 def encode_with_jwt(payload)
-  key = IO.binread(KEY_PATH);
-  if (key == nil) || (key.empty?)
+  key = IO.binread(KEY_PATH)
+  if key.nil? || key.empty?
     raise StandardError
   end
+
   JWT.encode(payload, key)
 end
 
 def decode_with_jwt(payload)
-  key = IO.binread(KEY_PATH);
-  if (key == nil) || (key.empty?)
+  key = IO.binread(KEY_PATH)
+  if key.nil? || key.empty?
     puts "Check your key file in #{KEY_PATH}"
     raise StandardError
   end
-  JWT.decode(payload, key, true, algorithm: "HS256")
+  JWT.decode(payload, key, true, algorithm: 'HS256')
 end
 
 class ApplicationController < ActionController::API
@@ -33,13 +35,12 @@ class ApplicationController < ActionController::API
 
   def auth_header
     # { Authorization: 'Bearer <token>' }
-    request.headers["Authorization"]
+    request.headers['Authorization']
   end
 
   def decoded_token
     if auth_header
-      # byebug
-      token = auth_header.split(" ")[1]
+      token = auth_header.split(' ')[1]
       # header: { 'Authorization': 'Bearer <token>' }
       begin
         decode_with_jwt(token)
@@ -51,7 +52,7 @@ class ApplicationController < ActionController::API
 
   def current_user
     if decoded_token
-      user_id = decoded_token[0]["user_id"]
+      user_id = decoded_token[0]['user_id']
       @user = User.find_by(id: user_id)
     end
   end
@@ -63,8 +64,8 @@ class ApplicationController < ActionController::API
   def authorized
     if !(logged_in?)
       render json: {
-        errors: create_error("Please log in", :unauthorized.to_s),
-        status: :unauthorized,
+        errors: create_error('Please log in', :unauthorized.to_s),
+        status: :unauthorized
       }
     end
   end

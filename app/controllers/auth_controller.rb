@@ -10,20 +10,27 @@ class AuthController < ApplicationController
 
   def create
     @user = User.find_by(email: user_login_params[:username])
-    #User#authenticate comes from BCrypt
+    # User#authenticate comes from BCrypt
     if @user && @user.authenticate(user_login_params[:password])
       # encode token comes from ApplicationController
-      token = encode_token({ user_id: @user.id })
-      render json: { username: @user.email, email: @user.email, jwt: token }, status: :accepted
+      token = encode_token(user_id: @user.id)
+      render json:
+        {
+          username: @user.email,
+          email: @user.email,
+          jwt: token
+        },
+        status: :accepted
     else
       render json: {
-        errors: create_error('Invalid username or password!', :not_acceptable.to_s)
+        errors:
+          create_error('Invalid username or password!', :not_acceptable.to_s)
       }, status: :unauthorized
     end
   end
- 
+
   private
- 
+
   def user_login_params
     # params { user: {username: 'Chandler Bing', password: 'hi' } }
     params.require(:user).permit(:username, :password)

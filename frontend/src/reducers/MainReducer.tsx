@@ -9,7 +9,7 @@ const initialState: AppState = {
 }
 
 export function reducer(state: AppState = initialState, action: any): any {
-    console.log(state);
+    // console.log(state);
     switch(action.type) {
         case LOGIN_ACTION:
             console.log("login action");

@@ -25,6 +25,7 @@ function scoreboardOptions(jwt: string): RequestInit {
 
 type score = {
     user: string,
+    user_id: string,
     score: string,
     level: string
 }
@@ -41,6 +42,7 @@ const initScoreboardState: ScoreboardState = {
  
     response: [{
         user: '',
+        user_id: '',
         score: '',
         level: ''
     }]
@@ -67,12 +69,12 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
         // debugger;
         // return itemsRender(response);
         // debugger;
-        console.log(this.state.response);
+        // console.log(this.state.response);
         return (
             <p>{
                 this.state.response.map(score => {
                     return (
-                        <p>
+                        <p key={`scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`}>
                             {score.user},
                             {score.score},
                             {score.level}
