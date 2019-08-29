@@ -13,6 +13,7 @@ import {Signup} from './components/Signup';
 import {Play} from './components/Play';
 import {NavBar} from './components/Nav'
 import {Profile} from './components/Profile'
+import {Scoreboard} from './components/Scoreboard'
 
 import {setUsernameAndEmail} from './Actions'
 
@@ -61,7 +62,7 @@ class _App extends React.Component<AppProps, AppState> {
       <>
         <Route exact path='/login' component={Login}/>
         <Route exact path='/play' component={Play}/>
-        <Route exact path='/scoreboard' render={notImpl}/>
+        <Route exact path='/scoreboard' component={Scoreboard}/>
         <Route exact path='/discover' render={notImpl}/>
         <Route exact path='/profile' component={Profile}/>
         <Route exact path='/logout' render={logoutRender}/>
