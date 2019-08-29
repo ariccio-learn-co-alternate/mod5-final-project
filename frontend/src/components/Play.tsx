@@ -15,16 +15,27 @@ interface PlayProps {
 // }
 
 interface CanvasState {
-    angle: number
+    // angle: number,
+    // ctx: CanvasRenderingContext2D | null
 }
 
 const defaultCanvasState: CanvasState = {
-    angle: 0
+    // angle: 0,
+    // ctx: null
 }
 
+// function randomChoice()
+
+const CANVAS_CONTAINER: string = "game-canvas-container";
 const CANVAS_ID: string = "game-canvas-element-id";
+const container: HTMLDivElement = document.getElementById(CANVAS_CONTAINER) as HTMLDivElement;
 const gameCanvas: HTMLCanvasElement = document.createElement('canvas');
 gameCanvas.id = CANVAS_ID;
+// gameCanvas.style.border = '100px';
+// gameCanvas.style.borderColor = 'black';
+gameCanvas.width = 400;
+gameCanvas.height = 400;
+container.appendChild(gameCanvas);
 
 function getCanvasCtx(): CanvasRenderingContext2D {
     const canvas: HTMLCanvasElement = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
@@ -44,7 +55,9 @@ function getCanvasCtx(): CanvasRenderingContext2D {
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class Canvas extends React.Component<{}, CanvasState> {
     state = defaultCanvasState;
-
+    ctx = getCanvasCtx();
+    angle = 45;
+    timer: any;
     // canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
     canvasContainerRef: React.RefObject<HTMLDivElement> = React.createRef();
 
@@ -59,21 +72,38 @@ class Canvas extends React.Component<{}, CanvasState> {
     //     this.forceUpdate();
     //     requestAnimationFrame(this.updateCanvas.bind(this));
     // }
-    componentDidMount() {
-        if (this.canvasContainerRef === null) {
-            return;
-        }
-        if (this.canvasContainerRef.current === null) {
-            return;
-        }
-        this.canvasContainerRef.current.appendChild(gameCanvas);
 
-        const ctx = getCanvasCtx();
-        if (ctx === null) {
+    step() {
+        const angleRotate = this.angle * Math.PI / 180;
+        // console.log("Rotate by: ", angleRotate);
+        // console.log("angle: ", this.angle)
+        this.ctx.clearRect(0,0, 400, 400);
+        this.ctx.translate(200, 200);
+        this.ctx.rotate(angleRotate);
+        this.ctx.fillText("Not implemented yet.", 200, 200)
+        this.angle = ((this.angle + 1) % 360);
+    }
+    componentDidMount() {
+        // if (this.canvasContainerRef === null) {
+        //     return;
+        // }
+        // if (this.canvasContainerRef.current === null) {
+        //     return;
+        // }
+        // this.canvasContainerRef.current.appendChild(gameCanvas);
+
+        // const ctx = getCanvasCtx();
+        if (this.ctx === null) {
             return;
         }
-        ctx.fillText("Not implemented yet.", 210, 75)
+        this.ctx.fillText("Not implemented yet.", 200, 200)
         // requestAnimationFrame(this.updateCanvas.bind(this));
+        // this.setState({ctx})
+        this.timer = setInterval(this.step.bind(this), 100);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timer)
     }
     
       render() {
