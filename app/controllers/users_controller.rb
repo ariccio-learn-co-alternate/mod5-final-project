@@ -29,7 +29,9 @@ class UsersController < ApplicationController
 
   def search
     # byebug
-    users = User.where(username: user_search_params[:username]);
+    users = User.where(username: user_search_params[:username]).where.not(id: current_user.id);
+    # users.filter!
+    # byebug
     if users == nil
       render json: {
         users: []
@@ -39,7 +41,8 @@ class UsersController < ApplicationController
     render json: {
       users: users.each.map do |user|
         {
-          user: user.username
+          user: user.username,
+          user_id: user.id
         }
       end
     }

@@ -1,7 +1,8 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormControl, {FormControlProps} from 'react-bootstrap/FormControl';
-import Table from 'react-bootstrap/Table'
+import Button, {ButtonProps} from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
 import { connect } from 'react-redux';
 
 import {formatErrors} from '../utils/ErrorObject';
@@ -21,7 +22,7 @@ interface DiscoverProps {
     currentUser: string
 }
 
-function searchOptions(jwt: string, searchParam: any): RequestInit {
+function searchOptions(jwt: string, searchParam: string): RequestInit {
     const bodyData = {
         'user' : {username: searchParam}
     }
@@ -36,27 +37,22 @@ function searchOptions(jwt: string, searchParam: any): RequestInit {
     return requestOptions;
 }
 
-
-const tableHeader = () => 
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>username</th>
-        </tr>
-    </thead>
-
 function rowKey(user: any): string {
     return `discover-entry-key-user-${user.user}`;
 }
-function tableRow(user: any, index: number) {
-    console.log(user);
+
+const tableHeader = () => {
     return (
-        <tr key={rowKey(user)}>
-            <td>{index}</td>
-            <td>{user.user}</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>username</th>
+                <th>Add friend</th>
+            </tr>
+        </thead>
     );
 }
+
 
 
 class _Discover extends React.Component<DiscoverProps, DiscoverState> {
@@ -77,7 +73,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
             alert(formatErrors(response.errors));
             return;
         }
-        debugger;
+        // debugger;
         this.setState({users: response.users})
     }
 
@@ -88,12 +84,55 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
                     <Form.Label>
                         Search for user by username:
                     </Form.Label>
-                    <Form.Control type="text" value={this.state.usernameField} onChange={this.usernameFieldChange}/>
+                    <Form.Control
+                        type="text"
+                        value={this.state.usernameField}
+                        onChange={this.usernameFieldChange}
+                    />
                 </Form.Group>
             </Form>
         );
     }
 
+    addFriendClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
+        console.log(user_id);
+        debugger;
+    }
+
+    tableAddFriendButton(user: any) {
+        return (
+            <td>
+                <Button
+                    variant="primary"
+                    onClick={
+                        (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => this.addFriendClick(e, user.user_id)
+                    }
+                >
+                    Add Friend
+                </Button>
+            </td>
+        );
+
+    }
+    tableRow = (user: any, index: number) => {
+        console.log(user);
+        return (
+            <tr key={rowKey(user)}>
+                <td>{index}</td>
+                <td>{user.user}</td>
+                {this.tableAddFriendButton(user)}
+            </tr>
+        );
+    }
+    
+
+    tableBody() {
+        return (
+            <tbody>
+                {this.state.users.map((user: any, index: number) => {return this.tableRow(user, index)})}
+            </tbody>
+        );
+    }
     table() {
         if (this.state.users === null) {
             return null;
@@ -102,10 +141,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
             <>
                 <Table striped bordered hover>
                     {tableHeader()}
-                    <tbody>
-                        {/* {this.state.responseTopTen.map((score, index) => {return tableRow(score, index)})} */}
-                        {this.state.users.map((user: any, index: number) => {return tableRow(user, index)})}
-                    </tbody>
+                    {this.tableBody()}
                 </Table>
             </>
         );
