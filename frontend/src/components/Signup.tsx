@@ -57,30 +57,39 @@ class _Signup extends React.Component<SignupProps, SignupState> {
         }
     }
 
+    usernameInput = () =>
+        <input
+            name="username"
+            type="text"
+            placeholder="username"
+            value={this.state.username}
+            onChange={this.usernameChange}
+        />
+
+    emailInput = () =>
+        <input
+            name="email"
+            type="text"
+            placeholder="example@example.com"
+            value={this.state.email}
+            onChange={this.emailChange}
+        />
+
+    passwordInput = () =>
+        <input
+            name="password"
+            type="password"
+            value={this.state.password}
+            onChange={this.passwordChange}
+        />
+
     render() {
         return (
             <>
-                <form onSubmit={ this.onSubmit}>
-                    <input
-                        name="username"
-                        type="text"
-                        placeholder="username"
-                        value={this.state.username}
-                        onChange={this.usernameChange}
-                    />
-                    <input
-                        name="email"
-                        type="text"
-                        placeholder="example@example.com"
-                        value={this.state.email}
-                        onChange={this.emailChange}
-                    />
-                    <input
-                        name="password"
-                        type="password"
-                        value={this.state.password}
-                        onChange={this.passwordChange}
-                    />
+                <form onSubmit={this.onSubmit}>
+                    {this.usernameInput()}
+                    {this.emailInput()}
+                    {this.passwordInput()}
                     <button type="submit">Login</button>
                 </form>
 

@@ -1,31 +1,14 @@
 import React, {FunctionComponent} from 'react';
 import { connect } from 'react-redux';
 import {Redirect} from 'react-router-dom';
+import NavItem from 'react-bootstrap/NavItem';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
-import NavItem from 'react-bootstrap/NavItem';
 import { LinkContainer } from 'react-router-bootstrap';
-
 
 type NavBarProps = {
     currentUser: string
 }
-
-
-// const UserNav: FunctionComponent<{}> = () => 
-//     <>
-//         <nav>
-//             <ul>
-//                 <li><Link to='/play'>Play</Link></li>
-//                 <li><Link to='/scoreboard'>Scoreboard</Link></li>
-//                 <li><Link to='/discover'>Discover</Link></li>
-//                 <li><Link to='/profile'>Profile</Link></li>
-//                 <li><Link to='/logout'>Logout</Link></li>
-//             </ul>
-//         </nav>
-//     </>
-
-
 const UserNav: FunctionComponent<{}> = () =>
     <Navbar bg="light" variant="dark" expand="lg">
         <Navbar.Collapse>
@@ -44,7 +27,6 @@ const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
         return <Redirect to='/'/>;
     }
     return <UserNav/>;
-
 }
 
 const mapStateToProps = (state: any) => {

@@ -5,7 +5,5 @@ export interface ErrorObjectType {
 
 export function formatErrors(errorObject: ErrorObjectType): string {
     console.log("errors: ", errorObject);
-
-    debugger;
     return `error code: '${errorObject.error}', message: '${errorObject.message}'`
 }

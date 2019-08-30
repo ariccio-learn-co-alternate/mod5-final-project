@@ -10,19 +10,10 @@ function scoreboardOptions(jwt: string): RequestInit {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwt}`
-
         },
     }
     return requestOptions;
 }
-
-// function itemsRender (items: Array<any>) {
-//     return (
-//         <>
-//             {items.map((item: any) => <p>{item}</p>)}
-//         </>
-//     );
-// }
 
 type score = {
     user: string,
@@ -40,7 +31,6 @@ interface ScoreboardProps {
 }
 
 const initScoreboardState: ScoreboardState = {
- 
     response: [{
         user: '',
         user_id: '',
@@ -59,9 +49,12 @@ const tableHeader = () =>
         </tr>
     </thead>
 
+function rowKey(score: any): string {
+    return `scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`;
+}
 function tableRow(score: any, index: number) {
     return (
-        <tr key={`scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`}>
+        <tr key={rowKey(score)}>
             <td>{index}</td>
             <td>{score.user}</td>
             <td>{score.score}</td>
@@ -69,7 +62,6 @@ function tableRow(score: any, index: number) {
         </tr>
     );
 }
-
 
 class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
     state = initScoreboardState
@@ -82,10 +74,8 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
             alert(formatErrors(response.errors));
             return;
         }
-        // debugger;
         this.setState({response: response.scores});
     }
-
 
     table() {
         return (
@@ -97,9 +87,7 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
                     </tbody>
                 </Table>
             </>
-
         );
-
     }
 
     render() {
@@ -114,6 +102,5 @@ const mapStateToProps = (state: any) => {
       currentUser: state.currentUser,
     }
   }
-  
 
 export const Scoreboard = connect(mapStateToProps, {})(_Scoreboard);

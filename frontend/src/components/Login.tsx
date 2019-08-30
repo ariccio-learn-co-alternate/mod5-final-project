@@ -20,21 +20,6 @@ const defaultLoginState: LoginState = {
     password: ''
 }
 
-const controlledInputElement = (
-    fieldName: string,
-    fieldType: string,
-    placeholderText: string | undefined,
-    value: string,
-    changeHandler: (event: React.ChangeEvent<HTMLInputElement>) => void
-) =>
-    <input
-        name={fieldName}
-        type={fieldType}
-        placeholder={placeholderText}
-        value={value}
-        onChange={changeHandler}
-    />
-
 
 class _Login extends React.Component<LoginProps, LoginState> {
     state: LoginState = defaultLoginState;
@@ -66,27 +51,31 @@ class _Login extends React.Component<LoginProps, LoginState> {
         }
     }
 
+    inputField = () =>
+        <input
+            name="username"
+            type="text"
+            placeholder="username"
+            value={this.state.username}
+            onChange={this.usernameChange}
+        />
+
+    passwordField = () => 
+        <input
+            name="password"
+            type="password"
+            value={this.state.password}
+            onChange={this.passwordChange}
+        />
+
     render() {
         return (
             <>
                 <form onSubmit={this.onSubmit}>
-                    {controlledInputElement(
-                        "username",
-                        "text",
-                        "username",
-                        this.state.username,
-                        this.usernameChange
-                    )}
-                    {controlledInputElement(
-                        "password",
-                        "password",
-                        undefined,
-                        this.state.password,
-                        this.passwordChange
-                    )}
+                    {this.inputField()}
+                    {this.passwordField()}
                     <button type="submit">Login</button>
                 </form>
-
                 <Link to='/signup'>Sign up</Link>
             </>
         )
