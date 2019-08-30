@@ -31,10 +31,15 @@ const CANVAS_ID: string = "game-canvas-element-id";
 const container: HTMLDivElement = document.getElementById(CANVAS_CONTAINER) as HTMLDivElement;
 const gameCanvas: HTMLCanvasElement = document.createElement('canvas');
 gameCanvas.id = CANVAS_ID;
+
+
+// WHY U NO WORK
 // gameCanvas.style.border = '100px';
 // gameCanvas.style.borderColor = 'black';
+
 gameCanvas.width = 400;
 gameCanvas.height = 400;
+gameCanvas.hidden = false;
 container.appendChild(gameCanvas);
 
 function getCanvasCtx(): CanvasRenderingContext2D {
@@ -56,7 +61,9 @@ function getCanvasCtx(): CanvasRenderingContext2D {
 class Canvas extends React.Component<{}, CanvasState> {
     state = defaultCanvasState;
     ctx = getCanvasCtx();
-    angle = 45;
+    // angle = 45;
+    x = 0;
+    y = 0;
     timer: any;
     // canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
     canvasContainerRef: React.RefObject<HTMLDivElement> = React.createRef();
@@ -74,14 +81,18 @@ class Canvas extends React.Component<{}, CanvasState> {
     // }
 
     step() {
-        const angleRotate = this.angle * Math.PI / 180;
+        // const angleRotate = this.angle * Math.PI / 180;
         // console.log("Rotate by: ", angleRotate);
         // console.log("angle: ", this.angle)
         this.ctx.clearRect(0,0, 400, 400);
-        this.ctx.translate(200, 200);
-        this.ctx.rotate(angleRotate);
-        this.ctx.fillText("Not implemented yet.", 200, 200)
-        this.angle = ((this.angle + 1) % 360);
+        // this.ctx.translate(200, 200);
+        // this.ctx.rotate(angleRotate);
+        console.assert(gameCanvas.width === 400);
+        this.ctx.fillText("Not implemented yet.", this.x, this.y)
+        this.ctx.fillText(".tey detnemelpmi toN", (-this.x)+gameCanvas.width, (-this.y)+gameCanvas.height)
+        this.x = ((this.x + 1) % 400);
+        this.y = ((this.y + 2) % 400);
+        
     }
     componentDidMount() {
         // if (this.canvasContainerRef === null) {
@@ -99,11 +110,13 @@ class Canvas extends React.Component<{}, CanvasState> {
         this.ctx.fillText("Not implemented yet.", 200, 200)
         // requestAnimationFrame(this.updateCanvas.bind(this));
         // this.setState({ctx})
-        this.timer = setInterval(this.step.bind(this), 100);
+        this.timer = setInterval(this.step.bind(this), 10);
+        gameCanvas.hidden = false;
     }
 
     componentWillUnmount() {
         clearInterval(this.timer)
+        gameCanvas.hidden = true;
     }
     
       render() {

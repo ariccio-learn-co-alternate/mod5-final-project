@@ -1,4 +1,5 @@
 import React from 'react'
+import Table from 'react-bootstrap/Table'
 import { connect } from 'react-redux';
 
 import {formatErrors} from '../utils/ErrorObject';
@@ -48,6 +49,27 @@ const initScoreboardState: ScoreboardState = {
     }]
 }
 
+const tableHeader = () => 
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>username</th>
+            <th>score</th>
+            <th>level</th>
+        </tr>
+    </thead>
+
+function tableRow(score: any, index: number) {
+    return (
+        <tr key={`scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`}>
+            <td>{index}</td>
+            <td>{score.user}</td>
+            <td>{score.score}</td>
+            <td>{score.level}</td>
+        </tr>
+    );
+}
+
 
 class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
     state = initScoreboardState
@@ -64,24 +86,25 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
         this.setState({response: response.scores});
     }
 
-    render() {
 
-        // debugger;
-        // return itemsRender(response);
-        // debugger;
-        // console.log(this.state.response);
+    table() {
         return (
-            <p>{
-                this.state.response.map(score => {
-                    return (
-                        <p key={`scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`}>
-                            {score.user},
-                            {score.score},
-                            {score.level}
-                        </p>
-                    );
-                })
-            }</p>
+            <>
+                <Table striped bordered hover>
+                    {tableHeader()}
+                    <tbody>
+                        {this.state.response.map((score, index) => {return tableRow(score, index)})}
+                    </tbody>
+                </Table>
+            </>
+
+        );
+
+    }
+
+    render() {
+        return (
+            <>{this.table()}</>
         );
     }
 }

@@ -1,7 +1,9 @@
 import React, {FunctionComponent} from 'react';
 import { connect } from 'react-redux';
 import {Redirect} from 'react-router-dom';
-import {Navbar, Nav, NavItem} from 'react-bootstrap';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import NavItem from 'react-bootstrap/NavItem';
 import { LinkContainer } from 'react-router-bootstrap';
 
 
@@ -25,13 +27,13 @@ type NavBarProps = {
 
 
 const UserNav: FunctionComponent<{}> = () =>
-    <Navbar bg="dark" variant="dark">
+    <Navbar bg="light" variant="dark" expand="lg">
         <Navbar.Collapse>
             <Nav variant="tabs" >
-                <LinkContainer to='/play'><NavItem>Play</NavItem></LinkContainer>
-                <LinkContainer to='/scoreboard'><NavItem>Scoreboard</NavItem></LinkContainer>
-                <LinkContainer to='/discover'><NavItem>Discover</NavItem></LinkContainer>
-                <LinkContainer to='/profile'><NavItem>Profile</NavItem></LinkContainer>
+                <LinkContainer to='/play'><NavItem>Play </NavItem></LinkContainer>
+                <LinkContainer to='/scoreboard'><NavItem>Scoreboard </NavItem></LinkContainer>
+                <LinkContainer to='/discover'><NavItem>Discover </NavItem></LinkContainer>
+                <LinkContainer to='/profile'><NavItem>Profile </NavItem></LinkContainer>
                 <LinkContainer to='/logout'><NavItem>Logout</NavItem></LinkContainer>
             </Nav>
         </Navbar.Collapse>
