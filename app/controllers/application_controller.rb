@@ -2,9 +2,8 @@
 
 require_relative '../utils/errors.rb'
 
-# I am literally pulling this whole file from my mod 4 project.
-
 KEY_PATH = Rails.root.join('config', 'keys', 'private_key.key')
+
 def encode_with_jwt(payload)
   key = IO.binread(KEY_PATH)
   if key.nil? || key.empty?

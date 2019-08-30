@@ -27,7 +27,31 @@ class UsersController < ApplicationController
     }, status: :unauthorized
   end
 
+  def search
+    # byebug
+    users = User.where(username: user_search_params[:username]);
+    if users == nil
+      render json: {
+        users: []
+      }, status: :ok
+      return
+    end
+    render json: {
+      users: users.each.map do |user|
+        {
+          user: user.username
+        }
+      end
+    }
+    # byebug
+  end
+
   def user_params
     params.require(:user).permit(:username, :email, :password)
+  end
+
+  def user_search_params
+    # byebug
+    params.require(:user).permit(:username)
   end
 end

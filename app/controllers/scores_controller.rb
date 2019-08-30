@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 require_relative '../utils/errors.rb'
+def top_ten_all(ordered)
+  ordered.each.map do |score|
+    {
+      user: score.user.username,
+      user_id: score.user.id,
+      score: score.score,
+      level: score.level.id
+    }
+  end
+end
 
 class ScoresController < ApplicationController
   def create
@@ -25,17 +35,15 @@ class ScoresController < ApplicationController
     }, status: :bad_request
   end
 
+  def user_top_ten
+    current_user.friend_scores
+  end
+
   def show
-    @ordered = Score.all.order('score DESC')
+    @ordered = Score.all.order('score DESC').limit(10)
     render json: {
-      scores: @ordered.each.map do |score|
-        {
-          user: score.user.username,
-          user_id: score.user.id,
-          score: score.score,
-          level: score.level.id
-        }
-      end
+      scores_top_ten_all: top_ten_all(@ordered),
+      scores_friend_top_ten: user_top_ten
     }, status: :ok
   end
 

@@ -23,7 +23,7 @@ type score = {
 }
 
 interface ScoreboardState {
-    response: Array<score>
+    responseTopTen: Array<score>
 }
 
 interface ScoreboardProps {
@@ -31,7 +31,7 @@ interface ScoreboardProps {
 }
 
 const initScoreboardState: ScoreboardState = {
-    response: [{
+    responseTopTen: [{
         user: '',
         user_id: '',
         score: '',
@@ -74,7 +74,9 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
             alert(formatErrors(response.errors));
             return;
         }
-        this.setState({response: response.scores});
+        this.setState({
+            responseTopTen: response.scores_top_ten_all
+        });
     }
 
     table() {
@@ -83,7 +85,7 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
                 <Table striped bordered hover>
                     {tableHeader()}
                     <tbody>
-                        {this.state.response.map((score, index) => {return tableRow(score, index)})}
+                        {this.state.responseTopTen.map((score, index) => {return tableRow(score, index)})}
                     </tbody>
                 </Table>
             </>
@@ -92,7 +94,10 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
 
     render() {
         return (
-            <>{this.table()}</>
+            <>
+                <h1>Top ten scores:</h1>
+                {this.table()}
+            </>
         );
     }
 }

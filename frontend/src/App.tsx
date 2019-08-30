@@ -12,9 +12,9 @@ import {Signup} from './components/Signup';
 import {Play} from './components/Play';
 import {NavBar} from './components/Nav'
 import {Profile} from './components/Profile'
-import {Scoreboard} from './components/Scoreboard'
-
-import {setUsernameAndEmail, logoutUser} from './Actions'
+import {Scoreboard} from './components/Scoreboard';
+import {Discover} from './components/Discover';
+import {setUsernameAndEmail, logoutUser} from './Actions';
 
 interface AppProps {
     // Nothing yet
@@ -28,8 +28,6 @@ interface AppProps {
 const notImpl = () => 
     <h1>Not implemented.</h1>
 
-
-
 const renderLogin = () =>
     <Redirect to='/login'/>
 
@@ -41,7 +39,6 @@ class _App extends React.Component<AppProps, AppState> {
             renderLogin()
         );
     }
-  
 
     renderLoginOrHome = () => {
         if (this.props.currentUser === '') {
@@ -66,7 +63,7 @@ class _App extends React.Component<AppProps, AppState> {
             <Route exact path='/login' component={Login}/>
             <Route exact path='/play' component={Play}/>
             <Route exact path='/scoreboard' component={Scoreboard}/>
-            <Route exact path='/discover' render={notImpl}/>
+            <Route exact path='/discover' component={Discover}/>
             <Route exact path='/profile' component={Profile}/>
             <Route exact path='/logout' render={this.logoutRender}/>
             <Route exact path='/signup' component={Signup}/>
