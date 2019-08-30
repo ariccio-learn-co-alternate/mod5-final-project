@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   post '/users', to: 'users#create'
   post '/login', to: 'auth#create'
   get '/users/show', to: 'users#show'
+  get '/users/showfriends', to: 'users#show_friends'
   post '/users/search', to: 'users#search'
   post '/users/friends', to: 'user_friends#create'
 

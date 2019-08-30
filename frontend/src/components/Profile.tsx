@@ -17,6 +17,7 @@ class _Profile extends React.Component<ProfileProps, {}> {
         if ((this.props.email === '') || (this.props.username === '')) {
             const userInfo = await queryUserInfo(this.props.currentUser);
             // console.log(await userInfo);
+            // debugger;
             this.props.setUsernameAndEmail(userInfo.username, userInfo.email);
         }
     }

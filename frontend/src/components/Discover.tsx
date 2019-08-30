@@ -25,7 +25,7 @@ interface DiscoverProps {
 function searchOptions(jwt: string, searchParam: string): RequestInit {
     const bodyData = {
         'user' : {username: searchParam}
-    }
+    };
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -33,7 +33,22 @@ function searchOptions(jwt: string, searchParam: string): RequestInit {
             'Authorization': `Bearer ${jwt}`
         },
         body: JSON.stringify(bodyData)
-    }
+    };
+    return requestOptions;
+}
+
+function addFriendOptions(jwt: string, friend_id: string) {
+    const bodyData = {
+        'user' : {friend_id: friend_id}
+    };
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`
+        },
+        body: JSON.stringify(bodyData)
+    };
     return requestOptions;
 }
 
@@ -94,8 +109,18 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
         );
     }
 
-    addFriendClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
+    addFriendClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
         console.log(user_id);
+        const rawResponse: Promise<Response> =
+            fetch('/users/friends', addFriendOptions(this.props.currentUser, user_id));
+        const jsonResponse = (await rawResponse).json();
+        const response = await jsonResponse;
+        if (response.errors !== undefined) {
+            console.error(formatErrors(response.errors));
+            alert(formatErrors(response.errors));
+            return;
+        }
+        
         debugger;
     }
 

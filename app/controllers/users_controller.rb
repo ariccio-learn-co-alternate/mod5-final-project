@@ -17,9 +17,19 @@ class UsersController < ApplicationController
     }, status: :unauthorized
   end
 
-  def show
+  def show_friends
     @user = current_user
     # byebug
+    render json: @user.friends.as_json(only: [:username, :email])
+  rescue ActiveRecord::RecordInvalid => e
+    render json: {
+      errors: create_activerecord_error('User somehow not found.', e)
+    }, status: :unauthorized
+  end
+
+  def show
+    @user = current_user
+    byebug
     render json: @user.as_json(only: [:username, :email])
   rescue ActiveRecord::RecordInvalid => e
     render json: {
