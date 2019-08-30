@@ -10,10 +10,6 @@ interface PlayProps {
     currentUser: string
 }
 
-// const defaultPlayState = {
-//     currentUser: ''
-// }
-
 interface CanvasState {
     // angle: number,
     // ctx: CanvasRenderingContext2D | null
@@ -68,18 +64,6 @@ class Canvas extends React.Component<{}, CanvasState> {
     // canvasRef: React.RefObject<HTMLCanvasElement> = React.createRef();
     canvasContainerRef: React.RefObject<HTMLDivElement> = React.createRef();
 
-    // updateCanvas() {
-    //     const ctx = this.getCanvasCtx();
-    //     if (ctx === null) {
-    //         return;
-    //     }
-    //     ctx.rotate((Math.PI / 180) * this.state.angle);
-    //     console.log("angle: ", this.state.angle);
-    //     this.setState({angle: ((this.state.angle +1) % 360)});
-    //     this.forceUpdate();
-    //     requestAnimationFrame(this.updateCanvas.bind(this));
-    // }
-
     step() {
         // const angleRotate = this.angle * Math.PI / 180;
         // console.log("Rotate by: ", angleRotate);
@@ -120,11 +104,7 @@ class Canvas extends React.Component<{}, CanvasState> {
     }
     
       render() {
-        return(
-          <div id="game-canvas-container" ref={this.canvasContainerRef}>
-            
-          </div>
-        )
+        return(null)
       }
     
 }
