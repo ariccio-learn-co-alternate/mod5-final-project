@@ -1,5 +1,5 @@
 
-export function userRequestOptions(jwt: string): RequestInit {
+function userRequestOptions(jwt: string): RequestInit {
     const requestOptions = {
         method: 'get',
         headers: {

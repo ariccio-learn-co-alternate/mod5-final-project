@@ -41,7 +41,8 @@ class _Signup extends React.Component<SignupProps, SignupState> {
     onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("signup state: ", this.state)
-        const response: SignupResponse | null = await signup(this.state.username, this.state.email, this.state.password);
+        const response: SignupResponse | null =
+            await signup(this.state.username, this.state.email, this.state.password);
         if (response === null) {
             return;
         }
@@ -110,7 +111,9 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: any): any => {
     return {
-        signupUser: (username: string, email: string, password: string) => dispatch(signupUser(username, email, password))
+        signupUser: 
+            (username: string, email: string, password: string) => 
+                dispatch(signupUser(username, email, password))
     }
 }
 

@@ -15,7 +15,6 @@ interface ProfileProps {
   
 }
 
-
 interface UserType {
     username: string,
     id: string
@@ -35,16 +34,12 @@ const defaultState: ProfileState = {
 } 
 
 function listFriendsOptions(jwt: string) {
-    // const bodyData = {
-    //     'user' : {friend_id: friend_id}
-    // };
     const requestOptions = {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwt}`
         }
-        // body: JSON.stringify(bodyData)
     };
     return requestOptions;
 }
@@ -59,54 +54,41 @@ function showFriendResponseToStrongType(response: any): ShowFriendResponseType {
     return return_value;
 }
 
-const tableHeader = () => {
-    return (
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>username</th>
-            </tr>
-        </thead>
-    );
-}
+const tableHeader = () =>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>username</th>
+        </tr>
+    </thead>
 
 function rowKey(user: string): string {
     return `profile-friend-entry-key-user-${user}`;
 }
+const tableRow = (user: UserType, index: number) =>
+    <tr key={rowKey(user.username)}>
+        <td>{index}</td>
+        <td>{user.username}</td>
+    </tr>
 
+const mapper = (response: ShowFriendResponseType | null) => {
+    if (response === null) {
+        return null;
+    }
+    if (response.users === undefined) {
+        console.warn("hmm");
+        return null
+    }
+    return response.users.map((user: any, index: number) => {return tableRow(user, index)});
+}
+
+const tableBody = (response: ShowFriendResponseType | null) =>
+        <tbody>
+            {mapper(response)}
+        </tbody>
 
 class _Profile extends React.Component<ProfileProps, ProfileState> {
     state = defaultState;
-
-    tableRow = (user: UserType, index: number) => {
-        // console.log(user.username);
-        return (
-            <tr key={rowKey(user.username)}>
-                <td>{index}</td>
-                <td>{user.username}</td>
-            </tr>
-        );
-    }
-
-    mapper = () => {
-        if (this.state.response === null) {
-            return null;
-        }
-        if (this.state.response.users === undefined) {
-            console.warn("hmm");
-            return null
-        }
-        return this.state.response.users.map((user: any, index: number) => {return this.tableRow(user, index)});
-
-    }
-
-    tableBody = () => {
-        return (
-            <tbody>
-                {this.mapper()}
-            </tbody>
-        );
-    }
 
     fetchFriends = async () => {
         const rawResponse: Promise<Response> =
@@ -132,7 +114,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             <>
                 <Table striped bordered hover>
                     {tableHeader()}
-                    {this.tableBody()}
+                    {tableBody(this.state.response)}
                 </Table>
             </>
         );
@@ -155,15 +137,12 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             this.props.setUserScores(userInfo.user_scores);
         }
     }
-    render() {
-        return(
-            <>
-                <h1>{this.props.username}'s profile</h1>
-                <p>Email: {this.props.email}</p>
-                {this.table()}
-            </>
-        );
-    }
+    render = () =>
+        <>
+            <h1>{this.props.username}'s profile</h1>
+            <p>Email: {this.props.email}</p>
+            {this.table()}
+        </>
 }
 
 const mapStateToProps = (state: any): any => {
@@ -174,11 +153,5 @@ const mapStateToProps = (state: any): any => {
         currentUser: state.currentUser
     }
 }
-
-// const mapDispatchToProps = (dispatch: any): any => {
-//     return {
-
-//     }
-// }
 
 export const Profile = connect(mapStateToProps, {setUsernameAndEmail, setUserScores})(_Profile);

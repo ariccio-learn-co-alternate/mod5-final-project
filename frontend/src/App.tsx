@@ -1,8 +1,6 @@
 import React from 'react';
 import {Route, Redirect} from 'react-router-dom';
 import { connect } from 'react-redux';
-// import { switchStatement } from '@babel/types';
-import './App.css';
 
 import {queryUserInfo} from './utils/QueryUserInfo'
 
@@ -15,6 +13,8 @@ import {Profile} from './components/Profile'
 import {Scoreboard} from './components/Scoreboard';
 import {Discover} from './components/Discover';
 import {setUsernameAndEmail, logoutUser} from './Actions';
+
+import './App.css';
 
 interface AppProps {
     // Nothing yet
@@ -32,7 +32,6 @@ const renderLogin = () =>
     <Redirect to='/login'/>
 
 class _App extends React.Component<AppProps, AppState> {
-
     logoutRender = () => {
         this.props.logoutUser();
         return (

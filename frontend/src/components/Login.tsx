@@ -64,11 +64,8 @@ class _Login extends React.Component<LoginProps, LoginState> {
             onChange={this.passwordChange}
         />
 
-    render() {
-        if (this.props.currentUser !== '') {
-            console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
-            return (<Redirect to='/'/>);
-        }
+
+    formWithLink() {
         return (
             <>
                 <form onSubmit={this.onSubmit}>
@@ -78,7 +75,15 @@ class _Login extends React.Component<LoginProps, LoginState> {
                 </form>
                 <Link to='/signup'>Sign up</Link>
             </>
-        )
+        );
+    }
+    
+    render() {
+        if (this.props.currentUser !== '') {
+            console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
+            return (<Redirect to='/'/>);
+        }
+        return this.formWithLink();
     }
 }
 

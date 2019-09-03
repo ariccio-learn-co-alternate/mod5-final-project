@@ -1,17 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-
-
-import * as serviceWorker from './serviceWorker';
+import {BrowserRouter} from 'react-router-dom';
 import {createStore} from 'redux';
 import {Provider} from 'react-redux';
-// import { createReducer } from 'typesafe-actions';
-import {BrowserRouter} from 'react-router-dom';
 
 import {App} from './App';
-
 import {reducer} from './reducers/MainReducer';
+
+import './index.css';
+import * as serviceWorker from './serviceWorker';
 
 // Should be a DeepReadonly?
 export interface AppState {

@@ -1,13 +1,8 @@
 import {formatErrors} from './ErrorObject';
-// interface HeaderType {
-//     'Content-Type' : String
-// }
 
-// export interface RequestOptions {
-//     method: String;
-//     headers: HeaderType;
-//     body: String; // JSON.stringify
-// }
+// NOTE: YES I KNOW JWT IS VULNERABLE TO XSS.
+// But Flatiron taught us this way before I knew about httponly, and now I don't want to rewrite this. 
+
 
 export function loginRequestOptions(username: string, password: string): RequestInit {
     const requestOptions = {
@@ -51,8 +46,7 @@ export function fromLocalStorage(): string {
         console.log('No cached login credentials.');
         return '';
     }
-    const parsed = item;
-    return parsed;
+    return item;
 }
 
 export function clearLocalStorage(): void {

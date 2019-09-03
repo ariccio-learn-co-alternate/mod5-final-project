@@ -52,16 +52,13 @@ const tableHeader = () =>
 function rowKey(score: any): string {
     return `scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`;
 }
-function tableRow(score: any, index: number) {
-    return (
+const tableRow = (score: any, index: number) =>
         <tr key={rowKey(score)}>
             <td>{index}</td>
             <td>{score.user}</td>
             <td>{score.score}</td>
             <td>{score.level}</td>
         </tr>
-    );
-}
 
 class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
     state = initScoreboardState
@@ -79,8 +76,7 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
         });
     }
 
-    table() {
-        return (
+    table = () =>
             <>
                 <Table striped bordered hover>
                     {tableHeader()}
@@ -89,17 +85,12 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
                     </tbody>
                 </Table>
             </>
-        );
-    }
 
-    render() {
-        return (
-            <>
-                <h1>Top ten scores:</h1>
-                {this.table()}
-            </>
-        );
-    }
+    render = () =>
+        <>
+            <h1>Top ten scores:</h1>
+            {this.table()}
+        </>
 }
 
 const mapStateToProps = (state: any) => {

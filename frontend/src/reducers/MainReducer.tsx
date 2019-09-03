@@ -1,6 +1,12 @@
 import {AppState} from '../index'
 import {fromLocalStorage, clearLocalStorage} from '../utils/Authentication'
-import {LOGIN_ACTION, SIGNUP_ACTION, SET_USERNAME_AND_EMAIL, LOGOUT_ACTION, SET_USER_SCORES} from '../Actions';
+import {
+    LOGIN_ACTION,
+    SIGNUP_ACTION,
+    SET_USERNAME_AND_EMAIL,
+    LOGOUT_ACTION,
+    SET_USER_SCORES
+} from '../Actions';
 
 const initialState: AppState = {
     currentUser: fromLocalStorage(),
