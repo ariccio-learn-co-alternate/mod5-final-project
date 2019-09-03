@@ -25,9 +25,6 @@ interface AppProps {
     logoutUser: any
 }
 
-// const notImpl = () => 
-//     <h1>Not implemented.</h1>
-
 const renderLogin = () =>
     <Redirect to='/login'/>
 
@@ -55,7 +52,6 @@ class _App extends React.Component<AppProps, AppState> {
         }
         const redirect = <Redirect to="/play"/>;
         return redirect;
-
     }
 
     componentDidMount() {
@@ -74,7 +70,6 @@ class _App extends React.Component<AppProps, AppState> {
             <Route exact path='/' render={this.renderLoginOrHome}/>
         </>
 
-
     render () {
         return (
             <>
@@ -88,13 +83,6 @@ class _App extends React.Component<AppProps, AppState> {
     }
 }
 
-// function currentUserReducer(state: any, action: string): string {
-//   switch(action) {
-//     case ''
-//   }
-// }
-
-// Don't know the types yet.
 const mapStateToProps = (state: any) => {
     return {
         currentUser: state.currentUser,

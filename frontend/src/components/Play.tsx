@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 
 interface PlayState {
-    currentUser: string
+    readonly currentUser: string
 }
 
 interface PlayProps {

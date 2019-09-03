@@ -6,9 +6,9 @@ import {signup, SignupResponse} from '../utils/Authentication';
 
 
 interface SignupState {
-    username: string,
-    email: string,
-    password: string
+    readonly username: string,
+    readonly email: string,
+    readonly password: string
 }
 
 const defaultsignupState: SignupState = {

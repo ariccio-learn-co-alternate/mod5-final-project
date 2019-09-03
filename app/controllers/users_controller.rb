@@ -36,9 +36,6 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
-    # byebug
-    # puts "hello"
-    # byebug
     render json: {
       user_info: @user.as_json(only: [:username, :email]),
       user_scores: @user.my_scores
@@ -50,10 +47,7 @@ class UsersController < ApplicationController
   end
 
   def search
-    # byebug
     users = User.where(username: user_search_params[:username]).where.not(id: current_user.id);
-    # users.filter!
-    # byebug
     if users == nil
       render json: {
         users: []

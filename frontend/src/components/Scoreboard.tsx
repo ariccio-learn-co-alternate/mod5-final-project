@@ -23,7 +23,7 @@ type score = {
 }
 
 interface ScoreboardState {
-    responseTopTen: Array<score>
+    readonly responseTopTen: Array<score>
 }
 
 interface ScoreboardProps {

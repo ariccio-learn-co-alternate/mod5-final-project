@@ -26,7 +26,7 @@ interface ShowFriendResponseType {
 }
 
 interface ProfileState {
-    response: ShowFriendResponseType | null
+    readonly response: ShowFriendResponseType | null
 }
 
 const defaultState: ProfileState = {

@@ -9,8 +9,8 @@ import {formatErrors} from '../utils/ErrorObject';
 
 
 interface DiscoverState {
-    usernameField: string,
-    users: any
+    readonly usernameField: string,
+    readonly users: any
 }
 
 const defaultDiscoverState: DiscoverState = {

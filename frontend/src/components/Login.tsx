@@ -11,8 +11,8 @@ interface LoginProps {
 }
 
 interface LoginState {
-    username: string,
-    password: string
+    readonly username: string,
+    readonly password: string
 }
 
 const defaultLoginState: LoginState = {
@@ -77,7 +77,7 @@ class _Login extends React.Component<LoginProps, LoginState> {
             </>
         );
     }
-    
+
     render() {
         if (this.props.currentUser !== '') {
             console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
