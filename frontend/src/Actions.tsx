@@ -4,6 +4,7 @@ export const SET_USERNAME_AND_EMAIL = 'SET_USERNAME_AND_EMAIL';
 export const SIGNUP_ACTION = 'SIGNUP';
 // export const GET_USER_INFO = 'GET_USER_INFO';
 export const LOGOUT_ACTION = 'LOGOUT';
+export const SET_USER_SCORES = 'SET_SCORES';
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -40,4 +41,11 @@ export function logoutUser(): object {
     }
 }
 
+export function setUserScores(scores: object[]): object {
+    return {
+        type: SET_USER_SCORES,
+        scores: scores
+    }
+
+} 
 // export function getUserInfo()

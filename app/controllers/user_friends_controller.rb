@@ -15,7 +15,7 @@ class UserFriendsController < ApplicationController
     current_user.friend << @new_friend
     # byebug
     render json: {
-
+      
     }, status: :ok
   end
 

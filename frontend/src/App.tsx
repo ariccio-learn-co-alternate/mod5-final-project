@@ -25,8 +25,8 @@ interface AppProps {
     logoutUser: any
 }
 
-const notImpl = () => 
-    <h1>Not implemented.</h1>
+// const notImpl = () => 
+//     <h1>Not implemented.</h1>
 
 const renderLogin = () =>
     <Redirect to='/login'/>
@@ -47,10 +47,15 @@ class _App extends React.Component<AppProps, AppState> {
         }
         if ((this.props.username === '') || (this.props.email === '') ) {
             console.log('username or email empty.');
+            //const userInfo = await queryUserInfo(this.props.currentUser)
             queryUserInfo(this.props.currentUser).then(userInfo => {
-                this.props.setUsernameAndEmail(userInfo.username, userInfo.email);
+                console.log("setting username and email: ", userInfo);
+                debugger;
+                this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
             })
         }
+        const redirect = <Redirect to="/play"/>;
+        return redirect;
 
     }
 

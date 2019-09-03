@@ -51,10 +51,6 @@ class _Signup extends React.Component<SignupProps, SignupState> {
 
     componentDidMount() {
         console.log("signup props: ", this.props);
-        if (this.props.currentUser !== '') {
-            console.log(`current user (${this.props.currentUser}) not empty, leaving signup page`)
-            return (<Redirect to='/'/>);
-        }
     }
 
     usernameInput = () =>
@@ -84,6 +80,11 @@ class _Signup extends React.Component<SignupProps, SignupState> {
         />
 
     render() {
+        if (this.props.currentUser !== '') {
+            console.log(`current user (${this.props.currentUser}) not empty, leaving signup page`)
+            return (<Redirect to='/'/>);
+        }
+
         return (
             <>
                 <form onSubmit={this.onSubmit}>

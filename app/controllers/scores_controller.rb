@@ -31,7 +31,7 @@ class ScoresController < ApplicationController
     byebug
   rescue ActiveRecord::RecordNotFound => e
     render json: {
-      errors: create_activerecord_error('level not found!', e)
+      errors: create_activerecord_notfound_error('level not found!', e)
     }, status: :bad_request
   end
 

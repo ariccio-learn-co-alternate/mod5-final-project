@@ -19,8 +19,15 @@ class UsersController < ApplicationController
 
   def show_friends
     @user = current_user
+    friends = @user.get_friends
     # byebug
-    render json: @user.friends.as_json(only: [:username, :email])
+    render json: {
+      users: friends
+      }, status: :ok
+  rescue ActiveRecord::RecordNotFound => e
+      render json: {
+        errors: create_activerecord_notfound_error('user somehow not found?', e)
+      }, status: :bad_request
   rescue ActiveRecord::RecordInvalid => e
     render json: {
       errors: create_activerecord_error('User somehow not found.', e)
@@ -29,8 +36,13 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
-    byebug
-    render json: @user.as_json(only: [:username, :email])
+    # byebug
+    # puts "hello"
+    # byebug
+    render json: {
+      user_info: @user.as_json(only: [:username, :email]),
+      user_scores: @user.my_scores
+    }, status: :ok
   rescue ActiveRecord::RecordInvalid => e
     render json: {
       errors: create_activerecord_error('User somehow not found.', e)

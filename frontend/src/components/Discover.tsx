@@ -1,7 +1,7 @@
 import React from 'react';
 import Form from 'react-bootstrap/Form';
 import FormControl, {FormControlProps} from 'react-bootstrap/FormControl';
-import Button, {ButtonProps} from 'react-bootstrap/Button';
+import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { connect } from 'react-redux';
 
@@ -68,26 +68,58 @@ const tableHeader = () => {
     );
 }
 
+interface UserSearchResponseSingleUser {
+    user: string,
+    user_id: string
+}
+
+interface UsersSearchResponseType {
+    users: UserSearchResponseSingleUser[],
+    errors?: any
+
+}
+
+function usersSearchResponseToStrongType(usersSearchResponse: any): UsersSearchResponseType {
+    if (usersSearchResponse.errors === undefined) {
+        console.assert(usersSearchResponse.users !== undefined);
+        if (usersSearchResponse.users.length > 0) {
+            console.assert(usersSearchResponse.users[0].user !== undefined);
+            console.assert(usersSearchResponse.users[0].user_id !== undefined);
+        }
+    }
+    const return_value: UsersSearchResponseType = {
+        users: usersSearchResponse.users
+    }
+    return return_value;
+}
 
 
 class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     state: DiscoverState = defaultDiscoverState;
 
-    // See type here: 
-    usernameFieldChange = async (event: React.FormEvent<FormControlProps & FormControl>) => {
-        if (event.currentTarget.value === undefined) {
-            return;
-        }
-        this.setState({usernameField: event.currentTarget.value})
+
+    fetchSearchResult = async (options: RequestInit): Promise<UsersSearchResponseType> => {
         const rawResponse: Promise<Response> =
-            fetch('/users/search', searchOptions(this.props.currentUser, event.currentTarget.value));
+            fetch('/users/search', options);
         const jsonResponse = (await rawResponse).json();
-        const response = await jsonResponse;
+        const responseParsed = await jsonResponse;
+        const response: UsersSearchResponseType = usersSearchResponseToStrongType(responseParsed);
         if (response.errors !== undefined) {
             console.error(formatErrors(response.errors));
             alert(formatErrors(response.errors));
+            return response;
+        }
+        return response;
+    }
+    // See type here: 
+    usernameFieldChange = async (event: React.FormEvent<FormControlProps & FormControl>) => {
+        if (event.currentTarget.value === undefined) {
+            console.warn("undefined target???");
             return;
         }
+        const options: RequestInit = searchOptions(this.props.currentUser, event.currentTarget.value);
+        this.setState({usernameField: event.currentTarget.value})
+        const response: UsersSearchResponseType = await this.fetchSearchResult(options);
         // debugger;
         this.setState({users: response.users})
     }
@@ -109,7 +141,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
         );
     }
 
-    addFriendClick = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
+    addFriendClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
         console.log(user_id);
         const rawResponse: Promise<Response> =
             fetch('/users/friends', addFriendOptions(this.props.currentUser, user_id));
@@ -121,7 +153,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
             return;
         }
         
-        debugger;
+        return;
     }
 
     tableAddFriendButton(user: any) {

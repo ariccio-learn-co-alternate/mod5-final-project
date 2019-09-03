@@ -40,15 +40,11 @@ class _Login extends React.Component<LoginProps, LoginState> {
         }
         this.props.loginUser(response.username, response.email, response.jwt)
         // <Redirect to='/'/>
-        alert("TODO: redirect here. For now please refresh.")
+        // alert("TODO: redirect here. For now please refresh.")
     } 
 
     componentDidMount() {
         console.log("Login props: ", this.props);
-        if (this.props.currentUser !== '') {
-            console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
-            return (<Redirect to='/'/>);
-        }
     }
 
     inputField = () =>
@@ -69,6 +65,10 @@ class _Login extends React.Component<LoginProps, LoginState> {
         />
 
     render() {
+        if (this.props.currentUser !== '') {
+            console.log(`current user (${this.props.currentUser}) not empty, leaving login page`)
+            return (<Redirect to='/'/>);
+        }
         return (
             <>
                 <form onSubmit={this.onSubmit}>

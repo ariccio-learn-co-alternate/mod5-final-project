@@ -17,7 +17,8 @@ import {reducer} from './reducers/MainReducer';
 export interface AppState {
     readonly currentUser: string,
     readonly username: string,
-    readonly email: string
+    readonly email: string,
+    readonly scores: object[]
 }
 
 const store = createStore(reducer);
