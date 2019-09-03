@@ -12,11 +12,17 @@ class User < ApplicationRecord
 
   def get_friends
     # byebug
-    friends_mapped = friend.map do |friend|
-      byebug
-      User.find(friend.id).as_json(only: [:username, :email]) unless friend.id == id
+    my_friends = UserFriend.where(user_id: id)
+    friends_mapped = []
+    my_friends.map do |friend|
+      # This is currently broken mostly. Something is wrong with creating friends.
+      # byebug
+      friends_mapped << User.find(friend.friend_id).as_json(only: [:username, :email]) unless friend.friend_id == id
+      # User.find(friend.friend_id).as_json(only: [:username, :email]) unless friend.friend_id == id
     end
+    # byebug
     friends_mapped.filter!{|f| f != nil}
+    # byebug
     friends_mapped
   end
 

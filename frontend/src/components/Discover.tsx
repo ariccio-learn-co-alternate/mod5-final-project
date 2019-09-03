@@ -142,7 +142,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     }
 
     addFriendClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
-        console.log(user_id);
+        console.log("Clicked add friend for user_id: ", user_id);
         const rawResponse: Promise<Response> =
             fetch('/users/friends', addFriendOptions(this.props.currentUser, user_id));
         const jsonResponse = (await rawResponse).json();
@@ -157,6 +157,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     }
 
     tableAddFriendButton(user: any) {
+        console.log("adding friend button for user: ", user);
         return (
             <td>
                 <Button
@@ -208,6 +209,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
         return (
             <>
                 {this.formRender()}
+                (Table doesn't yet remove item when you add friend, dw)
                 {this.table()}
             </>
         );

@@ -4,18 +4,20 @@ require_relative '../utils/errors.rb'
 
 class UserFriendsController < ApplicationController
   def create
+    # This is currently broken mostly. Something is wrong with creating friends.
+    byebug
     if current_user.friend.include?(user_friends_params[:friend_id])
-      puts 'fart already included'
+      puts 'user already included'
       render json: {
 
       }, status: :ok
     end
     # byebug
     @new_friend = UserFriend.create!(user_id: current_user.id, friend_id: user_friends_params[:friend_id])
-    current_user.friend << @new_friend
-    # byebug
+    # current_user.friend << @new_friend
+    byebug
     render json: {
-      
+
     }, status: :ok
   end
 

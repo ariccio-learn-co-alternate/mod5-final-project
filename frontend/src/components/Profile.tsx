@@ -143,9 +143,9 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
         if ((this.props.email === '') || (this.props.username === '')) {
             const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
             console.log("setting username and email: ", userInfo);
-            debugger;
+            // debugger;
             if (userInfo.user_info === undefined) {
-                debugger;
+                // debugger;
                 return;
             }
             // const data: UserInfoType = userInfoToStrongType(userInfo);
