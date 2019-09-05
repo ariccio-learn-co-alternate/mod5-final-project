@@ -230,57 +230,134 @@ function distanceToWall(rayAngle: number, coordinates: PlayerCoordinates): testD
 function pixelIndexToBufferIndex(bufferSize: number, pixelsSize: number, pixelIndex: number): number {
     // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
     // Imagedata needs an 8 bit R value, G value, b value, and a A value;
-    console.assert(pixelIndex < pixelsSize);
+    if(!(pixelIndex < pixelsSize)) {
+        throw new Error("assertion failed");
+    }
     // console.assert((pixelIndex % 4) === 0);
     const rawIndex = pixelIndex * 4;
-    console.assert(rawIndex < bufferSize);
+    if(!(rawIndex < bufferSize)) {
+        throw new Error("assertion failed");
+    }
     return rawIndex;
 }
 
 function inPixelBufferBounds(bufferSize: number, bufferPixelIndex: number): boolean {
-    console.assert(bufferPixelIndex < bufferSize);
+    // console.assert(bufferPixelIndex < bufferSize);
     if (bufferPixelIndex >= bufferSize) {
         console.error("out of bounds!");
+        throw new Error("assertion failed");
         return false;
     }
     return true;
 }
 
-function pixelBufferIndexToRedIndex(bufferSize: number, bufferPixelIndex: number): number {
+type pixelBufferIndicies = {
+    redIndex: number,
+    greenIndex: number,
+    blueIndex: number,
+    alphaIndex: number
+}
+
+function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number): pixelBufferIndicies {
+    // won't check bounds for red, green, blue, only alpha, because it's the top. 
+
     // red is the 0th index in this pixel. really does nothing.
     const redIndex = bufferPixelIndex + 0;
-    if (!inPixelBufferBounds(bufferSize, redIndex)) {
-        throw new Error("out of bounds");
-    }
-    return redIndex;
-}
 
-function pixelBufferIndexToGreenIndex(bufferSize: number, bufferPixelIndex: number): number {
     // Green is the 1st index in this pixel.
     const greenIndex = bufferPixelIndex + 1;
-    if (!inPixelBufferBounds(bufferSize, greenIndex)) {
-        throw new Error("out of bounds!");
-    }
-    return greenIndex;
-}
-
-function pixelBufferIndexToBlueIndex(bufferSize: number, bufferPixelIndex: number): number {
+    
     // Blue is the 2nd index in this pixel.
     const blueIndex = bufferPixelIndex + 2;
-    if (!inPixelBufferBounds(bufferSize, blueIndex)) {
-        throw new Error("out of bounds!");
-    }
-    return blueIndex;
-}
 
-function pixelBufferIndexToAlphaIndex(bufferSize: number, bufferPixelIndex: number): number {
     // Alpha is the 3rd index in this pixel.
     const alphaIndex = bufferPixelIndex + 3;
     if (!inPixelBufferBounds(bufferSize, alphaIndex)) {
         throw new Error("out of bounds!");
     }
-    return alphaIndex;
+
+    // These will only fire in case of weird overflow problems 
+    if(!(redIndex < greenIndex)) {
+        throw new Error("assertion failed");
+    }
+    if(!(greenIndex < blueIndex)) {
+        throw new Error("assertion failed");
+    }
+    if(!(blueIndex < alphaIndex)) {
+        throw new Error("assertion failed");
+    }
+    return {redIndex, greenIndex, blueIndex, alphaIndex};
 }
+
+
+function drawCeiling(wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
+    if (wallDistance.outOfBounds) {
+        // Debug bad draws if they ever happen
+        screenBuffer[indexes.redIndex] = 255;
+        screenBuffer[indexes.greenIndex] = 255;
+        screenBuffer[indexes.blueIndex] = 100;
+        screenBuffer[indexes.alphaIndex] = 255;
+    }
+    else {
+        // screenBuffer[screenBufferIndex] = 0;
+        screenBuffer[indexes.redIndex] = 0;
+        screenBuffer[indexes.greenIndex] = 100;
+        screenBuffer[indexes.blueIndex] = 0;
+        screenBuffer[indexes.alphaIndex] = 255;
+        // screenBuffer[indexes.alphaIndex] = brightness;
+    }
+
+}
+
+function drawObjects(wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
+    if (wallDistance.outOfBounds) {
+        // Debug bad draws if they ever happen
+        screenBuffer[indexes.redIndex] = 255;
+        screenBuffer[indexes.greenIndex] = 255;
+        screenBuffer[indexes.blueIndex] = 100;
+        screenBuffer[indexes.alphaIndex] = 255;
+    }
+    else {
+        const brightness: number = Math.floor(((wallDistance.distance)/VIEW_DISTANCE) * 255);
+        screenBuffer[indexes.redIndex] = 100;
+        screenBuffer[indexes.greenIndex] = 100;
+        screenBuffer[indexes.blueIndex] = 100;
+        
+        screenBuffer[indexes.alphaIndex] = brightness;
+    }
+
+}
+
+function drawFloor(wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
+    if (wallDistance.outOfBounds) {
+        // Debug bad draws if they ever happen
+        screenBuffer[indexes.redIndex] = 255;
+        screenBuffer[indexes.greenIndex] = 255;
+        screenBuffer[indexes.blueIndex] = 100;
+        screenBuffer[indexes.alphaIndex] = 255;
+    }
+    else {
+        screenBuffer[indexes.redIndex] = 100;
+        screenBuffer[indexes.greenIndex] = 0;
+        screenBuffer[indexes.blueIndex] = 0;
+        screenBuffer[indexes.alphaIndex] = 255;
+        // screenBuffer[indexes.alphaIndex] = brightness;
+    }
+
+}
+
+function drawPixels(y: number, ceiling: number, floor: number, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
+    if (y < ceiling) {
+        drawCeiling(wallDistance, indexes);
+    }
+    else if ((y > ceiling) && (y <= floor)) {
+        drawObjects(wallDistance, indexes);
+    }
+    else {
+        drawFloor(wallDistance, indexes)
+    }
+}
+
 
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class Canvas extends React.Component<CanvasProps, CanvasState> {
@@ -343,18 +420,10 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
         }
     }
 
-    step() {
-        if (offscreenCanvas === null) {
-            console.warn("null canvas");
-            return;
-        }
-
-    
-        const raysCasted = [];
-
+    castRays() {
         for (let i = 0; i < CANVAS_WIDTH; i++) {
             const angleOfThisRay = rayAngle(this.player.coordinates.angle, i);
-            raysCasted.push(angleOfThisRay);
+            // raysCasted.push(angleOfThisRay);
             const wallDistance: testDistanceReturn = distanceToWall(angleOfThisRay, this.player.coordinates);
             const ceiling: number = (CANVAS_HEIGHT/2) - (CANVAS_HEIGHT / wallDistance.distance);
             const floor = CANVAS_HEIGHT - ceiling;
@@ -363,46 +432,23 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
                 const screenBufferPixelIndex = (screenBufferRowPixelIndex + i);
                 const screenBufferIndex =
                     pixelIndexToBufferIndex(screenBufferSize, CANVAS_PIXELS, screenBufferPixelIndex);
-                const redIndex = pixelBufferIndexToRedIndex(screenBufferSize, screenBufferIndex);
-                const greenIndex = pixelBufferIndexToGreenIndex(screenBufferSize, screenBufferIndex);
-                const blueIndex = pixelBufferIndexToBlueIndex(screenBufferSize, screenBufferIndex);
-                const alphaIndex = pixelBufferIndexToAlphaIndex(screenBufferSize, screenBufferIndex);
-                // const 
-                if (y < ceiling) {
-                    // screenBuffer[screenBufferIndex] = 0;
-                    screenBuffer[redIndex] = 0;
-                    screenBuffer[greenIndex] = 100;
-                    screenBuffer[blueIndex] = 0;
-                    screenBuffer[alphaIndex] = 255;
-                }
-
-                else if ((y > ceiling) && (y <= floor)) {
-                    if (wallDistance.outOfBounds) {
-                        screenBuffer[redIndex] = 255;
-                        screenBuffer[greenIndex] = 255;
-                        screenBuffer[blueIndex] = 100;
-                        screenBuffer[alphaIndex] = 255;
-                    }
-                    else {
-                        screenBuffer[redIndex] = 100;
-                        screenBuffer[greenIndex] = 100;
-                        screenBuffer[blueIndex] = 100;
-                        const brightness: number = Math.floor((wallDistance.distance/VIEW_DISTANCE) * 255);
-                        screenBuffer[alphaIndex] = brightness;
-                    }
-                }
-                else {
-                    screenBuffer[redIndex] = 100;
-                    screenBuffer[greenIndex] = 0;
-                    screenBuffer[blueIndex] = 0;
-                    screenBuffer[alphaIndex] = 255;
-                }
+                
+                const indexes = bufferPixelElementIndexes(screenBufferSize, screenBufferIndex);
+                drawPixels(y, ceiling, floor, wallDistance, indexes)
             }
-            
         }
-        // console.log("casted rays:", raysCasted);
+    }
+
+    step() {
+        if (offscreenCanvas === null) {
+            console.warn("null canvas");
+            return;
+        }
+
+        this.castRays();
+
         const data: ImageData = new ImageData(screenBuffer, CANVAS_WIDTH, CANVAS_HEIGHT);
-        // debugger;
+
         this.renderToContextFromUint8Clamped(data)
         // this.offscreenContext.clearRect(0,0, 400, 400);
         // this.renderToContextFromBitmap();
@@ -422,7 +468,7 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
         console.log("render junk screen to show we can render things")
         this.renderToContextFromUint8Clamped(data);
 
-        this.timer = setInterval(this.step.bind(this), 10);
+        this.timer = setInterval(this.step.bind(this), 1);
         gameCanvas_0.hidden = false;
         // this.renderToContextFromBitmap();
 
@@ -435,13 +481,17 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
         switch (event.key) {
             case ('a'):
                 this.player.coordinates.angle -= 0.1;
+                event.preventDefault();
                 break;
             case ('d'):
                 this.player.coordinates.angle += 0.1;
+                event.preventDefault();
                 break;
             case ('w'):
                 this.player.coordinates.x += (Math.sin(this.player.coordinates.angle) * 0.1);
                 this.player.coordinates.y += (Math.cos(this.player.coordinates.angle) * 0.1);
+                event.preventDefault();
+                break;
 
         }
 
