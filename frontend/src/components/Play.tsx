@@ -76,22 +76,22 @@ function getOffscreenContext(width: number, height: number): OffscreenCanvasRend
 
 function levelMapArray(): Uint8ClampedArray {
     const LEVEL_MAP: string = '' +
-    '################' +
-    '#              #' +
-    '#      # # # # #' +
-    '#          #   #' +
-    '#     ##       #' +
-    '#    #   #     #' +
-    '#   #          #' +
-    '#  #      ##   #' +
-    '#              #' +
-    '#  ##  ######  #' +
-    '#  #        #  #' +
-    '#  ###   #  #  #' +
-    '#  #        #  #' +
-    '#   #######    #' +
-    '#              #' +
-    '################';
+    '################################' +
+    '#                              #' +
+    '#              #######         #' +
+    '#   #              #           #' +
+    '#   #         ##               #' +
+    '#            #   #             #' +
+    '#           #                  #' +
+    '#          #      ##           #' +
+    '#                              #' +
+    '#          ##  ######          #' +
+    '#          #        #          #' +
+    '#          ###   #  #          #' +
+    '#          #        #          #' +
+    '#           #######            #' +
+    '#                              #' +
+    '################################';
     const buf = new Uint8ClampedArray(LEVEL_MAP.length);
     for (let i = 0; i < LEVEL_MAP.length; i++) {
         console.assert(LEVEL_MAP.charCodeAt(i) <= 255);
@@ -108,9 +108,21 @@ function wallCharCode(): number {
 
 const LEVEL_MAP: Uint8ClampedArray = levelMapArray();
 const WALL_CHAR_CODE: number = wallCharCode();
-const MAP_WIDTH: number = 16;
-const MAP_HEIGHT: number = 16;
-console.assert(MAP_WIDTH * MAP_HEIGHT === 256);
+const MAP_WIDTH: number = 32;
+const MAP_HEIGHT: number = 32;
+console.assert(MAP_WIDTH === MAP_HEIGHT);
+
+// const gameListeners = {
+//     w: null,
+//     a: null,
+//     s: null,
+//     d: null,
+// }
+// https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
+// Imagedata needs an 8 bit R value, G value, b value, and a A value;
+const screenBufferSize = CANVAS_PIXELS *4
+
+const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(screenBufferSize);
 
 
 interface CanvasProps {
@@ -337,11 +349,6 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
             return;
         }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
-        // Imagedata needs an 8 bit R value, G value, b value, and a A value;
-        const screenBufferSize = CANVAS_PIXELS *4
-
-        const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(screenBufferSize);
     
         const raysCasted = [];
 
@@ -370,10 +377,19 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
                 }
 
                 else if ((y > ceiling) && (y <= floor)) {
-                    screenBuffer[redIndex] = 100;
-                    screenBuffer[greenIndex] = 100;
-                    screenBuffer[blueIndex] = 100;
-                    screenBuffer[alphaIndex] = 255;
+                    if (wallDistance.outOfBounds) {
+                        screenBuffer[redIndex] = 255;
+                        screenBuffer[greenIndex] = 255;
+                        screenBuffer[blueIndex] = 100;
+                        screenBuffer[alphaIndex] = 255;
+                    }
+                    else {
+                        screenBuffer[redIndex] = 100;
+                        screenBuffer[greenIndex] = 100;
+                        screenBuffer[blueIndex] = 100;
+                        const brightness: number = Math.floor((wallDistance.distance/VIEW_DISTANCE) * 255);
+                        screenBuffer[alphaIndex] = brightness;
+                    }
                 }
                 else {
                     screenBuffer[redIndex] = 100;
@@ -403,12 +419,31 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
             screenBuffer[i] = Math.floor(Math.random() * 255);
         }
         const data: ImageData = new ImageData(screenBuffer, CANVAS_WIDTH, CANVAS_HEIGHT);
-        console.log("render blank")
+        console.log("render junk screen to show we can render things")
         this.renderToContextFromUint8Clamped(data);
 
         this.timer = setInterval(this.step.bind(this), 10);
         gameCanvas_0.hidden = false;
         // this.renderToContextFromBitmap();
+
+        document.addEventListener('keydown', this.keydown)
+
+    }
+
+    keydown = (event: KeyboardEvent) => {
+        // Ideally we'd track elapsed time, but not right now.
+        switch (event.key) {
+            case ('a'):
+                this.player.coordinates.angle -= 0.1;
+                break;
+            case ('d'):
+                this.player.coordinates.angle += 0.1;
+                break;
+            case ('w'):
+                this.player.coordinates.x += (Math.sin(this.player.coordinates.angle) * 0.1);
+                this.player.coordinates.y += (Math.cos(this.player.coordinates.angle) * 0.1);
+
+        }
 
     }
 
