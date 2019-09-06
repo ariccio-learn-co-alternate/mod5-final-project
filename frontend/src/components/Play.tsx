@@ -4,6 +4,7 @@ import {Unsubscribe} from 'redux';
 
 import {setCurrentScore} from '../Actions';
 import {store} from '../index';
+import { object } from 'prop-types';
 
 interface PlayState {
     readonly currentUser: string
@@ -113,16 +114,32 @@ const LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '#              #######         #' +
 '#   #              #           #' +
-'#   #         ##               #' +
+'#   #         ##           #   #' +
 '#            #   #             #' +
 '#           #                  #' +
 '#          #      ##           #' +
-'#                              #' +
+'#                          #   #' +
 '#          ##  ######          #' +
 '#          #        #          #' +
 '#          ###   #  #          #' +
 '#          #        #          #' +
 '#           #######            #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
 '#                              #' +
 '################################';
 
@@ -133,6 +150,7 @@ const MAP: Map = {
     MAP_HEIGHT: 32
 }
 console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
+console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === LEVEL_MAP_STRING.length)
 
 
 // const gameListeners = {
@@ -256,6 +274,15 @@ function wallCharCode(): number {
     return pound.charCodeAt(0);
 }
 
+function findDynObject(objectCoordinates: ObjectCoordinateVector): number | null {
+    for (let i = 0; i < objectsOnMap.length; i++) {
+        if ((objectsOnMap[i].x === objectCoordinates.x) && (objectsOnMap[i].y === objectCoordinates.y)) {
+            return i;
+        }
+    }
+    return null;
+}
+
 function addToObjects(objectCoordinates: ObjectCoordinateVector) {
     if (outOfBounds(objectCoordinates.x, objectCoordinates.y)) {
         throw new Error("Object out of bounds!");
@@ -263,9 +290,31 @@ function addToObjects(objectCoordinates: ObjectCoordinateVector) {
     if (ifHitWall(objectCoordinates.y, objectCoordinates.x)) {
         throw new Error("Object in wall. Huh?");
     }
+    if (findDynObject(objectCoordinates) !== null) {
+        console.error("already an object there, not adding.");
+        return;
+    }
     objectsOnMap.push(objectCoordinates);
 }
 
+
+
+function removeFromObjects(objectCoordinates: ObjectCoordinateVector) {
+    if (outOfBounds(objectCoordinates.x, objectCoordinates.y)) {
+        throw new Error("Object out of bounds!");
+    }
+    if (ifHitWall(objectCoordinates.y, objectCoordinates.x)) {
+        throw new Error("Tried to remove a wall wall. Huh?");
+    }
+    let index = findDynObject(objectCoordinates);
+    if (index === null) {
+        throw new Error("Dynamic object not found!")
+    }
+    const removed = objectsOnMap.splice(index, 1);
+    console.assert(removed.length === 1);
+    console.assert(objectCoordinates.x === removed[0].x);
+    console.assert(objectCoordinates.y === removed[0].y);
+}
 
 
 function middleAngleFOV(playerAngle: number): number {
@@ -299,8 +348,31 @@ function outOfBounds(testX: number, testY: number): boolean {
     return false;
 }
 
+function clampBounds(coordinates: ObjectCoordinateVector): ObjectCoordinateVector {
+    if (coordinates.x < 1) {
+        // debugger;
+        coordinates.x = 1;
+    }
+    if (coordinates.x > MAP.MAP_WIDTH - 1) {
+        // debugger;
+        coordinates.x = MAP.MAP_WIDTH - 1;
+    }
+    if (coordinates.y < 1) {
+        // debugger;
+        coordinates.y = 1;
+    }
+    if (coordinates.y > MAP.MAP_HEIGHT -1) {
+        // debugger;
+        coordinates.y = MAP.MAP_HEIGHT -1;
+    }
+    console.log(coordinates.x, coordinates.y, MAP.MAP_WIDTH, MAP.MAP_HEIGHT);
+    return coordinates;
+}
+
+
 function ifHitWall(testY: number, testX: number): boolean {
-    const index = Math.floor((testY * MAP.MAP_WIDTH) + testX);
+    const testYIndex = (testY * MAP.MAP_WIDTH);
+    const index = testYIndex + testX;
     if (MAP.LEVEL_MAP[index] === MAP.WALL_CHAR_CODE) {
         // console.log('Hit object at x:', testX, ', y: ', testY, "index: ", index);
         return true;
@@ -401,6 +473,9 @@ function testDistance(eyeX: number, eyeY: number, playerCoordinates: ObjectCoord
     while (thisDistanceToWall < VIEW_DISTANCE) {
         const testX: number = Math.floor((eyeX * thisDistanceToWall) + playerCoordinates.x);
         const testY: number = Math.floor((eyeY * thisDistanceToWall) + playerCoordinates.y);
+        if (outOfBounds(testX, testY)) {
+            break;
+        }
         const hit = checkHits(testX, testY, thisDistanceToWall);
         if (hit.hit) {
             return hit.testReturn;
@@ -579,7 +654,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     state: any;
     ctx: any;
     offscreenContext: OffscreenCanvasRenderingContext2D;
-    timer: any;
+    animationLoopHandle: any;
     player: Player;
     scoreSubscription: Unsubscribe;
 
@@ -636,6 +711,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         renderToContextFromUint8Clamped(data, this.ctx)
         // this.offscreenContext.clearRect(0,0, 400, 400);
         // this.renderToContextFromBitmap();
+        this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
     }
 
     componentDidMount() {
@@ -651,7 +727,8 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         console.log("render junk screen to show we can render things")
         renderToContextFromUint8Clamped(data, this.ctx);
 
-        this.timer = setInterval(this.step.bind(this), 1);
+        // this.animationLoopHandle = setInterval(this.step.bind(this), 1);
+        this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
         CANVAS.gameCanvas_0.hidden = false;
         // this.renderToContextFromBitmap();
 
@@ -686,6 +763,21 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         return;
     }
 
+    strafeRight = (event: KeyboardEvent) => {
+        this.player.coordinates.x += (Math.sin(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
+        this.player.coordinates.y += (Math.cos(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
+        event.preventDefault();
+        return;
+    }
+
+    strafeLeft = (event: KeyboardEvent) => {
+        this.player.coordinates.x += (Math.sin(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
+        this.player.coordinates.y += (Math.cos(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
+        event.preventDefault();
+        return;
+    }
+
+
     shoot = (event: KeyboardEvent) => {
         event.preventDefault();
         const SHOOT_ANGLE_RANGE = (CANVAS.CANVAS_WIDTH/80);
@@ -701,6 +793,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
             if (testHitDistance.objectHitType === HIT_DYN) {
                 console.log("good hit!");
                 // debugger;
+                removeFromObjects(testHitDistance.coordinates);
                 this.props.setCurrentScore(this.player.score + 1);
                 return;
             }
@@ -714,28 +807,37 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // Ideally we'd track elapsed time, but not right now.
         // console.log(event.key);
         switch (event.key) {
-            case ('a'):
+            case ('ArrowLeft'):
                 this.turnLeft(event);
-                return;
-            case ('d'):
+                break;
+            case ('ArrowRight'):
                 this.turnRight(event);
-                return;
+                break;
+            case ('a'):
+                this.strafeLeft(event);
+                break;
+            case ('d'):
+                this.strafeRight(event);
+                break;
             case ('w'):
                 this.forward(event);
-                return;
+                break;
             case ('s'):
                 this.backward(event);
-                return;
+                break;
             case (' '):
                 this.shoot(event);
-                return
+                break
             default:
                 console.log(`canvas component ignoring keystroke: ${event.key}`)
         }
+        console.log(`Player x,y: ${this.player.coordinates.x}, ${this.player.coordinates.y}`);
+        this.player.coordinates = clampBounds(this.player.coordinates);
     }
 
     componentWillUnmount() {
-        clearInterval(this.timer)
+        // clearInterval(this.animationLoopHandle)
+        cancelAnimationFrame(this.animationLoopHandle);
         CANVAS.gameCanvas_0.hidden = true;
         document.removeEventListener('keydown', this.keydown);
     }
