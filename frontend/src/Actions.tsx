@@ -6,6 +6,7 @@ export const SIGNUP_ACTION = 'SIGNUP';
 export const LOGOUT_ACTION = 'LOGOUT';
 export const SET_USER_SCORES = 'SET_SCORES';
 export const SET_CURRENT_SCORE = 'SET_CURRENT_SCORE';
+export const SET_PLAYING = 'SET_PLAYING';
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -55,6 +56,13 @@ export function setCurrentScore(score: number): object {
     return {
         type: SET_CURRENT_SCORE,
         currentScore: score
+    }
+}
+
+export function setPlaying(playing: boolean): object {
+    return {
+        type: SET_PLAYING,
+        playing: playing
     }
 }
 

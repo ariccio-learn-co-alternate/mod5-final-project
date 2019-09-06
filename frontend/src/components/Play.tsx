@@ -2,17 +2,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {Unsubscribe} from 'redux';
 
-import {setCurrentScore} from '../Actions';
+import {setCurrentScore, setPlaying} from '../Actions';
 import {store} from '../index';
-import { object } from 'prop-types';
 
 interface PlayState {
-    readonly currentUser: string
 }
 
 interface PlayProps {
-    currentUser: string,
-    currentScore: number
+    readonly currentUser: string,
+    readonly currentScore: number
+    readonly playing: boolean,
+    setPlaying: any,
+    setCurrentScore: any
 }
 
 interface CanvasState {
@@ -78,7 +79,8 @@ interface Player {
 
 interface CanvasProps {
     // currentScore: number
-    setCurrentScore: any
+    setCurrentScore: any,
+    setPlaying: any
 }
 
 const DEFAULT_PLAYER: Player = {
@@ -92,6 +94,11 @@ const DEFAULT_PLAYER: Player = {
 const DEFAULT_CANVAS_STATE: CanvasState = {
     // ctx: null
 }
+
+// const DEFAULT_PLAY_STATE: PlayState = {
+//     playing: true
+// }
+
 const CANVAS: CanvasData = initCanvasData();
 
 // Has to be done after init.
@@ -107,6 +114,7 @@ const HIT_DYN = 2;
 
 
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
+const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 
 
 const LEVEL_MAP_STRING: string = '' +
@@ -127,19 +135,19 @@ const LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '#                              #' +
 '#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
+'#        #        ###          #' +
+'#         #                    #' +
+'#          #                   #' +
+'#    #      #                  #' +
+'#            #                 #' +
+'#             #                #' +
+'#       #      #               #' +
+'#        ##   ###              #' +
+'#                #             #' +
+'#                 #  #         #' +
+'#                  #           #' +
+'#    ##             #          #' +
+'#                    #         #' +
 '#                              #' +
 '################################';
 
@@ -166,16 +174,34 @@ const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 // Allocate once please.
 const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(SCREEN_BUFFER_SIZE);
 const objectsOnMap: Array<ObjectCoordinateVector> = [];
+let drawDarkAimPointFlipFlop: boolean = false;
+
+initGameState();
 
 
-addToObjects({
-    x: 10,
-    y: 8,
-    angle: Math.PI/4
-})
-
-
-
+function initGameState() {
+    addToObjects({
+        x: 10,
+        y: 8,
+        angle: Math.PI/4
+    })
+        addToObjects({
+        x: 22,
+        y: 14,
+        angle: Math.PI/4
+    })
+    addToObjects({
+        x: 26,
+        y: 17,
+        angle: Math.PI/4
+    })
+    addToObjects({
+        x: 29,
+        y: 2,
+        angle: Math.PI/4
+    })
+    
+}
 
 
 function canvasIDString(index: number): string {
@@ -224,6 +250,15 @@ function initBeepBoopSounds(): Array<HTMLAudioElement> {
     return BEEP_BOOP_SOUNDS;
 };
 
+function initAllSoundEffects(): Array<HTMLAudioElement> {
+    const SOUND_EFFECTS: Array<HTMLAudioElement> = [];
+    const elements = document.querySelectorAll('.evans-soundeffect')
+     elements.forEach(element => {
+         SOUND_EFFECTS.push(element as HTMLAudioElement)
+     })
+     return SOUND_EFFECTS;
+}
+
 function randomBeepBoop(): HTMLAudioElement {
     const rand = Math.random()*BEEP_BOOP_SOUNDS.length;
     const index = Math.floor(rand);
@@ -233,6 +268,17 @@ function randomBeepBoop(): HTMLAudioElement {
     }
     return sound;
 }
+
+function randomSound(): HTMLAudioElement {
+    const rand = Math.random()*ALL_SOUND_EFFECTS.length;
+    const index = Math.floor(rand);
+    const sound = ALL_SOUND_EFFECTS[index];
+    if (sound === null) {
+        throw new Error("Sound not valid");
+    }
+    return sound;
+}
+
 
 function getCanvasCtx(): CanvasRenderingContext2D {
     const canvas: HTMLCanvasElement = document.getElementById(canvasIDString(0)) as HTMLCanvasElement;
@@ -628,6 +674,28 @@ function drawFloor(wallDistance: testDistanceReturn, indexes: pixelBufferIndicie
 
 }
 
+function drawAimPoint(){
+    const y = (CANVAS.CANVAS_HEIGHT/2)
+    const screenBufferRowPixelIndex = (y * CANVAS.CANVAS_WIDTH);
+    const i = (CANVAS.CANVAS_WIDTH/2);
+    const screenBufferPixelIndex = (screenBufferRowPixelIndex + i);
+    const screenBufferIndex =
+        pixelIndexToBufferIndex(SCREEN_BUFFER_SIZE, CANVAS.CANVAS_PIXELS, screenBufferPixelIndex);
+    
+    const indexes = bufferPixelElementIndexes(SCREEN_BUFFER_SIZE, screenBufferIndex);
+    // drawPixels(y, ceiling, floor, wallDistance, indexes)
+    screenBuffer[indexes.redIndex] = 0;
+    screenBuffer[indexes.greenIndex] = 0;
+    screenBuffer[indexes.blueIndex] = 0;
+    if (drawDarkAimPointFlipFlop) {
+        screenBuffer[indexes.alphaIndex] = 0;
+    }
+    else {
+        screenBuffer[indexes.alphaIndex] = 255;
+    }
+    drawDarkAimPointFlipFlop = (!drawDarkAimPointFlipFlop);
+}
+
 function drawPixels(y: number, ceiling: number, floor: number, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
     if (y < ceiling) {
         drawCeiling(wallDistance, indexes);
@@ -657,6 +725,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     animationLoopHandle: any;
     player: Player;
     scoreSubscription: Unsubscribe;
+    timeout: any;
 
     constructor(props: CanvasProps) {
         super(props);
@@ -669,6 +738,13 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.scoreSubscription = store.subscribe(this.updateScore);
     }
 
+    endPlay = () => {
+        this.props.setPlaying(false);
+        const jeopardy = document.getElementById('jeopardy-0') as HTMLAudioElement;
+        if (jeopardy !== null) {
+            jeopardy.play()
+        }
+    }
 
     updateScore = () => {
         // From the docs: https://redux.js.org/api/store#getState
@@ -705,7 +781,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         }
 
         this.castRays();
-
+        drawAimPoint();
         const data: ImageData = new ImageData(screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
 
         renderToContextFromUint8Clamped(data, this.ctx)
@@ -718,6 +794,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if ((this.ctx === null) || (this.offscreenContext === null) || (CANVAS.offscreenCanvas === null)) {
             return;
         }
+        this.timeout = setTimeout(this.endPlay, 10000);
 
         const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(SCREEN_BUFFER_SIZE);
         for (let i = 0; i < SCREEN_BUFFER_SIZE; i++) {
@@ -840,6 +917,11 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         cancelAnimationFrame(this.animationLoopHandle);
         CANVAS.gameCanvas_0.hidden = true;
         document.removeEventListener('keydown', this.keydown);
+        if (this.timeout !== null) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
+
     }
 
     render() {
@@ -849,15 +931,43 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 }
 
 // const mapStateToCanvasProps
+const mapDispatchToPlayProps = (dispatch: any) => {
+    return {
+        setCurrentScore: (score: number) => dispatch(setCurrentScore(score)),
+        setPlaying: (playing: boolean) => dispatch(setPlaying(playing))
+    };
+}
 
-const Canvas = connect(null, {setCurrentScore})(_Canvas);
+const Canvas = connect(null, mapDispatchToPlayProps)(_Canvas);
+
+function randomSoundPlay(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): any {
+    event.preventDefault();
+    randomSound().play();
+}
 
 class _Play extends React.Component<PlayProps, PlayState> {
+
+    newGame = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.preventDefault();
+        this.props.setCurrentScore(0);
+        this.props.setPlaying(true);
+        initGameState();
+    }
     render() {
+        if (this.props.playing) {
+            return (
+                <>
+                    Current Score: {this.props.currentScore}
+                    <Canvas/>
+                    <button onClick={randomSoundPlay}>Random Evans sound</button>
+                </>
+            );
+        }
         return (
             <>
-                Current Score: {this.props.currentScore}
-                <Canvas/>
+                <h2>GAME OVER</h2>
+                <h4>Final score: {this.props.currentScore}</h4>
+                <button onClick={this.newGame}>Play again</button>
             </>
         );
     }
@@ -866,8 +976,11 @@ class _Play extends React.Component<PlayProps, PlayState> {
 const mapStateToPlayProps = (state: any) => {
     return {
         currentUser: state.currentUser,
-        currentScore: state.currentScore
+        currentScore: state.currentScore,
+        playing: state.playing
     }
 }
 
-export const Play = connect(mapStateToPlayProps, null)(_Play);
+
+
+export const Play = connect(mapStateToPlayProps, mapDispatchToPlayProps)(_Play);

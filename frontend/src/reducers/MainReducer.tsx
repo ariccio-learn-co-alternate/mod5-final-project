@@ -6,7 +6,8 @@ import {
     SET_USERNAME_AND_EMAIL,
     LOGOUT_ACTION,
     SET_USER_SCORES,
-    SET_CURRENT_SCORE
+    SET_CURRENT_SCORE,
+    SET_PLAYING
 } from '../Actions';
 
 const initialState: AppState = {
@@ -14,7 +15,8 @@ const initialState: AppState = {
     username: '',
     email: '',
     scores: [],
-    currentScore: 0
+    currentScore: 0,
+    playing: true
 }
 
 export function reducer(state: AppState = initialState, action: any): any {
@@ -63,7 +65,13 @@ export function reducer(state: AppState = initialState, action: any): any {
             return {
                 ...state,
                 currentScore: action.currentScore
-            }
+            };
+        case SET_PLAYING:
+            console.log(`Setting playing ${action.playing}`);
+            return {
+                ...state,
+                playing: action.playing
+            };
         default:
             console.log("default action: ", action);
             return {...state};
