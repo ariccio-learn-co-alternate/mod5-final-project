@@ -5,14 +5,16 @@ import {
     SIGNUP_ACTION,
     SET_USERNAME_AND_EMAIL,
     LOGOUT_ACTION,
-    SET_USER_SCORES
+    SET_USER_SCORES,
+    SET_CURRENT_SCORE
 } from '../Actions';
 
 const initialState: AppState = {
     currentUser: fromLocalStorage(),
     username: '',
     email: '',
-    scores: []
+    scores: [],
+    currentScore: 0
 }
 
 export function reducer(state: AppState = initialState, action: any): any {
@@ -56,6 +58,12 @@ export function reducer(state: AppState = initialState, action: any): any {
                 email: action.email,
                 currentUser: action.currentUser
             };
+        case SET_CURRENT_SCORE:
+            console.log('setting current score');
+            return {
+                ...state,
+                currentScore: action.currentScore
+            }
         default:
             console.log("default action: ", action);
             return {...state};

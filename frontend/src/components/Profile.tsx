@@ -112,6 +112,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
         }
         return (
             <>
+                <h3>Friends</h3>
                 <Table striped bordered hover>
                     {tableHeader()}
                     {tableBody(this.state.response)}

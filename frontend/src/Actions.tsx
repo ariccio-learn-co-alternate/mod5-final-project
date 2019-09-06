@@ -5,6 +5,7 @@ export const SIGNUP_ACTION = 'SIGNUP';
 // export const GET_USER_INFO = 'GET_USER_INFO';
 export const LOGOUT_ACTION = 'LOGOUT';
 export const SET_USER_SCORES = 'SET_SCORES';
+export const SET_CURRENT_SCORE = 'SET_CURRENT_SCORE';
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -46,6 +47,15 @@ export function setUserScores(scores: object[]): object {
         type: SET_USER_SCORES,
         scores: scores
     }
-
 } 
+
+export function setCurrentScore(score: number): object {
+    // console.log("setCurrentScore");
+    // debugger;
+    return {
+        type: SET_CURRENT_SCORE,
+        currentScore: score
+    }
+}
+
 // export function getUserInfo()

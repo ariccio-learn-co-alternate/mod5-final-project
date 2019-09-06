@@ -15,10 +15,11 @@ export interface AppState {
     readonly currentUser: string,
     readonly username: string,
     readonly email: string,
-    readonly scores: object[]
+    readonly scores: object[],
+    currentScore: number
 }
 
-const store = createStore(reducer);
+export const store = createStore(reducer);
 
 ReactDOM.render(
     <React.StrictMode>
