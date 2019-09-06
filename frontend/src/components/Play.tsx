@@ -40,8 +40,8 @@ const gameCanvas_0: HTMLCanvasElement = document.createElement('canvas');
 // const gameCanvas_1: HTMLCanvasElement = document.createElement('canvas');
 let offscreenCanvas: OffscreenCanvas|null = null
 
-
-
+// const beepBoopSound: HTMLAudioElement = new Audio('../../public/rb_one_to_many_06031_boop_0.m4a');
+const beepBoopSound = document.getElementById("beepboop-0") as HTMLAudioElement;
 gameCanvas_0.id = canvasIDString(0);
 // gameCanvas_1.id = canvasIDString(1);
 
@@ -587,8 +587,16 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
                 event.preventDefault();
                 break;
             case ('w'):
+                if (beepBoopSound !== null) {
+                    beepBoopSound.play()
+                }
                 this.player.coordinates.x += (Math.sin(this.player.coordinates.angle) * 0.5);
                 this.player.coordinates.y += (Math.cos(this.player.coordinates.angle) * 0.5);
+                event.preventDefault();
+                break;
+            case ('s'):
+                this.player.coordinates.x -= (Math.sin(this.player.coordinates.angle) * 0.5);
+                this.player.coordinates.y -= (Math.cos(this.player.coordinates.angle) * 0.5);
                 event.preventDefault();
                 break;
             case (' '):

@@ -1,0 +1,5 @@
+youtube-dl -F
+then
+youtube-dl audio only
+then
+ffmpeg -ss (starting seconds) -to (ending seconds) -i input output
