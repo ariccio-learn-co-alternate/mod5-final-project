@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { object } from 'prop-types';
+// import { object } from 'prop-types';
 // import { string } from 'prop-types';
 
 
@@ -21,51 +21,95 @@ const defaultCanvasState: CanvasState = {
 }
 
 function canvasIDString(index: number): string {
-    return `${CANVAS_ID}-${index}`;
+    return `${CANVAS.CANVAS_ID}-${index}`;
 }
-function initCanvas(canvas: HTMLCanvasElement, width: number, height: number, hidden: boolean): void {
+function initCanvasElement(canvas: HTMLCanvasElement, width: number, height: number, hidden: boolean): void {
     canvas.width = width;
     canvas.height = height;
     canvas.hidden = hidden;
 }
 
+interface CanvasData {
+    CANVAS_CONTAINER_ID: string,
+    CANVAS_ID: string,
+    CANVAS_WIDTH: number,
+    CANVAS_HEIGHT: number,
+    CANVAS_PIXELS: number,
+    CANVAS_CONTAINER: HTMLDivElement,
+    gameCanvas_0: HTMLCanvasElement,
+    offscreenCanvas: OffscreenCanvas|null
+}
 
-const CANVAS_CONTAINER: string = "game-canvas-container";
-const CANVAS_ID: string = "game-canvas-element-id";
-const CANVAS_WIDTH: number = 400;
-const CANVAS_HEIGHT: number = 400;
-const CANVAS_PIXELS: number = (CANVAS_WIDTH * CANVAS_HEIGHT);
-const container: HTMLDivElement = document.getElementById(CANVAS_CONTAINER) as HTMLDivElement;
-const gameCanvas_0: HTMLCanvasElement = document.createElement('canvas');
-// const gameCanvas_1: HTMLCanvasElement = document.createElement('canvas');
-let offscreenCanvas: OffscreenCanvas|null = null
+function initCanvasData(): CanvasData {
+    const CANVAS_WIDTH: number = 400;
+    const CANVAS_HEIGHT: number = 400;
+    const CANVAS_PIXELS: number = (CANVAS_WIDTH * CANVAS_HEIGHT);
+    const CANVAS_CONTAINER_ID: string = "game-canvas-container";
+    const container: HTMLDivElement = document.getElementById(CANVAS_CONTAINER_ID) as HTMLDivElement;
+    const gameCanvas_0: HTMLCanvasElement = document.createElement('canvas');
+    // gameCanvas_1.id = canvasIDString(1);
+    
+    initCanvasElement(gameCanvas_0, CANVAS_WIDTH, CANVAS_HEIGHT, false);
+    // initCanvas(gameCanvas_1, 400, 400, true);
+    container.appendChild(gameCanvas_0);
+    
+    return {
+        CANVAS_CONTAINER_ID: CANVAS_CONTAINER_ID,
+        CANVAS_ID: "game-canvas-element-id",
+        CANVAS_WIDTH: CANVAS_WIDTH,
+        CANVAS_HEIGHT: CANVAS_HEIGHT,
+        CANVAS_PIXELS: CANVAS_PIXELS,
+        CANVAS_CONTAINER: container,
+        gameCanvas_0: gameCanvas_0,
+        offscreenCanvas: null
+    }
+}
 
-// const beepBoopSound: HTMLAudioElement = new Audio('../../public/rb_one_to_many_06031_boop_0.m4a');
-const beepBoopSound = document.getElementById("beepboop-0") as HTMLAudioElement;
-gameCanvas_0.id = canvasIDString(0);
-// gameCanvas_1.id = canvasIDString(1);
+const CANVAS: CanvasData = initCanvasData();
 
-initCanvas(gameCanvas_0, CANVAS_WIDTH, CANVAS_HEIGHT, false);
-// initCanvas(gameCanvas_1, 400, 400, true);
-container.appendChild(gameCanvas_0);
+// Has to be done after init.
+CANVAS.gameCanvas_0.id = canvasIDString(0);
 
-function getCanvasCtx(): any {
+
+function initSounds(): Array<HTMLAudioElement> {
+    const beepBoopSounds = [];
+    // const beepBoopSound: HTMLAudioElement = new Audio('../../public/rb_one_to_many_06031_boop_0.m4a');
+    const beepBoopSound_0 = document.getElementById("beepboop-0") as HTMLAudioElement;
+    beepBoopSounds.push(beepBoopSound_0);
+
+    const beepBoopSound_1 = document.getElementById("beepboop-1") as HTMLAudioElement;
+    beepBoopSounds.push(beepBoopSound_1);
+    return beepBoopSounds;
+};
+const beepBoopSounds: Array<HTMLAudioElement> = initSounds();
+
+function randomBeepBoop(): HTMLAudioElement {
+    const rand = Math.random()*beepBoopSounds.length;
+    const index = Math.floor(rand);
+    const sound = beepBoopSounds[index];
+    if (sound === null) {
+        throw new Error("Sound not valid");
+    }
+    return sound;
+}
+
+function getCanvasCtx(): CanvasRenderingContext2D {
     const canvas: HTMLCanvasElement = document.getElementById(canvasIDString(0)) as HTMLCanvasElement;
     if (canvas === null) {
         console.error("null canvas")
-        throw new Error();
+        throw new Error("null canvas");
     }
-    const ctx: any = canvas.getContext("2d");
+    const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
     if (ctx === null) {
         console.error("null context");
-        throw new Error();
+        throw new Error("null context");
     }
     return ctx
 }
 
 function getOffscreenContext(width: number, height: number): OffscreenCanvasRenderingContext2D {
-    offscreenCanvas = new OffscreenCanvas(width, height);
-    const context = offscreenCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+    CANVAS.offscreenCanvas = new OffscreenCanvas(width, height);
+    const context = CANVAS.offscreenCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D | null;
     if (context === null) {
         console.error("null context")
         throw new Error();
@@ -107,11 +151,22 @@ function wallCharCode(): number {
     return pound.charCodeAt(0);
 }
 
-const LEVEL_MAP: Uint8ClampedArray = levelMapArray();
-const WALL_CHAR_CODE: number = wallCharCode();
-const MAP_WIDTH: number = 32;
-const MAP_HEIGHT: number = 32;
-console.assert(MAP_WIDTH === MAP_HEIGHT);
+
+interface Map {
+    LEVEL_MAP: Uint8ClampedArray,
+    WALL_CHAR_CODE: number,
+    MAP_WIDTH: number,
+    MAP_HEIGHT: number
+}
+
+const MAP: Map = {
+    LEVEL_MAP: levelMapArray(),
+    WALL_CHAR_CODE: wallCharCode(),
+    MAP_WIDTH: 32,
+    MAP_HEIGHT: 32
+}
+console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
+
 
 // const gameListeners = {
 //     w: null,
@@ -121,7 +176,7 @@ console.assert(MAP_WIDTH === MAP_HEIGHT);
 // }
 // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
-const screenBufferSize = CANVAS_PIXELS *4
+const screenBufferSize = CANVAS.CANVAS_PIXELS *4
 
 // Allocate once please.
 const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(screenBufferSize);
@@ -181,7 +236,7 @@ function middleAngleFOV(playerAngle: number): number {
 function rayAngle(playerAngle: number, offset: number): number {
     const middleAngle = (FIELD_OF_VIEW/2);
     const FOVStart = (playerAngle) - middleAngle;
-    const fractionOfScreen = (offset/CANVAS_WIDTH);
+    const fractionOfScreen = (offset/CANVAS.CANVAS_WIDTH);
     const FOVEnd = fractionOfScreen * FIELD_OF_VIEW;
     const rayAngleReturn = FOVStart + FOVEnd;
     return rayAngleReturn;
@@ -191,21 +246,21 @@ function outOfBounds(testX: number, testY: number): boolean {
     if (testX < 0) {
         return true;
     }
-    if (testX >= MAP_WIDTH) {
+    if (testX >= MAP.MAP_WIDTH) {
         return true;
     }
     if (testY < 0) {
         return true;
     }
-    if (testY >= MAP_HEIGHT) {
+    if (testY >= MAP.MAP_HEIGHT) {
         return true;
     }
     return false;
 }
 
 function ifHitWall(testY: number, testX: number): boolean {
-    const index = Math.floor((testY * MAP_WIDTH) + testX);
-    if (LEVEL_MAP[index] === WALL_CHAR_CODE) {
+    const index = Math.floor((testY * MAP.MAP_WIDTH) + testX);
+    if (MAP.LEVEL_MAP[index] === MAP.WALL_CHAR_CODE) {
         // console.log('Hit object at x:', testX, ', y: ', testY, "index: ", index);
         return true;
     }
@@ -457,6 +512,14 @@ function drawPixels(y: number, ceiling: number, floor: number, wallDistance: tes
     }
 }
 
+function renderToContextFromUint8Clamped(data: ImageData, ctx: CanvasRenderingContext2D) {
+    if (CANVAS.offscreenCanvas === null) {
+        console.error("null canvas");
+        return;
+    }
+    ctx.putImageData(data, 0, 0)
+}
+
 
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class Canvas extends React.Component<CanvasProps, CanvasState> {
@@ -486,51 +549,40 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
     
     }
 
-    renderToContextFromBitmap() {
-        this.offscreenContext.fillText("Not implemented yet.", this.x, this.y)
-        this.offscreenContext.fillText(".tey detnemelpmi toN", (-this.x)+gameCanvas_0.width, (-this.y)+gameCanvas_0.height)
-        this.x = ((this.x + 1) % 400);
-        this.y = ((this.y + 2) % 400);
+    // renderToContextFromBitmap() {
+    //     this.offscreenContext.fillText("Not implemented yet.", this.x, this.y)
+    //     this.offscreenContext.fillText(".tey detnemelpmi toN", (-this.x)+gameCanvas_0.width, (-this.y)+gameCanvas_0.height)
+    //     this.x = ((this.x + 1) % 400);
+    //     this.y = ((this.y + 2) % 400);
 
-        if (offscreenCanvas === null) {
-            console.warn("null canvas");
-            return;
-        }
-        if (this.lastBitmapRenderedBool) {
-            this.bitmap_0 = offscreenCanvas.transferToImageBitmap();
-            this.ctx.transferFromImageBitmap(this.bitmap_0)    
-        }
-        else {
-            this.bitmap_1 = offscreenCanvas.transferToImageBitmap();
-            this.ctx.transferFromImageBitmap(this.bitmap_1)
-        }
-        this.lastBitmapRenderedBool = !(this.lastBitmapRenderedBool);
+    //     if (offscreenCanvas === null) {
+    //         console.warn("null canvas");
+    //         return;
+    //     }
+    //     if (this.lastBitmapRenderedBool) {
+    //         this.bitmap_0 = offscreenCanvas.transferToImageBitmap();
+    //         this.ctx.transferFromImageBitmap(this.bitmap_0)    
+    //     }
+    //     else {
+    //         this.bitmap_1 = offscreenCanvas.transferToImageBitmap();
+    //         this.ctx.transferFromImageBitmap(this.bitmap_1)
+    //     }
+    //     this.lastBitmapRenderedBool = !(this.lastBitmapRenderedBool);
+    // }
 
-    }
-
-    renderToContextFromUint8Clamped(data: ImageData) {
-        if (offscreenCanvas === null) {
-            console.error("null canvas");
-            return;
-        }
-        this.ctx.putImageData(data, 0, 0)
-        if (this.lastBitmapRenderedBool) {
-            // this.bitmap_0
-        }
-    }
 
     castRays() {
-        for (let i = 0; i < CANVAS_WIDTH; i++) {
+        for (let i = 0; i < CANVAS.CANVAS_WIDTH; i++) {
             const angleOfThisRay = rayAngle(this.player.coordinates.angle, i);
             // raysCasted.push(angleOfThisRay);
             const wallDistance: testDistanceReturn = distanceToWall(angleOfThisRay, this.player.coordinates);
-            const ceiling: number = (CANVAS_HEIGHT/2) - (CANVAS_HEIGHT / wallDistance.distance);
-            const floor = CANVAS_HEIGHT - ceiling;
-            for (let y = 0; y < CANVAS_HEIGHT; y++) {
-                const screenBufferRowPixelIndex = (y * CANVAS_WIDTH);
+            const ceiling: number = (CANVAS.CANVAS_HEIGHT/2) - (CANVAS.CANVAS_HEIGHT / wallDistance.distance);
+            const floor = CANVAS.CANVAS_HEIGHT - ceiling;
+            for (let y = 0; y < CANVAS.CANVAS_HEIGHT; y++) {
+                const screenBufferRowPixelIndex = (y * CANVAS.CANVAS_WIDTH);
                 const screenBufferPixelIndex = (screenBufferRowPixelIndex + i);
                 const screenBufferIndex =
-                    pixelIndexToBufferIndex(screenBufferSize, CANVAS_PIXELS, screenBufferPixelIndex);
+                    pixelIndexToBufferIndex(screenBufferSize, CANVAS.CANVAS_PIXELS, screenBufferPixelIndex);
                 
                 const indexes = bufferPixelElementIndexes(screenBufferSize, screenBufferIndex);
                 drawPixels(y, ceiling, floor, wallDistance, indexes)
@@ -539,36 +591,36 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     step() {
-        if (offscreenCanvas === null) {
+        if (CANVAS.offscreenCanvas === null) {
             console.warn("null canvas");
             return;
         }
 
         this.castRays();
 
-        const data: ImageData = new ImageData(screenBuffer, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const data: ImageData = new ImageData(screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
 
-        this.renderToContextFromUint8Clamped(data)
+        renderToContextFromUint8Clamped(data, this.ctx)
         // this.offscreenContext.clearRect(0,0, 400, 400);
         // this.renderToContextFromBitmap();
     }
 
     componentDidMount() {
-        if ((this.ctx === null) || (this.offscreenContext === null) || (offscreenCanvas === null)) {
+        if ((this.ctx === null) || (this.offscreenContext === null) || (CANVAS.offscreenCanvas === null)) {
             return;
         }
         // this.offscreenContext.fillText("Not implemented yet.", 200, 200)
-        const screenBufferSize = CANVAS_PIXELS *4
+        const screenBufferSize = CANVAS.CANVAS_PIXELS *4
         const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(screenBufferSize);
         for (let i = 0; i < screenBufferSize; i++) {
             screenBuffer[i] = Math.floor(Math.random() * 255);
         }
-        const data: ImageData = new ImageData(screenBuffer, CANVAS_WIDTH, CANVAS_HEIGHT);
+        const data: ImageData = new ImageData(screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
         console.log("render junk screen to show we can render things")
-        this.renderToContextFromUint8Clamped(data);
+        renderToContextFromUint8Clamped(data, this.ctx);
 
         this.timer = setInterval(this.step.bind(this), 1);
-        gameCanvas_0.hidden = false;
+        CANVAS.gameCanvas_0.hidden = false;
         // this.renderToContextFromBitmap();
 
         document.addEventListener('keydown', this.keydown)
@@ -587,9 +639,10 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
                 event.preventDefault();
                 break;
             case ('w'):
-                if (beepBoopSound !== null) {
-                    beepBoopSound.play()
-                }
+                randomBeepBoop().play()
+                // if (beepBoopSound !== null) {
+                //     beepBoopSound.play()
+                // }
                 this.player.coordinates.x += (Math.sin(this.player.coordinates.angle) * 0.5);
                 this.player.coordinates.y += (Math.cos(this.player.coordinates.angle) * 0.5);
                 event.preventDefault();
@@ -604,9 +657,9 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
                 // const shootAngle = middleAngleFOV(this.player.coordinates.angle);
                 // const eyeX: number = Math.sin(shootAngle); // javidX9 calls this a "unit vector for ray in space"
                 // const eyeY: number = Math.cos(shootAngle);
-                const SHOOT_ANGLE_RANGE = (CANVAS_WIDTH/80);
-                const SHOOT_ANGLE_START = Math.floor((CANVAS_WIDTH/2) - SHOOT_ANGLE_RANGE);
-                const SHOOT_ANGLE_END = Math.floor((CANVAS_WIDTH/2) + SHOOT_ANGLE_RANGE)
+                const SHOOT_ANGLE_RANGE = (CANVAS.CANVAS_WIDTH/80);
+                const SHOOT_ANGLE_START = Math.floor((CANVAS.CANVAS_WIDTH/2) - SHOOT_ANGLE_RANGE);
+                const SHOOT_ANGLE_END = Math.floor((CANVAS.CANVAS_WIDTH/2) + SHOOT_ANGLE_RANGE)
                 for (let i = SHOOT_ANGLE_START; i < SHOOT_ANGLE_END; i++) {
                     const angleOfThisRay = rayAngle(this.player.coordinates.angle, i);
                     // console.log(`Player at angle,x,y: '${this.player.coordinates.angle},${this.player.coordinates.x},${this.player.coordinates.y}' shooting angle,x,y: '${shootAngle},${eyeX},${eyeY}'` )
@@ -661,7 +714,7 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
 
     componentWillUnmount() {
         clearInterval(this.timer)
-        gameCanvas_0.hidden = true;
+        CANVAS.gameCanvas_0.hidden = true;
         // this.bitmap_0.close();
         // this.bitmap_1.close();
         document.removeEventListener('keydown', this.keydown);
