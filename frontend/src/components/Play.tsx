@@ -119,8 +119,6 @@ const HIT_ERR = 0;
 const HIT_WALL = 1;
 const HIT_DYN = 2;
 
-
-
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 
@@ -159,7 +157,6 @@ const LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '################################';
 
-
 function initMap(): Map {
     const MAP: Map = {
         LEVEL_MAP: levelMapArray(),
@@ -173,25 +170,9 @@ function initMap(): Map {
     return MAP;
 }
 
-
-
-
-// const gameListeners = {
-//     w: null,
-//     a: null,
-//     s: null,
-//     d: null,
-// }
 // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
-
-
-
-
-
-let gameState: GameState = initGameState();
-
 
 function initGameState(): GameState {
     const objectsOnMap: Array<ObjectCoordinateVector> = [];
@@ -220,7 +201,6 @@ function initGameState(): GameState {
     // Allocate once please, not every render.
     const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(SCREEN_BUFFER_SIZE);
     const drawDarkAimPointFlipFlop: boolean = false;
-    
 
     const state: GameState = {
         objectsOnMap: objectsOnMap,
@@ -232,10 +212,10 @@ function initGameState(): GameState {
     return state;
 }
 
-
 function canvasIDString(index: number): string {
     return `${CANVAS.CANVAS_ID}-${index}`;
 }
+
 function initCanvasElement(canvas: HTMLCanvasElement, width: number, height: number, hidden: boolean): void {
     canvas.width = width;
     canvas.height = height;
@@ -246,7 +226,6 @@ function randomSoundPlay(event: React.MouseEvent<HTMLButtonElement, MouseEvent>)
     event.preventDefault();
     randomSound().play();
 }
-
 
 function initCanvasData(): CanvasData {
     const CANVAS_WIDTH: number = 400;
@@ -391,8 +370,6 @@ function addToObjects(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, obj
     objectsOnMap.push(objectCoordinates);
 }
 
-
-
 function removeFromObjects(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, objectCoordinates: ObjectCoordinateVector) {
     if (outOfBounds(MAP, objectCoordinates.x, objectCoordinates.y)) {
         throw new Error("Object out of bounds!");
@@ -409,7 +386,6 @@ function removeFromObjects(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>
     console.assert(objectCoordinates.x === removed[0].x);
     console.assert(objectCoordinates.y === removed[0].y);
 }
-
 
 function rayAngle(playerAngle: number, offset: number): number {
     const middleAngle = (FIELD_OF_VIEW/2);
@@ -456,7 +432,6 @@ function clampBounds(MAP: Map, coordinates: ObjectCoordinateVector): ObjectCoord
     // console.log(coordinates.x, coordinates.y, MAP.MAP_WIDTH, MAP.MAP_HEIGHT);
     return coordinates;
 }
-
 
 function ifHitWall(MAP: Map, testY: number, testX: number): boolean {
     const testYIndex = (testY * MAP.MAP_WIDTH);
@@ -511,12 +486,9 @@ function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX:
                     y: testY,
                     angle: 0
                 }
-
             }
         };
-
     }
-
     if(ifHitWall(MAP, testX, testY)) {
         return {
             hit: true,
@@ -529,12 +501,9 @@ function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX:
                     y: testY,
                     angle: 0
                 }
-
             }
         };
     }
-
-
     return {
         hit: false,
         testReturn: {
@@ -546,10 +515,8 @@ function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX:
                     y: testY,
                     angle: 0
                 }
-
         }
     };
-
 }
 
 function testDistance(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, eyeX: number, eyeY: number, playerCoordinates: ObjectCoordinateVector): testDistanceReturn {
@@ -577,10 +544,7 @@ function testDistance(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, eye
             y: -1,
             angle: 0
         }
-
     };
-
-    
 }
 
 function distanceToWall(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, rayAngle: number, coordinates: ObjectCoordinateVector): testDistanceReturn {
@@ -615,7 +579,6 @@ function inPixelBufferBounds(bufferSize: number, bufferPixelIndex: number): bool
     return true;
 }
 
-
 function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number): pixelBufferIndicies {
     // won't check bounds for red, green, blue, only alpha, because it's the top. 
 
@@ -633,7 +596,6 @@ function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number)
     if (!inPixelBufferBounds(bufferSize, alphaIndex)) {
         throw new Error("out of bounds!");
     }
-
     // These will only fire in case of weird overflow problems 
     if(!(redIndex < greenIndex)) {
         throw new Error("assertion failed");
@@ -646,8 +608,6 @@ function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number)
     }
     return {redIndex, greenIndex, blueIndex, alphaIndex};
 }
-
-
 
 function drawCeiling(screenBuffer: Uint8ClampedArray, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
     if (wallDistance.outOfBounds) {
@@ -665,7 +625,6 @@ function drawCeiling(screenBuffer: Uint8ClampedArray, wallDistance: testDistance
         screenBuffer[indexes.alphaIndex] = 255;
         // screenBuffer[indexes.alphaIndex] = brightness;
     }
-
 }
 
 function drawObjects(screenBuffer: Uint8ClampedArray, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
@@ -692,7 +651,6 @@ function drawObjects(screenBuffer: Uint8ClampedArray, wallDistance: testDistance
             screenBuffer[indexes.alphaIndex] = brightness;
         }
     }
-
 }
 
 function drawFloor(screenBuffer: Uint8ClampedArray, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
@@ -710,7 +668,6 @@ function drawFloor(screenBuffer: Uint8ClampedArray, wallDistance: testDistanceRe
         screenBuffer[indexes.alphaIndex] = 255;
         // screenBuffer[indexes.alphaIndex] = brightness;
     }
-
 }
 
 function drawAimPoint(gameState: GameState){
@@ -755,16 +712,14 @@ function renderToContextFromUint8Clamped(data: ImageData, ctx: CanvasRenderingCo
     ctx.putImageData(data, 0, 0)
 }
 
-function checkShot(playerCoordinates: ObjectCoordinateVector): testDistanceReturn | null {
+function checkShot(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, playerCoordinates: ObjectCoordinateVector): testDistanceReturn | null {
     const SHOOT_ANGLE_RANGE = (CANVAS.CANVAS_WIDTH/80);
     const SHOOT_ANGLE_START = Math.floor((CANVAS.CANVAS_WIDTH/2) - SHOOT_ANGLE_RANGE);
     const SHOOT_ANGLE_END = Math.floor((CANVAS.CANVAS_WIDTH/2) + SHOOT_ANGLE_RANGE)
     for (let i = SHOOT_ANGLE_START; i < SHOOT_ANGLE_END; i++) {
         const angleOfThisRay = rayAngle(playerCoordinates.angle, i);
         console.log(`Player at radians,angle,x,y: '${playerCoordinates.angle},${playerCoordinates.angle*(360)},${playerCoordinates.x},${playerCoordinates.y}'` )
-        // debugger;
-        const testHitDistance = distanceToWall(gameState.MAP, gameState.objectsOnMap, angleOfThisRay, playerCoordinates);
-
+        const testHitDistance = distanceToWall(MAP, objectsOnMap, angleOfThisRay, playerCoordinates);
         console.log(`Maybe the target is at: ${testHitDistance.coordinates.x},${testHitDistance.coordinates.y}`)
         if (testHitDistance.objectHitType === HIT_DYN) {
             console.log("good hit!");
@@ -775,11 +730,11 @@ function checkShot(playerCoordinates: ObjectCoordinateVector): testDistanceRetur
     return null;
 }
 
-function castRays(playerCoordinates: ObjectCoordinateVector) {
+function castRays(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, screenBuffer: Uint8ClampedArray, playerCoordinates: ObjectCoordinateVector) {
     for (let i = 0; i < CANVAS.CANVAS_WIDTH; i++) {
         const angleOfThisRay = rayAngle(playerCoordinates.angle, i);
         // raysCasted.push(angleOfThisRay);
-        const wallDistance: testDistanceReturn = distanceToWall(gameState.MAP, gameState.objectsOnMap,angleOfThisRay, playerCoordinates);
+        const wallDistance: testDistanceReturn = distanceToWall(MAP, objectsOnMap,angleOfThisRay, playerCoordinates);
         const ceiling: number = (CANVAS.CANVAS_HEIGHT/2) - (CANVAS.CANVAS_HEIGHT / wallDistance.distance);
         const floor = CANVAS.CANVAS_HEIGHT - ceiling;
         for (let y = 0; y < CANVAS.CANVAS_HEIGHT; y++) {
@@ -789,11 +744,10 @@ function castRays(playerCoordinates: ObjectCoordinateVector) {
                 pixelIndexToBufferIndex(SCREEN_BUFFER_SIZE, CANVAS.CANVAS_PIXELS, screenBufferPixelIndex);
             
             const indexes = bufferPixelElementIndexes(SCREEN_BUFFER_SIZE, screenBufferIndex);
-            drawPixels(gameState.screenBuffer, y, ceiling, floor, wallDistance, indexes)
+            drawPixels(screenBuffer, y, ceiling, floor, wallDistance, indexes)
         }
     }
 }
-
 
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class _Canvas extends React.Component<CanvasProps, CanvasState> {
@@ -804,16 +758,16 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     player: Player;
     scoreSubscription: Unsubscribe;
     timeout: any;
+    gameState: GameState
 
     constructor(props: CanvasProps) {
         super(props);
         this.state = DEFAULT_CANVAS_STATE;
         this.ctx = getCanvasCtx();
         this.offscreenContext = getOffscreenContext(400, 400);
-    
         this.player = DEFAULT_PLAYER;
-        // debugger;
         this.scoreSubscription = store.subscribe(this.updateScore);
+        this.gameState = initGameState();
     }
 
     endPlay = () => {
@@ -831,25 +785,23 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // console.log(`Updated score from ${previousValue} to ${this.player.score}`)
     }
 
-
-
     step() {
         if (CANVAS.offscreenCanvas === null) {
             console.warn("null canvas");
             return;
         }
 
-        castRays(this.player.coordinates);
-        drawAimPoint(gameState);
-        const data: ImageData = new ImageData(gameState.screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
+        castRays(this.gameState.MAP, this.gameState.objectsOnMap, this.gameState.screenBuffer, this.player.coordinates);
+        drawAimPoint(this.gameState);
+        const data: ImageData = new ImageData(this.gameState.screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
 
         renderToContextFromUint8Clamped(data, this.ctx)
-        // this.offscreenContext.clearRect(0,0, 400, 400);
-        // this.renderToContextFromBitmap();
         this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
     }
 
     componentDidMount() {
+        console.log("canvas mounted");
+        this.gameState = initGameState();
         if ((this.ctx === null) || (this.offscreenContext === null) || (CANVAS.offscreenCanvas === null)) {
             return;
         }
@@ -908,12 +860,12 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
     shoot = (event: KeyboardEvent) => {
         event.preventDefault();
-        const testHitShot: testDistanceReturn | null = checkShot(this.player.coordinates);
+        const testHitShot: testDistanceReturn | null = checkShot(this.gameState.MAP, this.gameState.objectsOnMap, this.player.coordinates);
         if (testHitShot === null) {
             return;
         }
-        // debugger;
-        removeFromObjects(gameState.MAP, gameState.objectsOnMap, testHitShot.coordinates);
+
+        removeFromObjects(this.gameState.MAP, this.gameState.objectsOnMap, testHitShot.coordinates);
         this.props.setCurrentScore(this.player.score + 1);
         return;
 
@@ -948,10 +900,11 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
                 console.log(`canvas component ignoring keystroke: ${event.key}`)
         }
         // console.log(`Player x,y: ${this.player.coordinates.x}, ${this.player.coordinates.y}`);
-        this.player.coordinates = clampBounds(gameState.MAP, this.player.coordinates);
+        this.player.coordinates = clampBounds(this.gameState.MAP, this.player.coordinates);
     }
 
     componentWillUnmount() {
+        console.log("canvas unmounting"); 
         // clearInterval(this.animationLoopHandle)
         cancelAnimationFrame(this.animationLoopHandle);
         CANVAS.gameCanvas_0.hidden = true;
@@ -960,16 +913,14 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
             clearTimeout(this.timeout);
             this.timeout = null;
         }
-
     }
 
     render() {
+        // Not really doing any rendering, but using a react component makes lots of other things easy.
         return(null)
     }
-
 }
 
-// const mapStateToCanvasProps
 const mapDispatchToPlayProps = (dispatch: any) => {
     return {
         setCurrentScore: (score: number) => dispatch(setCurrentScore(score)),
@@ -979,14 +930,13 @@ const mapDispatchToPlayProps = (dispatch: any) => {
 
 const Canvas = connect(null, mapDispatchToPlayProps)(_Canvas);
 
-
 class _Play extends React.Component<PlayProps, PlayState> {
 
     newGame = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
         this.props.setCurrentScore(0);
         this.props.setPlaying(true);
-        gameState = initGameState();
+        // gameState = initGameState();
     }
     render() {
         if (this.props.playing) {
@@ -1015,7 +965,5 @@ const mapStateToPlayProps = (state: any) => {
         playing: state.playing
     }
 }
-
-
 
 export const Play = connect(mapStateToPlayProps, mapDispatchToPlayProps)(_Play);
