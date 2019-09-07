@@ -205,7 +205,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
 
 const mapStateToProps = (state: any) => {
     return {
-      currentUser: state.currentUser,
+      currentUser: state.currentUser
     }
   }
 

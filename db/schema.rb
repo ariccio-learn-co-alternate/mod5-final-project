@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_30_181408) do
+ActiveRecord::Schema.define(version: 2019_09_07_213807) do
 
   create_table "levels", force: :cascade do |t|
     t.integer "score_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "level_name"
     t.index ["score_id"], name: "index_levels_on_score_id"
   end
 

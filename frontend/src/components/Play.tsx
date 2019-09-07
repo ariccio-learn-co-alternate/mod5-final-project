@@ -18,6 +18,7 @@ interface PlayProps {
 
 interface CanvasState {
     // ctx: CanvasRenderingContext2D | null
+    currentUser: string
 }
 
 interface CanvasData {
@@ -101,6 +102,7 @@ const DEFAULT_PLAYER: Player = {
 }
 const DEFAULT_CANVAS_STATE: CanvasState = {
     // ctx: null
+    currentUser: ''
 }
 
 // const DEFAULT_PLAY_STATE: PlayState = {
@@ -122,6 +124,9 @@ const HIT_DYN = 2;
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 
+// https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
+// Imagedata needs an 8 bit R value, G value, b value, and a A value;
+const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 
 const LEVEL_MAP_STRING: string = '' +
 '################################' +
@@ -170,9 +175,20 @@ function initMap(): Map {
     return MAP;
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
-// Imagedata needs an 8 bit R value, G value, b value, and a A value;
-const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
+function mapFetchOptions(jwt: string): RequestInit {
+    // const bodyData = {
+    //     'level' : {id: 1}
+    // };
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`
+        },
+        // body: JSON.stringify(bodyData)
+    };
+    return requestOptions;
+}
 
 function initGameState(): GameState {
     const objectsOnMap: Array<ObjectCoordinateVector> = [];
@@ -928,14 +944,33 @@ const mapDispatchToPlayProps = (dispatch: any) => {
     };
 }
 
-const Canvas = connect(null, mapDispatchToPlayProps)(_Canvas);
+const mapStateToCanvasProps = (state: any) => {
+    return {
+      currentUser: state.currentUser
+    }
+  }
+
+
+const Canvas = connect(mapStateToCanvasProps, mapDispatchToPlayProps)(_Canvas);
 
 class _Play extends React.Component<PlayProps, PlayState> {
+
+
+    async componentDidMount() {
+        const options: RequestInit = mapFetchOptions(this.props.currentUser);
+        const rawResponse: Promise<Response> = fetch('/levels/1', options);
+        const jsonResponse = (await rawResponse).json();
+        const responseParsed = await jsonResponse;
+        // debugger;
+        console.log(responseParsed.map);
+        console.assert(responseParsed.map.charCodeAt(0) === wallCharCode());
+        debugger;
+    }
 
     newGame = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
         this.props.setCurrentScore(0);
-        this.props.setPlaying(true);
+        this.props.setPlaying(false);
         // gameState = initGameState();
     }
     render() {

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   get '/users/showfriends', to: 'users#show_friends'
   post '/users/search', to: 'users#search'
   post '/users/friends', to: 'user_friends#create'
-
+  get '/levels/:id', to: 'levels#show'
 
   get '/scoreboard', to: 'scores#show'
   # end
