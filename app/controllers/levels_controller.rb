@@ -109,6 +109,19 @@ class LevelsController < ApplicationController
     }, status: :ok
   end
 
+  def list
+    maps = @@MAPS.map do |map|
+      {
+        name: map[:name],
+        id: map[:id]
+      }
+    end
+    render json: {
+      maps: maps
+    }, status: :ok
+
+  end
+
   # def create
   #   @user = current_user
   #   byebug

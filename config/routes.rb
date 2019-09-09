@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   # post '/users/friends', to: 'user_friends#create'
   
   post '/levels', to:'levels#create'
+  get '/levels', to:'levels#list'
   get '/levels/:id', to: 'levels#show'
 
   get '/scoreboard', to: 'scores#show'

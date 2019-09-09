@@ -7,6 +7,7 @@ export const LOGOUT_ACTION = 'LOGOUT';
 export const SET_USER_SCORES = 'SET_SCORES';
 export const SET_CURRENT_SCORE = 'SET_CURRENT_SCORE';
 export const SET_PLAYING = 'SET_PLAYING';
+export const SET_CURRENT_LEVEL = 'SET_CURRENT_LEVEL';
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -63,6 +64,13 @@ export function setPlaying(playing: boolean): object {
     return {
         type: SET_PLAYING,
         playing: playing
+    }
+}
+
+export function setCurrentLevel(level: string): object {
+    return {
+        type: SET_CURRENT_LEVEL,
+        currentLevel: level
     }
 }
 

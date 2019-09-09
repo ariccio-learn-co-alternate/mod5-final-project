@@ -2,12 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {Unsubscribe} from 'redux';
 
-import {setCurrentScore, setPlaying} from '../Actions';
+import {Dropdown, DropdownButton} from 'react-bootstrap';
+
+import {setCurrentScore, setPlaying, setCurrentLevel} from '../Actions';
 import {store} from '../index';
 import {formatErrors} from '../utils/ErrorObject';
 
 
 interface PlayState {
+    mapsList: any
 }
 
 interface PlayProps {
@@ -15,7 +18,8 @@ interface PlayProps {
     readonly currentScore: number
     readonly playing: boolean,
     setPlaying: any,
-    setCurrentScore: any
+    setCurrentScore: any,
+    readonly currentLevel: string
 }
 
 interface CanvasState {
@@ -118,9 +122,9 @@ const DEFAULT_CANVAS_STATE: CanvasState = {
     // currentUser: ''
 }
 
-// const DEFAULT_PLAY_STATE: PlayState = {
-//     playing: true
-// }
+const DEFAULT_PLAY_STATE: PlayState = {
+    mapsList: []
+}
 
 const CANVAS: CanvasData = initCanvasData();
 
@@ -210,6 +214,17 @@ function defaultMap(): Map {
 }
 
 function mapFetchOptions(jwt: string): RequestInit {
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`
+        },
+    };
+    return requestOptions;
+}
+
+function listMapFetchOptions(jwt: string): RequestInit {
     const requestOptions = {
         method: 'GET',
         headers: {
@@ -1147,8 +1162,22 @@ const Canvas = connect(mapStateToCanvasProps, mapDispatchToPlayProps)(_Canvas);
 
 class _Play extends React.Component<PlayProps, PlayState> {
 
-
+    state = DEFAULT_PLAY_STATE;
     async componentDidMount() {
+        const options: RequestInit = listMapFetchOptions(this.props.currentUser);
+        const rawResponse: Promise<Response> = fetch('/levels', options);
+        const jsonResponse = (await rawResponse).json();
+        const responseParsed = await jsonResponse;
+        // debugger;
+        if (responseParsed.errors !== undefined) {
+            console.error(formatErrors(responseParsed.errors));
+            alert(formatErrors(responseParsed.errors));
+            return;
+        }
+        this.setState({
+            mapsList: responseParsed.maps
+        })
+        // debugger;
     }
 
     newGame = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -1157,16 +1186,43 @@ class _Play extends React.Component<PlayProps, PlayState> {
         this.props.setPlaying(true);
         // gameState = initGameState();
     }
-    render() {
-        if (this.props.playing) {
+    renderPlaying = () => {
+        return (
+            <>
+                Current Score: {this.props.currentScore}
+                <Canvas/>
+                <button onClick={randomSoundPlay}>Random Evans sound</button>
+            </>
+        );
+
+    }
+
+    renderAllMapDropdownButtons = () => {
+        if ((this.state.mapsList === undefined) || (this.state.mapsList === null)) {
             return (
                 <>
-                    Current Score: {this.props.currentScore}
-                    <Canvas/>
-                    <button onClick={randomSoundPlay}>Random Evans sound</button>
                 </>
             );
         }
+        return (
+            <>
+                {this.state.mapsList.map((singleMap: any) => {
+                    return <Dropdown.Item key={`dropdown-map-button-${singleMap.name}`}>{singleMap.name}</Dropdown.Item>
+                })}
+            </>
+        );
+    }
+    renderMapDropdown = () => {
+        return (
+            <DropdownButton id='map-selector-dropdown-button' title={`Select map ${this.props.currentLevel}`}>
+                
+                    {this.renderAllMapDropdownButtons()}
+                
+            </DropdownButton>
+        );
+    }
+
+    renderGameOver = () => {
         return (
             <>
                 <h2>GAME OVER</h2>
@@ -1176,13 +1232,30 @@ class _Play extends React.Component<PlayProps, PlayState> {
             </>
         );
     }
+    render = () => {
+        if (this.props.playing) {
+            return (
+                <>
+                    {this.renderMapDropdown()}
+                    {this.renderPlaying()}
+                </>
+            );
+        }
+        return (
+            <>
+                {this.renderMapDropdown()}
+                {this.renderGameOver()}
+            </>
+        );
+    }
 }
 
 const mapStateToPlayProps = (state: any) => {
     return {
         currentUser: state.currentUser,
         currentScore: state.currentScore,
-        playing: state.playing
+        playing: state.playing,
+        currentLevel: state.currentLevel
     }
 }
 

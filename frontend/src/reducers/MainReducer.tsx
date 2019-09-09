@@ -7,7 +7,8 @@ import {
     LOGOUT_ACTION,
     SET_USER_SCORES,
     SET_CURRENT_SCORE,
-    SET_PLAYING
+    SET_PLAYING,
+    SET_CURRENT_LEVEL
 } from '../Actions';
 
 const initialState: AppState = {
@@ -16,7 +17,8 @@ const initialState: AppState = {
     email: '',
     scores: [],
     currentScore: 0,
-    playing: true
+    playing: true,
+    currentLevel: ''
 }
 
 export function reducer(state: AppState = initialState, action: any): any {
@@ -72,6 +74,12 @@ export function reducer(state: AppState = initialState, action: any): any {
                 ...state,
                 playing: action.playing
             };
+        case SET_CURRENT_LEVEL:
+            console.log(`Setting current level ${action.currentLevel}`);
+            return {
+                ...state,
+                currentLevel: action.currentLevel
+            }
         default:
             console.log("default action: ", action);
             return {...state};

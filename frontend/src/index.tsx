@@ -17,7 +17,8 @@ export interface AppState {
     readonly email: string,
     readonly scores: object[],
     currentScore: number,
-    playing: boolean
+    playing: boolean,
+    currentLevel: string
 }
 
 export const store = createStore(reducer);
