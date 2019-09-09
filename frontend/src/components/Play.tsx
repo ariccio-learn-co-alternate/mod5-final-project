@@ -138,7 +138,7 @@ const FRICTION_COEFFICIENT: number = 0.8;
 
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
-
+const BAD_SOUNDS: Array<HTMLAudioElement> = initBadSounds();
 // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
@@ -220,6 +220,25 @@ function mapFetchOptions(jwt: string): RequestInit {
     return requestOptions;
 }
 
+function submitScoreOptions(jwt: string, score: number, level: string): RequestInit {
+    const body = {
+        score: {
+            score: score,
+            level: level
+        }
+    }
+    
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`
+        },
+        body: JSON.stringify(body)
+    };
+    return requestOptions;
+}
+
 function initGameState(): GameState {
     const objectsOnMap: Array<ObjectCoordinateVector> = [];
     const MAP: Map = defaultMap();
@@ -259,7 +278,6 @@ function initGameMapStateAfterFetch(gameState: GameState, mapStringFromFetch: st
     }
 }
 
-
 function defaultLevelMapArray(): Uint8ClampedArray {
     const buf = new Uint8ClampedArray(DEFAULT_LEVEL_MAP_STRING.length);
     for (let i = 0; i < DEFAULT_LEVEL_MAP_STRING.length; i++) {
@@ -295,7 +313,8 @@ function initCanvasElement(canvas: HTMLCanvasElement, width: number, height: num
 
 function randomSoundPlay(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): any {
     event.preventDefault();
-    randomSound().play();
+    // randomSound().play();
+    randomSoundFromHTMLAudioElementArray(ALL_SOUND_EFFECTS).play();
 }
 
 function initCanvasData(): CanvasData {
@@ -347,25 +366,26 @@ function initAllSoundEffects(): Array<HTMLAudioElement> {
     const SOUND_EFFECTS: Array<HTMLAudioElement> = [];
     const elements = document.querySelectorAll('.evans-soundeffect')
      elements.forEach(element => {
-         SOUND_EFFECTS.push(element as HTMLAudioElement)
+         SOUND_EFFECTS.push(element as HTMLAudioElement);
      })
      return SOUND_EFFECTS;
 }
 
-function randomBeepBoop(): HTMLAudioElement {
-    const rand = Math.random()*BEEP_BOOP_SOUNDS.length;
-    const index = Math.floor(rand);
-    const sound = BEEP_BOOP_SOUNDS[index];
-    if (sound === null) {
-        throw new Error("Sound not valid");
-    }
-    return sound;
+function initBadSounds(): Array<HTMLAudioElement> {
+    const BAD_SOUNDS: Array<HTMLAudioElement> = [];
+    // const elements = document.querySelectorAll('.evans-soundeffect');
+    // elements.forEach(element => {
+        // BAD_SOUNDS.push(element as HTMLAudioElement);
+    // })
+    BAD_SOUNDS.push(document.getElementById('terrible-0') as HTMLAudioElement);
+    BAD_SOUNDS.push(document.getElementById('embarrasing-0') as HTMLAudioElement);
+    return BAD_SOUNDS;
 }
 
-function randomSound(): HTMLAudioElement {
-    const rand = Math.random()*ALL_SOUND_EFFECTS.length;
+function randomSoundFromHTMLAudioElementArray(sounds: Array<HTMLAudioElement>): HTMLAudioElement {
+    const rand = Math.random()*sounds.length;
     const index = Math.floor(rand);
-    const sound = ALL_SOUND_EFFECTS[index];
+    const sound = sounds[index];
     if (sound === null) {
         throw new Error("Sound not valid");
     }
@@ -439,7 +459,7 @@ function removeFromObjects(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>
         throw new Error("Object out of bounds!");
     }
     if (ifHitWall(MAP, objectCoordinates.y, objectCoordinates.x)) {
-        throw new Error("Tried to remove a wall wall. Huh?");
+        throw new Error("Tried to remove a wall. Huh?");
     }
     let index = findDynObject(objectsOnMap, objectCoordinates);
     if (index === null) {
@@ -845,8 +865,18 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.gameState = initGameState();
     }
 
-    endPlay = () => {
+    endPlay = async () => {
         this.props.setPlaying(false);
+        const submitScoreRequestOptions = submitScoreOptions(this.props.currentUser, this.player.score, this.gameState.MAP.MAP_ID);
+
+        const submitResult: Promise<Response> = fetch('/scoreboard', submitScoreRequestOptions);
+        const jsonResponse = (await submitResult).json();
+        const responseParsed = await jsonResponse;
+        debugger;
+
+        if (this.player.score === 0) {
+            randomSoundFromHTMLAudioElementArray(BAD_SOUNDS).play()
+        }
         const jeopardy = document.getElementById('jeopardy-0') as HTMLAudioElement;
         if (jeopardy !== null) {
             jeopardy.play()
@@ -945,7 +975,8 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     forward = (event: KeyboardEvent) => {
-        randomBeepBoop().play()
+        // randomBeepBoop().play();
+        randomSoundFromHTMLAudioElementArray(BEEP_BOOP_SOUNDS).play()
         this.player.velocity.x += (Math.sin(this.player.coordinates.angle) * 0.5);
         this.player.velocity.y += (Math.cos(this.player.coordinates.angle) * 0.5);
         this.player.coordinates.x += this.player.velocity.x;
@@ -1028,7 +1059,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     componentWillUnmount() {
-        debugger; // Why unmounting during second game?
+        // debugger; // Why unmounting during second game
         console.log("canvas unmounting"); 
         // clearInterval(this.animationLoopHandle)
         cancelAnimationFrame(this.animationLoopHandle);

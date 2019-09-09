@@ -11,16 +11,16 @@ type NavBarProps = {
 }
 const UserNav: FunctionComponent<{}> = () =>
     <Navbar bg="light" variant="dark" expand="lg">
-        NOTE TO SELF: WHY DID THIS BREAK WITHOUT NAVBAR.COLLAPSE?
-        {/* <Navbar.Collapse> */}
+        {/* NOTE TO SELF: WHY DID THIS BREAK WITHOUT NAVBAR.COLLAPSE? */}
+        <Navbar.Collapse>
             <Nav variant="tabs" >
-                <LinkContainer to='/play'><NavItem>Play </NavItem></LinkContainer>
-                <LinkContainer to='/scoreboard'><NavItem>Scoreboard </NavItem></LinkContainer>
-                <LinkContainer to='/discover'><NavItem>Discover </NavItem></LinkContainer>
-                <LinkContainer to='/profile'><NavItem>Profile </NavItem></LinkContainer>
+                <LinkContainer to='/play'><NavItem>Play </NavItem></LinkContainer> 
+                <LinkContainer to='/scoreboard'><NavItem>Scoreboard </NavItem></LinkContainer> 
+                <LinkContainer to='/discover'><NavItem>Discover </NavItem></LinkContainer> 
+                <LinkContainer to='/profile'><NavItem>Profile </NavItem></LinkContainer> 
                 <LinkContainer to='/logout'><NavItem>Logout</NavItem></LinkContainer>
             </Nav>
-        {/* </Navbar.Collapse> */}
+        </Navbar.Collapse>
     </Navbar>
 
 const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {

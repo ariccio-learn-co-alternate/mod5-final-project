@@ -84,6 +84,15 @@ class LevelsController < ApplicationController
     }, status: :ok
   end
 
+  # def create
+  #   @user = current_user
+  #   byebug
+  # end
+
+  # def create_levels_params
+  #   params.require(:level).permit(:score, :level_id)
+  # end
+
   def levels_params
     params.require(:id)
   end

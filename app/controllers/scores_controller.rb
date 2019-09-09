@@ -14,7 +14,8 @@ end
 
 class ScoresController < ApplicationController
   def create
-    @score = Score.create!(score_create_params)
+    @user = current_user
+    @score = Score.create!(@user, **score_create_params)
     render json: {
       score: @score.score
     }, status: :ok
@@ -48,7 +49,7 @@ class ScoresController < ApplicationController
   end
 
   def score_create_params
-    params.require(:score).permit(:user, :level, :score)
+    params.require(:score).permit(:level_id, :score)
   end
 
   def score_update_params
