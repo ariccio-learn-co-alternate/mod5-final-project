@@ -11,8 +11,8 @@ interface ProfileProps {
     email: string,
     currentUser: string,
     setUsernameAndEmail: any,
-    setUserScores: any
-  
+    setUserScores: any,
+    scores: any
 }
 
 interface UserType {
@@ -65,11 +65,15 @@ const tableHeader = () =>
 function rowKey(user: string): string {
     return `profile-friend-entry-key-user-${user}`;
 }
-const tableRow = (user: UserType, index: number) =>
-    <tr key={rowKey(user.username)}>
-        <td>{index}</td>
-        <td>{user.username}</td>
-    </tr>
+
+function rowKeyScore(index: number): string {
+    return `profile-myscore-entry-key-user-${index}`;
+}
+// const tableRow = (user: UserType, index: number) =>
+//     <tr key={rowKey(user.username)}>
+//         <td>{index}</td>
+//         <td>{user.username}</td>
+//     </tr>
 
 const mapper = (response: ShowFriendResponseType | null) => {
     if (response === null) {
@@ -79,7 +83,15 @@ const mapper = (response: ShowFriendResponseType | null) => {
         console.warn("hmm");
         return null
     }
-    return response.users.map((user: any, index: number) => {return tableRow(user, index)});
+    return response.users.map((user: any, index: number) => {
+        return (
+            <tr key={rowKey(user.username)}>
+                <td>{index}</td>
+                <td>{user.username}</td>
+            </tr>
+    
+        );
+    });
 }
 
 const tableBody = (response: ShowFriendResponseType | null) =>
@@ -105,7 +117,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             this.setState({response: response});
     }
 
-    table() {
+    friendsTable() {
         if (this.state.response === null) {
             this.fetchFriends();
             return null;
@@ -136,13 +148,46 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             // debugger;
             this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
             this.props.setUserScores(userInfo.user_scores);
+            // console.log(userInfo.user_scores);
         }
     }
+
+    scoreBody() {
+        return this.props.scores.map((score: any, index: number) => {
+            return <tr key={rowKeyScore(index)}>
+                <td>{index}</td>
+                <td>{score.score}</td>
+                <td>{score.level_id}</td>
+            </tr>
+
+        })
+    }
+
+    myScores() {
+        return (
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>score</th>
+                        <th>map</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.scoreBody()}
+                </tbody>
+
+            </Table>
+        );
+    }
+
     render = () =>
         <>
             <h1>{this.props.username}'s profile</h1>
             <p>Email: {this.props.email}</p>
-            {this.table()}
+            {this.friendsTable()}
+            <h2>My scores</h2>
+            {this.myScores()}
         </>
 }
 
@@ -151,7 +196,8 @@ const mapStateToProps = (state: any): any => {
     return {
         email: state.email,
         username: state.username,
-        currentUser: state.currentUser
+        currentUser: state.currentUser,
+        scores: state.scores
     }
 }
 

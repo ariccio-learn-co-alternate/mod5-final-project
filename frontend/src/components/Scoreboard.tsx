@@ -23,7 +23,8 @@ type score = {
 }
 
 interface ScoreboardState {
-    readonly responseTopTen: Array<score>
+    readonly responseTopTen: Array<score>,
+    readonly scores_friend_top_ten: Array<score>
 }
 
 interface ScoreboardProps {
@@ -36,7 +37,14 @@ const initScoreboardState: ScoreboardState = {
         user_id: '',
         score: '',
         level: ''
+    }],
+    scores_friend_top_ten: [{
+        user: '',
+        user_id: '',
+        score: '',
+        level: ''
     }]
+
 }
 
 const tableHeader = () => 
@@ -46,19 +54,36 @@ const tableHeader = () =>
             <th>username</th>
             <th>score</th>
             <th>level</th>
+            <th>time</th>
         </tr>
     </thead>
 
 function rowKey(score: any): string {
-    return `scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}`;
+    return `scoreboard-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}-${score.time}`;
 }
+
+function rowKeyFriend(score: any): string {
+    return `scoreboard-friend-entry-key-user-${score.user_id}-level-${score.level}-score-${score.score}-${score.time}`;
+}
+
 const tableRow = (score: any, index: number) =>
         <tr key={rowKey(score)}>
             <td>{index}</td>
             <td>{score.user}</td>
             <td>{score.score}</td>
             <td>{score.level}</td>
+            <td>{score.time}</td>
         </tr>
+
+const tableFriendRow = (score: any, index: number) =>
+        <tr key={rowKeyFriend(score)}>
+            <td>{index}</td>
+            <td>{score.user_id}</td>
+            <td>{score.score}</td>
+            <td>{score.level_id}</td>
+            <td>{score.time}</td>
+        </tr>
+
 
 class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
     state = initScoreboardState
@@ -71,25 +96,63 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
             alert(formatErrors(response.errors));
             return;
         }
+        // debugger;
+        if (response.scores_top_ten_all === undefined) {
+            console.error('bad server data');
+            this.setState({
+                responseTopTen: initScoreboardState.responseTopTen,
+                scores_friend_top_ten: response.scores_friend_top_ten
+            })
+            return;
+        }
+        else if (response.scores_friend_top_ten === undefined) {
+            console.error('bad server data');
+            this.setState({
+                responseTopTen: response.scores_top_ten_all,
+                scores_friend_top_ten: initScoreboardState.scores_friend_top_ten
+            })
+            return;
+        }
         this.setState({
-            responseTopTen: response.scores_top_ten_all
+            responseTopTen: response.scores_top_ten_all,
+            scores_friend_top_ten: response.scores_friend_top_ten
         });
     }
 
-    table = () =>
+    tenTable = (scoresHash: any) =>
             <>
                 <Table striped bordered hover>
                     {tableHeader()}
                     <tbody>
-                        {this.state.responseTopTen.map((score, index) => {return tableRow(score, index)})}
+                        {scoresHash.map((score: any, index: number) => {return tableRow(score, index)})}
                     </tbody>
                 </Table>
             </>
 
+
+// created_at: "2019-09-09T19:35:56.099Z"
+// id: 20
+// level_id: 1
+// score: 5
+// updated_at: "2019-09-09T19:35:56.099Z"
+// user_id: 7
+    friendTable = (scores: any) => 
+        <>
+            <Table striped bordered hover>
+            {tableHeader()}
+                    <tbody>
+                        {scores.map((score: any, index: number) => {return tableFriendRow(score, index)})}
+                    </tbody>
+
+            </Table>
+        </>
+
     render = () =>
         <>
             <h1>Top ten scores:</h1>
-            {this.table()}
+            {this.tenTable(this.state.responseTopTen)}
+            <h1>Friend scores</h1>
+            {this.friendTable(this.state.scores_friend_top_ten)}
         </>
 }
 

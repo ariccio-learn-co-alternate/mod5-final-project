@@ -42,6 +42,16 @@ LEVEL_ONE_MAP_STRING = {
         angle: Math::PI/4
       },
       {
+        x: 5,
+        y: 6,
+        angle: Math::PI/2
+      },
+      {
+        x: 8,
+        y: 8,
+        angle: Math::PI/2
+      },
+      {
         x: 22,
         y: 14,
         angle: Math::PI/4
@@ -54,6 +64,21 @@ LEVEL_ONE_MAP_STRING = {
       {
         x: 29,
         y: 2,
+        angle: Math::PI/4
+      },
+      {
+        x: 11,
+        y: 15,
+        angle: Math::PI/4
+      },
+      {
+        x: 12,
+        y: 14,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 25,
         angle: Math::PI/4
       }
     ]
@@ -70,7 +95,7 @@ class LevelsController < ApplicationController
   def show
     id = levels_params
     # byebug
-    map = @@MAPS.find_index{|map| map[:id] == id }
+    map = @@MAPS.find_index{|this_map| this_map[:id] == id }
     if map == nil
       render json: {
         errors: create_error('Map not found', "map #{levels_params[:id]} not found")

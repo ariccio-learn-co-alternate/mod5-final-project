@@ -35,6 +35,19 @@ class User < ApplicationRecord
 
   def friend_scores
     # byebug
-    puts "\n\n\tNOTIMPL\n\n"
+    my_friends = UserFriend.where(user_id: id)
+    score_friends = my_friends.map do |friend|
+      # byebug
+      Score.where('user_id = ?', friend.user_id)
+    end
+    score_friends_flat = score_friends.flatten
+    score_friends_clean = score_friends_flat.filter do |score|
+      score.score != 0
+    end
+    # byebug
+    ordered_scores = score_friends_clean.sort_by{|score_friend| score_friend.score }.reverse.first(10)
+    # byebug
+    # puts "\n\n\tNOTIMPL\n\n"
+    ordered_scores
   end
 end

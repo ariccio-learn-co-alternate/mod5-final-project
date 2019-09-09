@@ -798,14 +798,14 @@ function checkShot(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, player
     const SHOOT_ANGLE_END = Math.floor((CANVAS.CANVAS_WIDTH/2) + SHOOT_ANGLE_RANGE)
     for (let i = SHOOT_ANGLE_START; i < SHOOT_ANGLE_END; i++) {
         const angleOfThisRay = rayAngle(playerCoordinates.angle, i);
-        console.log(`Player at radians,angle,x,y: '${playerCoordinates.angle},${playerCoordinates.angle*(360)},${playerCoordinates.x},${playerCoordinates.y}'` )
+        // console.log(`Player at radians,angle,x,y: '${playerCoordinates.angle},${playerCoordinates.angle*(360)},${playerCoordinates.x},${playerCoordinates.y}'` )
         const testHitDistance = distanceToWall(MAP, objectsOnMap, angleOfThisRay, playerCoordinates);
-        console.log(`Maybe the target is at: ${testHitDistance.coordinates.x},${testHitDistance.coordinates.y}`)
+        // console.log(`Maybe the target is at: ${testHitDistance.coordinates.x},${testHitDistance.coordinates.y}`)
         if (testHitDistance.objectHitType === HIT_DYN) {
             console.log("good hit!");
             return testHitDistance;
         }
-        console.log(`Miss! ${testHitDistance.objectHitType}`);
+        // console.log(`Miss! ${testHitDistance.objectHitType}`);
     }
     return null;
 }
@@ -916,7 +916,14 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         const submitResult: Promise<Response> = fetch('/scoreboard', submitScoreRequestOptions);
         const jsonResponse = (await submitResult).json();
         const responseParsed = await jsonResponse;
-        debugger;
+        if (responseParsed.errors !== undefined) {
+            console.error(formatErrors(responseParsed.errors));
+            alert(formatErrors(responseParsed.errors));
+            return;
+        }
+        if (responseParsed.score !== undefined) {
+            console.log("Successfully posted score!");
+        }
 
         if (this.player.score === 0) {
             randomSoundFromHTMLAudioElementArray(BAD_SOUNDS).play()
@@ -1005,15 +1012,15 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     turnLeft = (event: KeyboardEvent) => {
-        this.player.velocity.angle -= 0.1;
-        console.log(this.player.velocity.angle);
+        this.player.velocity.angle -= 0.05;
+        // console.log(this.player.velocity.angle);
         this.player.coordinates.angle += this.player.velocity.angle;
         event.preventDefault();
         return;
     }
 
     turnRight = (event: KeyboardEvent) => {
-        this.player.velocity.angle += 0.1;
+        this.player.velocity.angle += 0.05;
         this.player.coordinates.angle += this.player.velocity.angle;
         event.preventDefault();
         return;

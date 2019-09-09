@@ -7,7 +7,8 @@ def top_ten_all(ordered)
       user: score.user.username,
       user_id: score.user.id,
       score: score.score,
-      level: score.level.id
+      level: score.level.id,
+      time: score.updated_at
     }
   end
 end
@@ -23,7 +24,7 @@ class ScoresController < ApplicationController
     }
     # byebug
     @score = Score.create!(@all_params)
-    byebug
+    # byebug
     render json: {
       score: @score.score
     }, status: :ok
@@ -37,7 +38,7 @@ class ScoresController < ApplicationController
     @user = current_user
     update_params = score_update_params
     @level = Score.find_by(id: update_params.score_id)
-    byebug
+    # byebug
   rescue ActiveRecord::RecordNotFound => e
     render json: {
       errors: create_activerecord_notfound_error('level not found!', e)
