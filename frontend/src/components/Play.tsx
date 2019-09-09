@@ -78,7 +78,8 @@ type ObjectCoordinateVector = {
 
 interface Player {
     coordinates: ObjectCoordinateVector,
-    score: number
+    score: number,
+    velocity: ObjectCoordinateVector
     // fieldOfView: number
 }
 
@@ -102,7 +103,14 @@ const DEFAULT_PLAYER: Player = {
         y: 2,
         angle: Math.PI/2
     },
-    score: 0
+    score: 0,
+    velocity: {
+        x: 0,
+        y: 0,
+        angle: 0
+    }
+    // xVelocity: 0,
+    // yVelocity: 0
 }
 const DEFAULT_CANVAS_STATE: CanvasState = {
     // ctx: null
@@ -124,6 +132,8 @@ const VIEW_DISTANCE: number = 16;
 const HIT_ERR = 0;
 const HIT_WALL = 1;
 const HIT_DYN = 2;
+
+const FRICTION_COEFFICIENT: number = 0.8;
 
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
@@ -915,6 +925,13 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         const data: ImageData = new ImageData(this.gameState.screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
 
         renderToContextFromUint8Clamped(data, this.ctx)
+        this.player.velocity.x = (this.player.velocity.x * FRICTION_COEFFICIENT);
+        this.player.velocity.y = (this.player.velocity.y * FRICTION_COEFFICIENT);
+        this.player.velocity.angle = (this.player.velocity.angle * FRICTION_COEFFICIENT);
+        // console.log(this.player.velocity.x);
+        this.player.coordinates.x += this.player.velocity.x;
+        this.player.coordinates.y += this.player.velocity.y;
+        this.player.coordinates.angle += this.player.velocity.angle;
         this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
     }
 
@@ -966,42 +983,52 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     turnLeft = (event: KeyboardEvent) => {
-        this.player.coordinates.angle -= 0.1;
+        this.player.velocity.angle -= 0.1;
+        this.player.coordinates.angle += this.player.velocity.angle;
         event.preventDefault();
         return;
     }
 
     turnRight = (event: KeyboardEvent) => {
-        this.player.coordinates.angle += 0.1;
+        this.player.velocity.angle += 0.1;
+        this.player.coordinates.angle += this.player.velocity.angle;
         event.preventDefault();
         return;
     }
 
     forward = (event: KeyboardEvent) => {
         randomBeepBoop().play()
-        this.player.coordinates.x += (Math.sin(this.player.coordinates.angle) * 0.5);
-        this.player.coordinates.y += (Math.cos(this.player.coordinates.angle) * 0.5);
+        this.player.velocity.x += (Math.sin(this.player.coordinates.angle) * 0.5);
+        this.player.velocity.y += (Math.cos(this.player.coordinates.angle) * 0.5);
+        this.player.coordinates.x += this.player.velocity.x;
+        this.player.coordinates.y += this.player.velocity.y;
         event.preventDefault();
         return;
     }
 
     backward = (event: KeyboardEvent) => {
-        this.player.coordinates.x -= (Math.sin(this.player.coordinates.angle) * 0.5);
-        this.player.coordinates.y -= (Math.cos(this.player.coordinates.angle) * 0.5);
+        this.player.velocity.x -= (Math.sin(this.player.coordinates.angle) * 0.5);
+        this.player.velocity.y -= (Math.cos(this.player.coordinates.angle) * 0.5);
+        this.player.coordinates.x += this.player.velocity.x;
+        this.player.coordinates.y += this.player.velocity.y;
         event.preventDefault();
         return;
     }
 
     strafeRight = (event: KeyboardEvent) => {
-        this.player.coordinates.x += (Math.sin(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
-        this.player.coordinates.y += (Math.cos(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
+        this.player.velocity.x += (Math.sin(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
+        this.player.velocity.y += (Math.cos(this.player.coordinates.angle + (Math.PI/2)) * 0.5);
+        this.player.coordinates.x += this.player.velocity.x;
+        this.player.coordinates.y += this.player.velocity.y;
         event.preventDefault();
         return;
     }
 
     strafeLeft = (event: KeyboardEvent) => {
-        this.player.coordinates.x += (Math.sin(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
-        this.player.coordinates.y += (Math.cos(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
+        this.player.velocity.x += (Math.sin(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
+        this.player.velocity.y += (Math.cos(this.player.coordinates.angle - (Math.PI/2)) * 0.5);
+        this.player.coordinates.x += this.player.velocity.x;
+        this.player.coordinates.y += this.player.velocity.y;
         event.preventDefault();
         return;
     }
