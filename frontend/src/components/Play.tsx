@@ -4,6 +4,8 @@ import {Unsubscribe} from 'redux';
 
 import {setCurrentScore, setPlaying} from '../Actions';
 import {store} from '../index';
+import {formatErrors} from '../utils/ErrorObject';
+
 
 interface PlayState {
 }
@@ -18,7 +20,7 @@ interface PlayProps {
 
 interface CanvasState {
     // ctx: CanvasRenderingContext2D | null
-    currentUser: string
+    // currentUser: string
 }
 
 interface CanvasData {
@@ -37,7 +39,8 @@ interface Map {
     WALL_CHAR_CODE: number,
     PLAYER_CHAR_CODE: number
     MAP_WIDTH: number,
-    MAP_HEIGHT: number
+    MAP_HEIGHT: number,
+    initialized: boolean
 }
 
 interface Colors {
@@ -82,7 +85,8 @@ interface Player {
 interface CanvasProps {
     // currentScore: number
     setCurrentScore: any,
-    setPlaying: any
+    setPlaying: any,
+    currentUser: string
 }
 
 interface GameState {
@@ -102,7 +106,7 @@ const DEFAULT_PLAYER: Player = {
 }
 const DEFAULT_CANVAS_STATE: CanvasState = {
     // ctx: null
-    currentUser: ''
+    // currentUser: ''
 }
 
 // const DEFAULT_PLAY_STATE: PlayState = {
@@ -128,7 +132,7 @@ const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 
-const LEVEL_MAP_STRING: string = '' +
+const LEVEL_MAP_STRING_: string = '' +
 '################################' +
 '#                              #' +
 '#              #######         #' +
@@ -162,57 +166,84 @@ const LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '################################';
 
-function initMap(): Map {
+const DEFAULT_LEVEL_MAP_STRING: string = '' +
+'################################' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'#                              #' +
+'################################';
+
+
+function initMap(mapStringFromFetch: string): Map {
     const MAP: Map = {
-        LEVEL_MAP: levelMapArray(),
+        LEVEL_MAP: levelMapArray(mapStringFromFetch),
         WALL_CHAR_CODE: wallCharCode(),
         PLAYER_CHAR_CODE: playerCharCode(),
         MAP_WIDTH: 32,
-        MAP_HEIGHT: 32
+        MAP_HEIGHT: 32,
+        initialized: true
     }
     console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
-    console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === LEVEL_MAP_STRING.length)
+    console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === MAP.LEVEL_MAP.length)
     return MAP;
 }
 
+function defaultMap(): Map {
+    const MAP: Map = {
+        LEVEL_MAP: defaultLevelMapArray(),
+        WALL_CHAR_CODE: wallCharCode(),
+        PLAYER_CHAR_CODE: playerCharCode(),
+        MAP_WIDTH: 32,
+        MAP_HEIGHT: 32,
+        initialized: false
+    }
+    console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
+    console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === MAP.LEVEL_MAP.length)
+    return MAP;
+
+}
+
 function mapFetchOptions(jwt: string): RequestInit {
-    // const bodyData = {
-    //     'level' : {id: 1}
-    // };
     const requestOptions = {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwt}`
         },
-        // body: JSON.stringify(bodyData)
     };
     return requestOptions;
 }
 
 function initGameState(): GameState {
     const objectsOnMap: Array<ObjectCoordinateVector> = [];
-    const MAP: Map = initMap();
-    addToObjects(MAP, objectsOnMap, {
-        x: 10,
-        y: 8,
-        angle: Math.PI/4
-    })
-        addToObjects(MAP, objectsOnMap, {
-        x: 22,
-        y: 14,
-        angle: Math.PI/4
-    })
-    addToObjects(MAP, objectsOnMap, {
-        x: 26,
-        y: 17,
-        angle: Math.PI/4
-    })
-    addToObjects(MAP, objectsOnMap, {
-        x: 29,
-        y: 2,
-        angle: Math.PI/4
-    })
+    const MAP: Map = defaultMap();
 
     // Allocate once please, not every render.
     const screenBuffer: Uint8ClampedArray = new Uint8ClampedArray(SCREEN_BUFFER_SIZE);
@@ -227,6 +258,85 @@ function initGameState(): GameState {
 
     return state;
 }
+
+// WTF is the type of the targets damnit?
+function initGameMapStateAfterFetch(gameState: GameState, mapStringFromFetch: string, targets: any ): void {
+    gameState.MAP = initMap(mapStringFromFetch);
+
+    for (let i = 0; i < targets.length; i++) {
+        console.assert(targets[i].x !== undefined);
+        console.assert(targets[i].y !== undefined);
+        console.assert(targets[i].angle !== undefined);
+
+        console.assert(targets[i].x !== null);
+        console.assert(targets[i].y !== null);
+        console.assert(targets[i].angle !== null);
+
+        addToObjects(gameState.MAP, gameState.objectsOnMap, {
+            x: parseInt(targets[i].x, 10),
+            y: parseInt(targets[i].y, 10),
+            angle: parseInt(targets[i].angle, 10)
+        })
+    }
+
+    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
+    //     x: 10,
+    //     y: 8,
+    //     angle: Math.PI/4
+    // })
+    //     addToObjects(gameState.MAP, gameState.objectsOnMap, {
+    //     x: 22,
+    //     y: 14,
+    //     angle: Math.PI/4
+    // })
+    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
+    //     x: 26,
+    //     y: 17,
+    //     angle: Math.PI/4
+    // })
+    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
+    //     x: 29,
+    //     y: 2,
+    //     angle: Math.PI/4
+    // })
+
+}
+
+
+function defaultLevelMapArray(): Uint8ClampedArray {
+    const buf = new Uint8ClampedArray(DEFAULT_LEVEL_MAP_STRING.length);
+    for (let i = 0; i < DEFAULT_LEVEL_MAP_STRING.length; i++) {
+        console.assert(DEFAULT_LEVEL_MAP_STRING.charCodeAt(i) <= 255);
+        console.assert(DEFAULT_LEVEL_MAP_STRING.charCodeAt(i) >= 0);
+        buf[i] = DEFAULT_LEVEL_MAP_STRING.charCodeAt(i);
+    }
+    return buf
+}
+// see also: https://github.com/mdn/canvas-raycaster
+function levelMapArray(mapString: string): Uint8ClampedArray {
+    console.assert(mapString.indexOf(String.fromCharCode(wallCharCode())) !== -1);
+    // console.assert(mapString.indexOf(String.fromCharCode(playerCharCode())) !== -1);
+    console.assert(mapString.indexOf)
+    const buf = new Uint8ClampedArray(mapString.length);
+    for (let i = 0; i < mapString.length; i++) {
+        console.assert(mapString.charCodeAt(i) <= 255);
+        console.assert(mapString.charCodeAt(i) >= 0);
+        buf[i] = mapString.charCodeAt(i);
+    }
+    return buf
+}
+
+// function initPlayerAfterFetch(MAP: Map): void {
+    // const playerCharIndex: number = MAP.LEVEL_MAP.indexOf(playerCharCode());
+    // if (playerCharIndex === -1) {
+    //     throw new Error('No player on map! Use default?');
+    // }
+    // const playerX = (playerCharIndex % MAP.MAP_WIDTH);
+    // // const PlayerIndexAtXIs0 = (playerCharIndex - playerX);
+    // const playerY = (playerCharIndex % MAP.LEVEL_MAP.length) - playerX;
+    // debugger;
+
+// }
 
 function canvasIDString(index: number): string {
     return `${CANVAS.CANVAS_ID}-${index}`;
@@ -342,16 +452,6 @@ function getOffscreenContext(width: number, height: number): OffscreenCanvasRend
     return context;
 }
 
-// see also: https://github.com/mdn/canvas-raycaster
-function levelMapArray(): Uint8ClampedArray {
-    const buf = new Uint8ClampedArray(LEVEL_MAP_STRING.length);
-    for (let i = 0; i < LEVEL_MAP_STRING.length; i++) {
-        console.assert(LEVEL_MAP_STRING.charCodeAt(i) <= 255);
-        console.assert(LEVEL_MAP_STRING.charCodeAt(i) >= 0);
-        buf[i] = LEVEL_MAP_STRING.charCodeAt(i);
-    }
-    return buf
-}
 
 function wallCharCode(): number {
     const pound: string = '#';
@@ -373,6 +473,9 @@ function findDynObject(objectsOnMap: Array<ObjectCoordinateVector>, objectCoordi
 }
 
 function addToObjects(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, objectCoordinates: ObjectCoordinateVector) {
+    if (!MAP.initialized) {
+        throw new Error("Map not initialized yet.")
+    }
     if (outOfBounds(MAP, objectCoordinates.x, objectCoordinates.y)) {
         throw new Error("Object out of bounds!");
     }
@@ -815,12 +918,42 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
     }
 
-    componentDidMount() {
+    async fetchLevel() {
+        const options: RequestInit = mapFetchOptions(this.props.currentUser);
+        const rawResponse: Promise<Response> = fetch('/levels/1', options);
+        const jsonResponse = (await rawResponse).json();
+        const responseParsed = await jsonResponse;
+        // debugger;
+        if (responseParsed.errors !== undefined) {
+            console.error(formatErrors(responseParsed.errors));
+            alert(formatErrors(responseParsed.errors));
+            return;
+        }
+
+        if (responseParsed.map === undefined) {
+            console.error('ill formed map.')
+            console.warn(responseParsed);
+            alert('server returned bad map data!')
+        }
+        if (responseParsed.targets === undefined) {
+            console.error('No targets in server response?')
+            console.warn(responseParsed);
+            alert("Server returned a level without targets. There's no fun in that!")
+        }
+        // console.log(responseParsed.map);
+        console.assert(responseParsed.map.charCodeAt(0) === wallCharCode());
+        // debugger;
+        initGameMapStateAfterFetch(this.gameState, responseParsed.map, responseParsed.targets);
+        // initPlayerAfterFetch(this.gameState.MAP);
+    }
+
+    async componentDidMount() {
         console.log("canvas mounted");
         this.gameState = initGameState();
         if ((this.ctx === null) || (this.offscreenContext === null) || (CANVAS.offscreenCanvas === null)) {
             return;
         }
+        this.fetchLevel();
         this.timeout = setTimeout(this.endPlay, 10000);
 
         // this.animationLoopHandle = setInterval(this.step.bind(this), 1);
@@ -920,6 +1053,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     componentWillUnmount() {
+        debugger; // Why unmounting during second game?
         console.log("canvas unmounting"); 
         // clearInterval(this.animationLoopHandle)
         cancelAnimationFrame(this.animationLoopHandle);
@@ -957,20 +1091,12 @@ class _Play extends React.Component<PlayProps, PlayState> {
 
 
     async componentDidMount() {
-        const options: RequestInit = mapFetchOptions(this.props.currentUser);
-        const rawResponse: Promise<Response> = fetch('/levels/1', options);
-        const jsonResponse = (await rawResponse).json();
-        const responseParsed = await jsonResponse;
-        // debugger;
-        console.log(responseParsed.map);
-        console.assert(responseParsed.map.charCodeAt(0) === wallCharCode());
-        debugger;
     }
 
     newGame = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
         this.props.setCurrentScore(0);
-        this.props.setPlaying(false);
+        this.props.setPlaying(true);
         // gameState = initGameState();
     }
     render() {
