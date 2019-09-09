@@ -224,7 +224,7 @@ function submitScoreOptions(jwt: string, score: number, level: string): RequestI
     const body = {
         score: {
             score: score,
-            level: level
+            level_id: level
         }
     }
     
@@ -498,20 +498,16 @@ function outOfBounds(MAP: Map, testX: number, testY: number): boolean {
 
 function clampBounds(MAP: Map, coordinates: ObjectCoordinateVector): ObjectCoordinateVector {
     if (coordinates.x < 1) {
-        // debugger;
-        coordinates.x = 1;
+        coordinates.x = 2;
     }
     if (coordinates.x > MAP.MAP_WIDTH - 1) {
-        // debugger;
-        coordinates.x = MAP.MAP_WIDTH - 1;
+        coordinates.x = MAP.MAP_WIDTH - 2;
     }
     if (coordinates.y < 1) {
-        // debugger;
-        coordinates.y = 1;
+        coordinates.y = 2;
     }
     if (coordinates.y > MAP.MAP_HEIGHT -1) {
-        // debugger;
-        coordinates.y = MAP.MAP_HEIGHT -1;
+        coordinates.y = MAP.MAP_HEIGHT -2;
     }
     // console.log(coordinates.x, coordinates.y, MAP.MAP_WIDTH, MAP.MAP_HEIGHT);
     return coordinates;
@@ -833,14 +829,62 @@ function castRays(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, screenB
     }
 }
 
+
+function clampAngularMomentum(angle: number): number {
+    // 0.15 seems fine
+    const MAX_TURNING = 0.15
+    if (angle > MAX_TURNING) {
+        return MAX_TURNING;
+    }
+    if (angle < -MAX_TURNING) {
+        return -MAX_TURNING;
+    }
+    // Prevent denormals and stuff.
+    if ((angle > 0) && (angle < 0.0001)) {
+        // console.log(angle);
+        return 0;
+    }
+    if ((angle < 0) && (angle > -0.0001)) {
+        // console.log(angle);
+        return 0;
+    }
+    return angle;
+}
+
+function clampPlayerDirectionalSpeed(dimensionalSpeed: number) {
+    // Prevent denormals and stuff.
+    if ((dimensionalSpeed > 0) && (dimensionalSpeed < 0.0001)) {
+        return 0;
+    }
+    if ((dimensionalSpeed < 0) && (dimensionalSpeed > -0.0001)) {
+        return 0;
+    }
+    if (dimensionalSpeed > 0.8) {
+        console.log(dimensionalSpeed);
+        return 0.8;
+    }
+    if (dimensionalSpeed < -0.8) {
+        console.log(dimensionalSpeed);
+        return -0.8;
+    }
+    return dimensionalSpeed;
+}
+
 function updatePlayerMomentum(player: Player): void {
     player.velocity.x = (player.velocity.x * FRICTION_COEFFICIENT);
     player.velocity.y = (player.velocity.y * FRICTION_COEFFICIENT);
+
+    player.velocity.x = clampPlayerDirectionalSpeed(player.velocity.x);
+    player.velocity.y = clampPlayerDirectionalSpeed(player.velocity.y);
+
     player.velocity.angle = (player.velocity.angle * FRICTION_COEFFICIENT);
+    player.velocity.angle = clampAngularMomentum(player.velocity.angle);
     // console.log(player.velocity.x);
+    // console.log(player.velocity.x, player.velocity.y)
     player.coordinates.x += player.velocity.x;
     player.coordinates.y += player.velocity.y;
     player.coordinates.angle += player.velocity.angle;
+    // console.log(player.velocity.angle);
 
 }
 
@@ -962,6 +1006,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
     turnLeft = (event: KeyboardEvent) => {
         this.player.velocity.angle -= 0.1;
+        console.log(this.player.velocity.angle);
         this.player.coordinates.angle += this.player.velocity.angle;
         event.preventDefault();
         return;

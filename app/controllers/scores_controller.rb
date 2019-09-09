@@ -15,7 +15,15 @@ end
 class ScoresController < ApplicationController
   def create
     @user = current_user
-    @score = Score.create!(@user, **score_create_params)
+    @params_strong = score_create_params
+    @all_params = {
+      user_id: current_user.id,
+      score: @params_strong[:score],
+      level_id: @params_strong[:level_id]
+    }
+    # byebug
+    @score = Score.create!(@all_params)
+    byebug
     render json: {
       score: @score.score
     }, status: :ok
