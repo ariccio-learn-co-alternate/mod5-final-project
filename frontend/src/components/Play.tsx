@@ -40,7 +40,8 @@ interface Map {
     PLAYER_CHAR_CODE: number
     MAP_WIDTH: number,
     MAP_HEIGHT: number,
-    initialized: boolean
+    initialized: boolean,
+    MAP_ID: string
 }
 
 interface Colors {
@@ -142,40 +143,6 @@ const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 
-const LEVEL_MAP_STRING_: string = '' +
-'################################' +
-'#                              #' +
-'#              #######         #' +
-'#   #              #           #' +
-'#   #         ##           #   #' +
-'#            #   #             #' +
-'#           #                  #' +
-'#          #      ##           #' +
-'#                          #   #' +
-'#          ##  ######          #' +
-'#          #        #          #' +
-'#          ###   #  #          #' +
-'#          #        #          #' +
-'#           #######            #' +
-'#                              #' +
-'#                              #' +
-'#                              #' +
-'#        #        ###          #' +
-'#         #                    #' +
-'#          #                   #' +
-'#    #      #                  #' +
-'#            #                 #' +
-'#             #                #' +
-'#       #      #               #' +
-'#        ##   ###              #' +
-'#                #             #' +
-'#                 #  #         #' +
-'#                  #           #' +
-'#    ##             #          #' +
-'#                    #         #' +
-'#                              #' +
-'################################';
-
 const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '################################' +
 '#                              #' +
@@ -211,14 +178,15 @@ const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '################################';
 
 
-function initMap(mapStringFromFetch: string): Map {
+function initMap(mapStringFromFetch: string, map_id: string): Map {
     const MAP: Map = {
         LEVEL_MAP: levelMapArray(mapStringFromFetch),
         WALL_CHAR_CODE: wallCharCode(),
         PLAYER_CHAR_CODE: playerCharCode(),
         MAP_WIDTH: 32,
         MAP_HEIGHT: 32,
-        initialized: true
+        initialized: true,
+        MAP_ID: map_id
     }
     console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
     console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === MAP.LEVEL_MAP.length)
@@ -232,7 +200,8 @@ function defaultMap(): Map {
         PLAYER_CHAR_CODE: playerCharCode(),
         MAP_WIDTH: 32,
         MAP_HEIGHT: 32,
-        initialized: false
+        initialized: false,
+        MAP_ID: ''
     }
     console.assert(MAP.MAP_WIDTH === MAP.MAP_HEIGHT);
     console.assert((MAP.MAP_WIDTH * MAP.MAP_HEIGHT) === MAP.LEVEL_MAP.length)
@@ -270,8 +239,8 @@ function initGameState(): GameState {
 }
 
 // WTF is the type of the targets damnit?
-function initGameMapStateAfterFetch(gameState: GameState, mapStringFromFetch: string, targets: any ): void {
-    gameState.MAP = initMap(mapStringFromFetch);
+function initGameMapStateAfterFetch(gameState: GameState, mapStringFromFetch: string, targets: any, map_id: string): void {
+    gameState.MAP = initMap(mapStringFromFetch, map_id);
 
     for (let i = 0; i < targets.length; i++) {
         console.assert(targets[i].x !== undefined);
@@ -288,28 +257,6 @@ function initGameMapStateAfterFetch(gameState: GameState, mapStringFromFetch: st
             angle: parseInt(targets[i].angle, 10)
         })
     }
-
-    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
-    //     x: 10,
-    //     y: 8,
-    //     angle: Math.PI/4
-    // })
-    //     addToObjects(gameState.MAP, gameState.objectsOnMap, {
-    //     x: 22,
-    //     y: 14,
-    //     angle: Math.PI/4
-    // })
-    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
-    //     x: 26,
-    //     y: 17,
-    //     angle: Math.PI/4
-    // })
-    // addToObjects(gameState.MAP, gameState.objectsOnMap, {
-    //     x: 29,
-    //     y: 2,
-    //     angle: Math.PI/4
-    // })
-
 }
 
 
@@ -335,18 +282,6 @@ function levelMapArray(mapString: string): Uint8ClampedArray {
     }
     return buf
 }
-
-// function initPlayerAfterFetch(MAP: Map): void {
-    // const playerCharIndex: number = MAP.LEVEL_MAP.indexOf(playerCharCode());
-    // if (playerCharIndex === -1) {
-    //     throw new Error('No player on map! Use default?');
-    // }
-    // const playerX = (playerCharIndex % MAP.MAP_WIDTH);
-    // // const PlayerIndexAtXIs0 = (playerCharIndex - playerX);
-    // const playerY = (playerCharIndex % MAP.LEVEL_MAP.length) - playerX;
-    // debugger;
-
-// }
 
 function canvasIDString(index: number): string {
     return `${CANVAS.CANVAS_ID}-${index}`;
@@ -878,6 +813,17 @@ function castRays(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, screenB
     }
 }
 
+function updatePlayerMomentum(player: Player): void {
+    player.velocity.x = (player.velocity.x * FRICTION_COEFFICIENT);
+    player.velocity.y = (player.velocity.y * FRICTION_COEFFICIENT);
+    player.velocity.angle = (player.velocity.angle * FRICTION_COEFFICIENT);
+    // console.log(player.velocity.x);
+    player.coordinates.x += player.velocity.x;
+    player.coordinates.y += player.velocity.y;
+    player.coordinates.angle += player.velocity.angle;
+
+}
+
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class _Canvas extends React.Component<CanvasProps, CanvasState> {
     state: any;
@@ -924,14 +870,8 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         drawAimPoint(this.gameState);
         const data: ImageData = new ImageData(this.gameState.screenBuffer, CANVAS.CANVAS_WIDTH, CANVAS.CANVAS_HEIGHT);
 
+        updatePlayerMomentum(this.player);
         renderToContextFromUint8Clamped(data, this.ctx)
-        this.player.velocity.x = (this.player.velocity.x * FRICTION_COEFFICIENT);
-        this.player.velocity.y = (this.player.velocity.y * FRICTION_COEFFICIENT);
-        this.player.velocity.angle = (this.player.velocity.angle * FRICTION_COEFFICIENT);
-        // console.log(this.player.velocity.x);
-        this.player.coordinates.x += this.player.velocity.x;
-        this.player.coordinates.y += this.player.velocity.y;
-        this.player.coordinates.angle += this.player.velocity.angle;
         this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
     }
 
@@ -957,11 +897,17 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
             console.warn(responseParsed);
             alert("Server returned a level without targets. There's no fun in that!")
         }
+        if (responseParsed.map_id === undefined) {
+            console.error('No map_id in response from server!');
+            console.warn(responseParsed);
+            alert("Server returned a map without a level ID, your scores can't be saved...");
+        }
         // console.log(responseParsed.map);
         console.assert(responseParsed.map.charCodeAt(0) === wallCharCode());
         // debugger;
-        initGameMapStateAfterFetch(this.gameState, responseParsed.map, responseParsed.targets);
+        initGameMapStateAfterFetch(this.gameState, responseParsed.map, responseParsed.targets, responseParsed.map_id);
         // initPlayerAfterFetch(this.gameState.MAP);
+        console.log('level loaded');
     }
 
     async componentDidMount() {
@@ -970,8 +916,10 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if ((this.ctx === null) || (this.offscreenContext === null) || (CANVAS.offscreenCanvas === null)) {
             return;
         }
-        this.fetchLevel();
+        console.log("loading level...");
+        await this.fetchLevel();
         this.timeout = setTimeout(this.endPlay, 10000);
+        console.log('game timeout set...')
 
         // this.animationLoopHandle = setInterval(this.step.bind(this), 1);
         this.animationLoopHandle = requestAnimationFrame(this.step.bind(this));
@@ -1141,6 +1089,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
                 <h2>GAME OVER</h2>
                 <h4>Final score: {this.props.currentScore}</h4>
                 <button onClick={this.newGame}>Play again</button>
+                <button onClick={randomSoundPlay}>Random Evans sound</button>
             </>
         );
     }
