@@ -106,7 +106,7 @@ interface GameState {
     MAP: Map
 }
 
-const DEFAULT_PLAYER: Player = {
+const _DEFAULT_PLAYER: Player = {
     coordinates: {
         x: 2,
         y: 2,
@@ -118,8 +118,6 @@ const DEFAULT_PLAYER: Player = {
         y: 0,
         angle: 0
     }
-    // xVelocity: 0,
-    // yVelocity: 0
 }
 const DEFAULT_CANVAS_STATE: CanvasState = {
     // ctx: null
@@ -186,6 +184,25 @@ const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '################################';
 
+
+function deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying(): Player {
+    const DEFAULT_PLAYER: Player = {
+        coordinates: {
+            x: _DEFAULT_PLAYER.coordinates.x,
+            y: _DEFAULT_PLAYER.coordinates.y,
+            angle: _DEFAULT_PLAYER.coordinates.angle
+        },
+        score: _DEFAULT_PLAYER.score,
+        velocity: {
+            x: _DEFAULT_PLAYER.velocity.x,
+            y: _DEFAULT_PLAYER.velocity.y,
+            angle: _DEFAULT_PLAYER.velocity.angle
+        }
+    }
+    return {
+        ...DEFAULT_PLAYER
+    }
+}
 
 function initMap(mapStringFromFetch: string, map_id: string): Map {
     const MAP: Map = {
@@ -409,9 +426,6 @@ function initGoodSounds(): Array<HTMLAudioElement> {
     GOOD_SOUNDS.push(...eachSoundTag('hey'));
     GOOD_SOUNDS.push(...eachSoundTag('seed'));
     GOOD_SOUNDS.push(...eachSoundTag('classy'));
-    // GOOD_SOUNDS.push(document.getElementById('powerful-0') as HTMLAudioElement);
-    // GOOD_SOUNDS.push(document.getElementById('powerful-1') as HTMLAudioElement);
-    // GOOD_SOUNDS.push(document.getElementById('wild-0') as HTMLAudioElement);
     return GOOD_SOUNDS;
 }
 
@@ -937,7 +951,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.state = DEFAULT_CANVAS_STATE;
         this.ctx = getCanvasCtx();
         this.offscreenContext = getOffscreenContext(400, 400);
-        this.player = DEFAULT_PLAYER;
+        this.player = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying()); // Fucking javascript;
         this.scoreSubscription = store.subscribe(this.updateScore);
         this.gameState = initGameState();
     }
@@ -970,6 +984,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if (jeopardy !== null) {
             jeopardy.play()
         }
+        this.player.coordinates = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying().coordinates);
     }
 
     updateScore = () => {
@@ -1028,7 +1043,8 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // debugger;
         initGameMapStateAfterFetch(this.gameState, responseParsed.map, responseParsed.targets, responseParsed.map_id);
         // initPlayerAfterFetch(this.gameState.MAP);
-        this.props.setMaxScoreForLevel(responseParsed.targets.length)
+        this.props.setMaxScoreForLevel(responseParsed.targets.length);
+        // this.player.coordinates = DEFAULT_PLAYER.coordinates;
         console.log('level loaded');
     }
 
@@ -1182,7 +1198,7 @@ const mapDispatchToPlayProps = (dispatch: any) => {
 const mapStateToCanvasProps = (state: any) => {
     return {
       currentUser: state.currentUser,
-      currentLevelID: state.currentLevel,
+      currentLevelID: state.currentLevel
     }
   }
 
@@ -1258,7 +1274,9 @@ class _Play extends React.Component<PlayProps, PlayState> {
             console.error(`something is wrong, can't find the map with name: ${eventKey}`);
             throw new Error(`something is wrong, can't find the map with name: ${eventKey}`);
         }
-        this.props.setCurrentLevel(selected.id)
+        this.props.setCurrentLevel(selected.id);
+        this.props.setPlaying(false);
+
         // debugger;
     }
 

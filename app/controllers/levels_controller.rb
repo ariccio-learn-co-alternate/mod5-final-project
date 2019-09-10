@@ -83,12 +83,159 @@ LEVEL_ONE_MAP_STRING = {
       }
     ]
 }
+
+LEVEL_TWO_MAP_STRING = {
+  map_str:
+    '################################' +
+    '#        #                     #' +
+    '#              #######         #' +
+    '#   #              #           #' +
+    '#   #         ##           #   #' +
+    '#       #    #   #             #' +
+    '#           #                  #' +
+    '#    #     #      ##           #' +
+    '#                          #   #' +
+    '#          ##  ##              #' +
+    '# #   # #  #        #          #' +
+    '#          ###   #  #          #' +
+    '#          #                   #' +
+    '#           #######            #' +
+    '#  #                           #' +
+    '#      #               ##      #' +
+    '#                              #' +
+    '#        ##       ###          #' +
+    '#         ##                   #' +
+    '#          ##           ####   #' +
+    '#    #      #                  #' +
+    '#          ###                 #' +
+    '#                              #' +
+    '#       #      #          ###  #' +
+    '#        ##   ###              #' +
+    '#                #             #' +
+    '#                 #  #         #' +
+    '#        ####      ####        #' +
+    '#    ##             #          #' +
+    '#                    #         #' +
+    '#                              #' +
+    '################################',
+    targets: [
+      {
+        x: 5,
+        y: 6,
+        angle: Math::PI/2
+      },
+      {
+        x: 5,
+        y: 16,
+        angle: Math::PI/4
+      },
+      {
+        x: 5,
+        y: 22,
+        angle: Math::PI/4
+      },
+      {
+        x: 6,
+        y: 29,
+        angle: Math::PI/4
+      },
+      {
+        x: 8,
+        y: 8,
+        angle: Math::PI/2
+      },
+      {
+        x: 8,
+        y: 18,
+        angle: Math::PI/2
+      },
+      {
+        x: 8,
+        y: 22,
+        angle: Math::PI/2
+      },
+      {
+        x: 8,
+        y: 25,
+        angle: Math::PI/2
+      },
+      {
+        x: 10,
+        y: 8,
+        angle: Math::PI/4
+      },
+      {
+        x: 11,
+        y: 15,
+        angle: Math::PI/4
+      },
+      {
+        x: 12,
+        y: 14,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 4,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 12,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 16,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 25,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 26,
+        angle: Math::PI/4
+      },
+      {
+        x: 20,
+        y: 29,
+        angle: Math::PI/4
+      },
+      {
+        x: 22,
+        y: 14,
+        angle: Math::PI/4
+      },
+      {
+        x: 26,
+        y: 17,
+        angle: Math::PI/4
+      },
+      {
+        x: 29,
+        y: 2,
+        angle: Math::PI/4
+      }
+    ]
+}
+
+
+
+
 class LevelsController < ApplicationController
   @@MAPS = [
     {
       name: 'one',
       id: '1',
       map: LEVEL_ONE_MAP_STRING
+    },
+    {
+      name: 'two',
+      id: '2',
+      map: LEVEL_TWO_MAP_STRING
     }
   ]
 
