@@ -370,7 +370,7 @@ function randomSoundPlay(event: React.MouseEvent<HTMLButtonElement, MouseEvent>)
 }
 
 function initCanvasData(): CanvasData {
-    const CANVAS_WIDTH: number = 800;
+    const CANVAS_WIDTH: number = 600;
     const CANVAS_HEIGHT: number = 600;
     const CANVAS_PIXELS: number = (CANVAS_WIDTH * CANVAS_HEIGHT);
     const CANVAS_CONTAINER_ID: string = "game-canvas-container";
