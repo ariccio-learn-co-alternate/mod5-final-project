@@ -135,10 +135,12 @@ CANVAS.gameCanvas_0.id = canvasIDString(0);
 const FIELD_OF_VIEW: number = (Math.PI/2)
 const VIEW_DISTANCE: number = 16;
 
+enum HitType {
+    HIT_ERR,
+    HIT_WALL,
+    HIT_DYN
 
-const HIT_ERR = 0;
-const HIT_WALL = 1;
-const HIT_DYN = 2;
+}
 
 const FRICTION_COEFFICIENT: number = 0.8;
 
@@ -593,32 +595,32 @@ function hitDynObject(objectsOnMap: Array<ObjectCoordinateVector>, testX: number
 }
 
 function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX: number, testY: number, distanceToWall: number): hitCheck {
-    if (outOfBounds(MAP, testX, testY)) {
-        // console.warn("out of bounds, currently no handling.")
-        // debugger;
-        distanceToWall = VIEW_DISTANCE;
-        console.warn("out of bounds");
-        return {
-            hit: true,
-            testReturn: {
-                outOfBounds: true,
-                objectHitType: HIT_ERR,
-                distance: distanceToWall,
-                coordinates: {
-                    x: testX,
-                    y: testY,
-                    angle: 0
-                }
-            }
-        };
-    }
+    // if (outOfBounds(MAP, testX, testY)) {
+    //     console.warn("out of bounds, currently no handling.")
+    //     debugger;
+    //     distanceToWall = VIEW_DISTANCE;
+    //     console.warn("out of bounds");
+    //     return {
+    //         hit: true,
+    //         testReturn: {
+    //             outOfBounds: true,
+    //             objectHitType: HIT_ERR,
+    //             distance: distanceToWall,
+    //             coordinates: {
+    //                 x: testX,
+    //                 y: testY,
+    //                 angle: 0
+    //             }
+    //         }
+    //     };
+    // }
     if (hitDynObject(objectsOnMap, testX, testY)) {
         // debugger;
         return {
             hit: true,
             testReturn: {
                 outOfBounds: false,
-                objectHitType: HIT_DYN,
+                objectHitType: HitType.HIT_DYN,
                 distance: distanceToWall,
                 coordinates: {
                     x: testX,
@@ -633,7 +635,7 @@ function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX:
             hit: true,
             testReturn: {
                 outOfBounds: false,
-                objectHitType: HIT_WALL,
+                objectHitType: HitType.HIT_WALL,
                 distance: distanceToWall,
                 coordinates: {
                     x: testX,
@@ -647,7 +649,7 @@ function checkHits(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, testX:
         hit: false,
         testReturn: {
                 outOfBounds: false,
-                objectHitType: HIT_ERR,
+                objectHitType: HitType.HIT_ERR,
                 distance: distanceToWall,
                 coordinates: {
                     x: testX,
@@ -662,8 +664,8 @@ function testDistance(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, eye
     let thisDistanceToWall: number = 0;
     // let outOfBounds = false;
     while (thisDistanceToWall < VIEW_DISTANCE) {
-        const testX: number = Math.floor((eyeX * thisDistanceToWall) + playerCoordinates.x);
-        const testY: number = Math.floor((eyeY * thisDistanceToWall) + playerCoordinates.y);
+        const testX: number = Math.trunc((eyeX * thisDistanceToWall) + playerCoordinates.x);
+        const testY: number = Math.trunc((eyeY * thisDistanceToWall) + playerCoordinates.y);
         if (outOfBounds(MAP, testX, testY)) {
             break;
         }
@@ -676,7 +678,7 @@ function testDistance(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, eye
     // console.warn("max distance fallthrough?");
     return {
         outOfBounds: false,
-        objectHitType: HIT_ERR,
+        objectHitType: HitType.HIT_ERR,
         distance: thisDistanceToWall,
         coordinates: {
             x: -1,
@@ -697,12 +699,13 @@ function distanceToWall(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, r
 function pixelIndexToBufferIndex(bufferSize: number, pixelsSize: number, pixelIndex: number): number {
     // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
     // Imagedata needs an 8 bit R value, G value, b value, and a A value;
-    if(!(pixelIndex < pixelsSize)) {
-        throw new Error("assertion failed");
-    }
+
+    // if(!(pixelIndex < pixelsSize)) {
+    //     throw new Error("assertion failed");
+    // }
     // console.assert((pixelIndex % 4) === 0);
     const rawIndex = pixelIndex * 4;
-    if(!(rawIndex < bufferSize)) {
+    if(rawIndex >= bufferSize) {
         throw new Error("assertion failed");
     }
     return rawIndex;
@@ -718,35 +721,7 @@ function inPixelBufferBounds(bufferSize: number, bufferPixelIndex: number): bool
     return true;
 }
 
-function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number): pixelBufferIndicies {
-    // won't check bounds for red, green, blue, only alpha, because it's the top. 
 
-    // red is the 0th index in this pixel. really does nothing.
-    const redIndex = bufferPixelIndex + 0;
-
-    // Green is the 1st index in this pixel.
-    const greenIndex = bufferPixelIndex + 1;
-    
-    // Blue is the 2nd index in this pixel.
-    const blueIndex = bufferPixelIndex + 2;
-
-    // Alpha is the 3rd index in this pixel.
-    const alphaIndex = bufferPixelIndex + 3;
-    if (!inPixelBufferBounds(bufferSize, alphaIndex)) {
-        throw new Error("out of bounds!");
-    }
-    // These will only fire in case of weird overflow problems 
-    if(!(redIndex < greenIndex)) {
-        throw new Error("assertion failed");
-    }
-    if(!(greenIndex < blueIndex)) {
-        throw new Error("assertion failed");
-    }
-    if(!(blueIndex < alphaIndex)) {
-        throw new Error("assertion failed");
-    }
-    return {redIndex, greenIndex, blueIndex, alphaIndex};
-}
 
 function drawCeiling(screenBuffer: Uint8ClampedArray, wallDistance: testDistanceReturn, indexes: pixelBufferIndicies) {
     if (wallDistance.outOfBounds) {
@@ -775,7 +750,7 @@ function drawObjects(screenBuffer: Uint8ClampedArray, wallDistance: testDistance
         screenBuffer[indexes.alphaIndex] = 255;
     }
     else {
-        if (wallDistance.objectHitType === HIT_DYN) {
+        if (wallDistance.objectHitType === HitType.HIT_DYN) {
             // console.log("dyn draw");
             screenBuffer[indexes.redIndex] = 255;
             screenBuffer[indexes.greenIndex] = 255;
@@ -860,7 +835,7 @@ function checkShot(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, player
         // console.log(`Player at radians,angle,x,y: '${playerCoordinates.angle},${playerCoordinates.angle*(360)},${playerCoordinates.x},${playerCoordinates.y}'` )
         const testHitDistance = distanceToWall(MAP, objectsOnMap, angleOfThisRay, playerCoordinates);
         // console.log(`Maybe the target is at: ${testHitDistance.coordinates.x},${testHitDistance.coordinates.y}`)
-        if (testHitDistance.objectHitType === HIT_DYN) {
+        if (testHitDistance.objectHitType === HitType.HIT_DYN) {
             console.log("good hit!");
             return testHitDistance;
         }
@@ -869,19 +844,56 @@ function checkShot(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, player
     return null;
 }
 
+function bufferPixelElementIndexes(bufferSize: number, bufferPixelIndex: number): pixelBufferIndicies {
+    // won't check bounds for red, green, blue, only alpha, because it's the top. 
+
+    // red is the 0th index in this pixel. really does nothing.
+    const redIndex = bufferPixelIndex + 0;
+
+    // Green is the 1st index in this pixel.
+    const greenIndex = bufferPixelIndex + 1;
+    
+    // Blue is the 2nd index in this pixel.
+    const blueIndex = bufferPixelIndex + 2;
+
+    // Alpha is the 3rd index in this pixel.
+    const alphaIndex = bufferPixelIndex + 3;
+    if (!inPixelBufferBounds(bufferSize, alphaIndex)) {
+        throw new Error("out of bounds!");
+    }
+
+    // Don't have time for these in the render loop.
+    // // These will only fire in case of weird overflow problems 
+    // if(!(redIndex < greenIndex)) {
+    //     throw new Error("assertion failed");
+    // }
+    // if(!(greenIndex < blueIndex)) {
+    //     throw new Error("assertion failed");
+    // }
+    // if(!(blueIndex < alphaIndex)) {
+    //     throw new Error("assertion failed");
+    // }
+    return {redIndex, greenIndex, blueIndex, alphaIndex};
+}
+
 function castRays(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, screenBuffer: Uint8ClampedArray, playerCoordinates: ObjectCoordinateVector) {
-    for (let i = 0; i < CANVAS.CANVAS_WIDTH; i++) {
-        const angleOfThisRay = rayAngle(playerCoordinates.angle, i);
+    const w: number = CANVAS.CANVAS_WIDTH;
+    const h: number = CANVAS.CANVAS_HEIGHT;
+    const halfH: number = (h/2);
+    for (let i = 0; i < w; i++) {
+        const angleOfThisRay: number = rayAngle(playerCoordinates.angle, i);
         // raysCasted.push(angleOfThisRay);
         const wallDistance: testDistanceReturn = distanceToWall(MAP, objectsOnMap,angleOfThisRay, playerCoordinates);
-        const ceiling: number = (CANVAS.CANVAS_HEIGHT/2) - (CANVAS.CANVAS_HEIGHT / wallDistance.distance);
-        const floor = CANVAS.CANVAS_HEIGHT - ceiling;
-        for (let y = 0; y < CANVAS.CANVAS_HEIGHT; y++) {
-            const screenBufferRowPixelIndex = (y * CANVAS.CANVAS_WIDTH);
-            const screenBufferPixelIndex = (screenBufferRowPixelIndex + i);
-            const screenBufferIndex =
-                pixelIndexToBufferIndex(SCREEN_BUFFER_SIZE, CANVAS.CANVAS_PIXELS, screenBufferPixelIndex);
+        const ceiling: number = halfH - (h / wallDistance.distance);
+        const floor: number = h - ceiling;
+        for (let y = 0; y < h; y++) {
+            const screenBufferRowPixelIndex: number = (y * w);
+            const screenBufferPixelIndex: number = (screenBufferRowPixelIndex + i);
             
+            // Don't have time for THIS redundant check in the render loop. It's quite expensive.
+            // const screenBufferIndex: number =
+            //     pixelIndexToBufferIndex(SCREEN_BUFFER_SIZE, CANVAS.CANVAS_PIXELS, screenBufferPixelIndex);
+            const screenBufferIndex = screenBufferPixelIndex * 4;
             const indexes = bufferPixelElementIndexes(SCREEN_BUFFER_SIZE, screenBufferIndex);
             drawPixels(screenBuffer, y, ceiling, floor, wallDistance, indexes)
         }
@@ -1010,14 +1022,14 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     step() {
-        const lastRenderTime = this.renderTime;
-        this.renderTime = performance.now();
-        const difference = (this.renderTime - lastRenderTime);
-        const fps = (1000/difference);
-        // console.log(fps);
-        if (fps < 20) {
-            FPS_COUNTER_ELEM.textContent = `FPS: ${ Math.floor(fps)}`;
-        }
+        // const lastRenderTime = this.renderTime;
+        // this.renderTime = performance.now();
+        // const difference = (this.renderTime - lastRenderTime);
+        // const fps = (1000/difference);
+        // // console.log(fps);
+        // if (fps < 20) {
+        //     FPS_COUNTER_ELEM.textContent = `FPS: ${ Math.floor(fps)}`;
+        // }
         if (CANVAS.offscreenCanvas === null) {
             console.warn("null canvas");
             return;
