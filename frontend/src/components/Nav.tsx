@@ -7,9 +7,10 @@ import Nav from 'react-bootstrap/Nav';
 import { LinkContainer } from 'react-router-bootstrap';
 
 type NavBarProps = {
-    currentUser: string
+    currentUser: string,
+    username: string
 }
-const UserNav: FunctionComponent<{}> = () =>
+const UserNav: FunctionComponent<{username: string}> = (props: any) =>
     <Navbar bg="light" variant="dark" expand="lg">
         {/* NOTE TO SELF: WHY DID THIS BREAK WITHOUT NAVBAR.COLLAPSE? */}
         <Navbar.Collapse>
@@ -17,8 +18,9 @@ const UserNav: FunctionComponent<{}> = () =>
                 <LinkContainer to='/play'><NavItem className='nav-item'>Play </NavItem></LinkContainer> 
                 <LinkContainer to='/scoreboard'><NavItem className='nav-item'>Scoreboard </NavItem></LinkContainer> 
                 <LinkContainer to='/discover'><NavItem className='nav-item'>Discover </NavItem></LinkContainer> 
-                <LinkContainer to='/profile'><NavItem className='nav-item'>Profile </NavItem></LinkContainer> 
+                <LinkContainer to='/profile'><NavItem className='nav-item'>Profile ({props.username})</NavItem></LinkContainer> 
                 <LinkContainer to='/logout'><NavItem className='nav-item'>Logout</NavItem></LinkContainer>
+                {/* <NavItem className='nav-item' pullRight>{props.username}</NavItem> */}
             </Nav>
         </Navbar.Collapse>
     </Navbar>
@@ -27,12 +29,13 @@ const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
     if (props.currentUser === '') {
         return <Redirect to='/'/>;
     }
-    return <UserNav/>;
+    return <UserNav username={props.username}/>;
 }
 
 const mapStateToProps = (state: any) => {
     return {
-        currentUser: state.currentUser
+        currentUser: state.currentUser,
+        username: state.username
     }
 }
 

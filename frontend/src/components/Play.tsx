@@ -219,7 +219,7 @@ function defaultMap(): Map {
 }
 
 function mapFetchOptions(jwt: string): RequestInit {
-    debugger;
+    // debugger;
     const requestOptions = {
         method: 'GET',
         headers: {
@@ -373,13 +373,14 @@ function initBeepBoopSounds(): Array<HTMLAudioElement> {
             break;
         }
         console.warn(beepBoopSound);
+        BEEP_BOOP_SOUNDS.push(beepBoopSound);
     }
     // const beepBoopSound: HTMLAudioElement = new Audio('../../public/rb_one_to_many_06031_boop_0.m4a');
-    const beepBoopSound_0 = document.getElementById("beepboop-0") as HTMLAudioElement;
-    BEEP_BOOP_SOUNDS.push(beepBoopSound_0);
+    // const beepBoopSound_0 = document.getElementById("beepboop-0") as HTMLAudioElement;
+    // BEEP_BOOP_SOUNDS.push(beepBoopSound_0);
 
-    const beepBoopSound_1 = document.getElementById("beepboop-1") as HTMLAudioElement;
-    BEEP_BOOP_SOUNDS.push(beepBoopSound_1);
+    // const beepBoopSound_1 = document.getElementById("beepboop-1") as HTMLAudioElement;
+    // BEEP_BOOP_SOUNDS.push(beepBoopSound_1);
     return BEEP_BOOP_SOUNDS;
 };
 
