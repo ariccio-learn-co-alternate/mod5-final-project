@@ -363,24 +363,22 @@ function initCanvasData(): CanvasData {
     }
 }
 
-function initBeepBoopSounds(): Array<HTMLAudioElement> {
-    const BEEP_BOOP_SOUNDS = [];
-
+function eachSoundTag(soundIDTag: string): Array<HTMLAudioElement> {
+    const SOUNDS = []
     for (let i = 0; true; i++) {
-        const beepBoopSound = document.getElementById(`beepboop-${i}`) as HTMLAudioElement;
-        
-        if (beepBoopSound === null) {
+        const sound = document.getElementById(`${soundIDTag}-${i}`) as HTMLAudioElement;
+        if (sound === null) {
             break;
         }
-        console.warn(beepBoopSound);
-        BEEP_BOOP_SOUNDS.push(beepBoopSound);
+        console.warn(sound);
+        SOUNDS.push(sound);
     }
-    // const beepBoopSound: HTMLAudioElement = new Audio('../../public/rb_one_to_many_06031_boop_0.m4a');
-    // const beepBoopSound_0 = document.getElementById("beepboop-0") as HTMLAudioElement;
-    // BEEP_BOOP_SOUNDS.push(beepBoopSound_0);
+    return SOUNDS;
+}
 
-    // const beepBoopSound_1 = document.getElementById("beepboop-1") as HTMLAudioElement;
-    // BEEP_BOOP_SOUNDS.push(beepBoopSound_1);
+
+function initBeepBoopSounds(): Array<HTMLAudioElement> {
+    const BEEP_BOOP_SOUNDS = eachSoundTag('beepboop');
     return BEEP_BOOP_SOUNDS;
 };
 
@@ -395,21 +393,25 @@ function initAllSoundEffects(): Array<HTMLAudioElement> {
 
 function initBadSounds(): Array<HTMLAudioElement> {
     const BAD_SOUNDS: Array<HTMLAudioElement> = [];
-    // const elements = document.querySelectorAll('.evans-soundeffect');
-    // elements.forEach(element => {
-        // BAD_SOUNDS.push(element as HTMLAudioElement);
-    // })
-    BAD_SOUNDS.push(document.getElementById('terrible-0') as HTMLAudioElement);
-    BAD_SOUNDS.push(document.getElementById('embarrasing-0') as HTMLAudioElement);
-    BAD_SOUNDS.push(document.getElementById('rethink-0') as HTMLAudioElement);
+    BAD_SOUNDS.push(...eachSoundTag('terrible'));
+
+    BAD_SOUNDS.push(...eachSoundTag('embarrasing'));
+    BAD_SOUNDS.push(...eachSoundTag('kidding'));
+    BAD_SOUNDS.push(...eachSoundTag('rethink'));
+    BAD_SOUNDS.push(...eachSoundTag('hmm'));
     return BAD_SOUNDS;
 }
 
 function initGoodSounds(): Array<HTMLAudioElement> {
     const GOOD_SOUNDS: Array<HTMLAudioElement> = [];
-    GOOD_SOUNDS.push(document.getElementById('powerful-0') as HTMLAudioElement);
-    GOOD_SOUNDS.push(document.getElementById('powerful-1') as HTMLAudioElement);
-    GOOD_SOUNDS.push(document.getElementById('wild-0') as HTMLAudioElement);
+    GOOD_SOUNDS.push(...eachSoundTag('powerful'));
+    GOOD_SOUNDS.push(...eachSoundTag('wild'));
+    GOOD_SOUNDS.push(...eachSoundTag('hey'));
+    GOOD_SOUNDS.push(...eachSoundTag('seed'));
+    GOOD_SOUNDS.push(...eachSoundTag('classy'));
+    // GOOD_SOUNDS.push(document.getElementById('powerful-0') as HTMLAudioElement);
+    // GOOD_SOUNDS.push(document.getElementById('powerful-1') as HTMLAudioElement);
+    // GOOD_SOUNDS.push(document.getElementById('wild-0') as HTMLAudioElement);
     return GOOD_SOUNDS;
 }
 
