@@ -219,6 +219,7 @@ function defaultMap(): Map {
 }
 
 function mapFetchOptions(jwt: string): RequestInit {
+    debugger;
     const requestOptions = {
         method: 'GET',
         headers: {
@@ -940,18 +941,20 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
     endPlay = async () => {
         this.props.setPlaying(false);
-        const submitScoreRequestOptions = submitScoreOptions(this.props.currentUser, this.player.score, this.gameState.MAP.MAP_ID);
-
-        const submitResult: Promise<Response> = fetch('/scoreboard', submitScoreRequestOptions);
-        const jsonResponse = (await submitResult).json();
-        const responseParsed = await jsonResponse;
-        if (responseParsed.errors !== undefined) {
-            console.error(formatErrors(responseParsed.errors));
-            alert(formatErrors(responseParsed.errors));
-            return;
-        }
-        if (responseParsed.score !== undefined) {
-            console.log("Successfully posted score!");
+        if (this.player.score > 0) {
+            const submitScoreRequestOptions = submitScoreOptions(this.props.currentUser, this.player.score, this.gameState.MAP.MAP_ID);
+    
+            const submitResult: Promise<Response> = fetch('/scoreboard', submitScoreRequestOptions);
+            const jsonResponse = (await submitResult).json();
+            const responseParsed = await jsonResponse;
+            if (responseParsed.errors !== undefined) {
+                console.error(formatErrors(responseParsed.errors));
+                alert(formatErrors(responseParsed.errors));
+                return;
+            }
+            if (responseParsed.score !== undefined) {
+                console.log("Successfully posted score!");
+            }
         }
 
         if (this.player.score === 0) {
