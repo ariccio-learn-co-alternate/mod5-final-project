@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   get '/users/show', to: 'users#show'
   get '/users/showfriends', to: 'users#show_friends'
   post '/users/search', to: 'users#search'
-  # post '/users/friends', to: 'user_friends#create'
+  post '/users/friends', to: 'user_friends#create'
   
   post '/levels', to:'levels#create'
   get '/levels', to:'levels#list'

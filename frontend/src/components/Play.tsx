@@ -4,7 +4,7 @@ import {Unsubscribe} from 'redux';
 
 import {Dropdown, DropdownButton} from 'react-bootstrap';
 
-import {setCurrentScore, setPlaying, setCurrentLevel} from '../Actions';
+import {setCurrentScore, setPlaying, setCurrentLevel, setMaxScoreForLevel} from '../Actions';
 import {store} from '../index';
 import {formatErrors} from '../utils/ErrorObject';
 
@@ -18,9 +18,10 @@ interface PlayProps {
     readonly currentScore: number
     readonly playing: boolean,
     readonly currentLevel: string,
-    setPlaying: any,
-    setCurrentScore: any,
-    setCurrentLevel: any
+    readonly maxScore: number,
+    readonly setPlaying: any,
+    readonly setCurrentScore: any,
+    readonly setCurrentLevel: any
 }
 
 interface CanvasState {
@@ -91,10 +92,11 @@ interface Player {
 
 interface CanvasProps {
     // currentScore: number
-    setCurrentScore: any,
-    setPlaying: any,
-    currentUser: string,
-    currentLevelID: string
+    readonly setCurrentScore: any,
+    readonly setPlaying: any,
+    readonly currentUser: string,
+    readonly currentLevelID: string,
+    readonly setMaxScoreForLevel: any
 }
 
 interface GameState {
@@ -1020,6 +1022,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // debugger;
         initGameMapStateAfterFetch(this.gameState, responseParsed.map, responseParsed.targets, responseParsed.map_id);
         // initPlayerAfterFetch(this.gameState.MAP);
+        this.props.setMaxScoreForLevel(responseParsed.targets.length)
         console.log('level loaded');
     }
 
@@ -1165,14 +1168,15 @@ const mapDispatchToPlayProps = (dispatch: any) => {
     return {
         setCurrentScore: (score: number) => dispatch(setCurrentScore(score)),
         setPlaying: (playing: boolean) => dispatch(setPlaying(playing)),
-        setCurrentLevel: (level: string) => dispatch(setCurrentLevel(level))
+        setCurrentLevel: (level: string) => dispatch(setCurrentLevel(level)),
+        setMaxScoreForLevel: (maxScore: number) => dispatch(setMaxScoreForLevel(maxScore))
     };
 }
 
 const mapStateToCanvasProps = (state: any) => {
     return {
       currentUser: state.currentUser,
-      currentLevelID: state.currentLevel
+      currentLevelID: state.currentLevel,
     }
   }
 
@@ -1208,7 +1212,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
     renderPlaying = () => {
         return (
             <>
-                Current Score: {this.props.currentScore}
+                Current Score: {this.props.currentScore} Max score possible for this level: {this.props.maxScore}
                 <Canvas/>
                 <button onClick={randomSoundPlay}>Random Evans sound</button>
             </>
@@ -1303,7 +1307,8 @@ const mapStateToPlayProps = (state: any) => {
         currentUser: state.currentUser,
         currentScore: state.currentScore,
         playing: state.playing,
-        currentLevel: state.currentLevel
+        currentLevel: state.currentLevel,
+        maxScore: state.maxScore
     }
 }
 

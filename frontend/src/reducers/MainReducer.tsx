@@ -8,7 +8,8 @@ import {
     SET_USER_SCORES,
     SET_CURRENT_SCORE,
     SET_PLAYING,
-    SET_CURRENT_LEVEL
+    SET_CURRENT_LEVEL,
+    SET_MAX_SCORE_FOR_LEVEL
 } from '../Actions';
 
 const initialState: AppState = {
@@ -18,7 +19,8 @@ const initialState: AppState = {
     scores: [],
     currentScore: 0,
     playing: true,
-    currentLevel: '1'
+    currentLevel: '1',
+    maxScore: 0
 }
 
 export function reducer(state: AppState = initialState, action: any): any {
@@ -79,6 +81,12 @@ export function reducer(state: AppState = initialState, action: any): any {
             return {
                 ...state,
                 currentLevel: action.currentLevel
+            }
+        case SET_MAX_SCORE_FOR_LEVEL:
+            console.log(`Setting max score for current level ${action.maxScore}`);
+            return {
+                ...state,
+                maxScore: action.maxScore
             }
         default:
             console.log("default action: ", action);

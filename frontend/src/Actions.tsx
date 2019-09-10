@@ -8,6 +8,7 @@ export const SET_USER_SCORES = 'SET_SCORES';
 export const SET_CURRENT_SCORE = 'SET_CURRENT_SCORE';
 export const SET_PLAYING = 'SET_PLAYING';
 export const SET_CURRENT_LEVEL = 'SET_CURRENT_LEVEL';
+export const SET_MAX_SCORE_FOR_LEVEL = 'SET_MAX_SCORE_FOR_LEVEL';
 
 export function loginUser(username: string, email: string, jwt: string): object {
     return {
@@ -74,4 +75,10 @@ export function setCurrentLevel(level: string): object {
     }
 }
 
+export function setMaxScoreForLevel(maxScore: number): object {
+    return {
+        type: SET_MAX_SCORE_FOR_LEVEL,
+        maxScore: maxScore
+    }
+}
 // export function getUserInfo()

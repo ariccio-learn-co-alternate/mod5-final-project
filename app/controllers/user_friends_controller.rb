@@ -7,7 +7,7 @@ class UserFriendsController < ApplicationController
     if current_user.friend.include?(user_friends_params[:friend_id])
       # puts 'user already included'
       render json: {
-
+        errors: create_error('already included in friends!', 'already included in friends!')
       }, status: :ok
     end
     @new_friend = UserFriend.create!(user_id: current_user.id, friend_id: user_friends_params[:friend_id])
