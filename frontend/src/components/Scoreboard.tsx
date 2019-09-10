@@ -78,7 +78,7 @@ const tableRow = (score: any, index: number) =>
 const tableFriendRow = (score: any, index: number) =>
         <tr key={rowKeyFriend(score)}>
             <td>{index}</td>
-            <td>{score.user_id}</td>
+            <td>{score.username}</td>
             <td>{score.score}</td>
             <td>{score.level_id}</td>
             <td>{score.time}</td>
@@ -88,6 +88,7 @@ const tableFriendRow = (score: any, index: number) =>
 class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
     state = initScoreboardState
     async componentDidMount() {
+        console.error("note to self, there's something wrong with the friends display. It seems to show duplicates.")
         const rawResponse: Promise<Response> = fetch('/scoreboard', scoreboardOptions(this.props.currentUser));
         const jsonResponse = (await rawResponse).json();
         const response = await jsonResponse;

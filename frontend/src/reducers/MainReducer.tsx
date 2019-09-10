@@ -18,7 +18,7 @@ const initialState: AppState = {
     scores: [],
     currentScore: 0,
     playing: true,
-    currentLevel: ''
+    currentLevel: '1'
 }
 
 export function reducer(state: AppState = initialState, action: any): any {

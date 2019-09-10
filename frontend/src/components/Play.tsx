@@ -17,9 +17,10 @@ interface PlayProps {
     readonly currentUser: string,
     readonly currentScore: number
     readonly playing: boolean,
+    readonly currentLevel: string,
     setPlaying: any,
     setCurrentScore: any,
-    readonly currentLevel: string
+    setCurrentLevel: any
 }
 
 interface CanvasState {
@@ -92,7 +93,8 @@ interface CanvasProps {
     // currentScore: number
     setCurrentScore: any,
     setPlaying: any,
-    currentUser: string
+    currentUser: string,
+    currentLevelID: string
 }
 
 interface GameState {
@@ -143,6 +145,7 @@ const FRICTION_COEFFICIENT: number = 0.8;
 const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 const BAD_SOUNDS: Array<HTMLAudioElement> = initBadSounds();
+const GOOD_SOUNDS: Array<HTMLAudioElement> = initGoodSounds();
 // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
@@ -394,7 +397,16 @@ function initBadSounds(): Array<HTMLAudioElement> {
     // })
     BAD_SOUNDS.push(document.getElementById('terrible-0') as HTMLAudioElement);
     BAD_SOUNDS.push(document.getElementById('embarrasing-0') as HTMLAudioElement);
+    BAD_SOUNDS.push(document.getElementById('rethink-0') as HTMLAudioElement);
     return BAD_SOUNDS;
+}
+
+function initGoodSounds(): Array<HTMLAudioElement> {
+    const GOOD_SOUNDS: Array<HTMLAudioElement> = [];
+    GOOD_SOUNDS.push(document.getElementById('powerful-0') as HTMLAudioElement);
+    GOOD_SOUNDS.push(document.getElementById('powerful-1') as HTMLAudioElement);
+    GOOD_SOUNDS.push(document.getElementById('wild-0') as HTMLAudioElement);
+    return GOOD_SOUNDS;
 }
 
 function randomSoundFromHTMLAudioElementArray(sounds: Array<HTMLAudioElement>): HTMLAudioElement {
@@ -941,7 +953,10 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         }
 
         if (this.player.score === 0) {
-            randomSoundFromHTMLAudioElementArray(BAD_SOUNDS).play()
+            randomSoundFromHTMLAudioElementArray(BAD_SOUNDS).play();
+        }
+        if (this.player.score > 4) {
+            randomSoundFromHTMLAudioElementArray(GOOD_SOUNDS).play();
         }
         const jeopardy = document.getElementById('jeopardy-0') as HTMLAudioElement;
         if (jeopardy !== null) {
@@ -973,7 +988,9 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
     async fetchLevel() {
         const options: RequestInit = mapFetchOptions(this.props.currentUser);
-        const rawResponse: Promise<Response> = fetch('/levels/1', options);
+        console.log(`redux currentLevel: ${this.props.currentLevelID}`);
+        const fetchLevelURL: string = `/levels/${this.props.currentLevelID}`
+        const rawResponse: Promise<Response> = fetch(fetchLevelURL, options);
         const jsonResponse = (await rawResponse).json();
         const responseParsed = await jsonResponse;
         // debugger;
@@ -1014,7 +1031,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         }
         console.log("loading level...");
         await this.fetchLevel();
-        this.timeout = setTimeout(this.endPlay, 10000);
+        this.timeout = setTimeout(this.endPlay, 20000);
         console.log('game timeout set...')
 
         // this.animationLoopHandle = setInterval(this.step.bind(this), 1);
@@ -1147,13 +1164,15 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 const mapDispatchToPlayProps = (dispatch: any) => {
     return {
         setCurrentScore: (score: number) => dispatch(setCurrentScore(score)),
-        setPlaying: (playing: boolean) => dispatch(setPlaying(playing))
+        setPlaying: (playing: boolean) => dispatch(setPlaying(playing)),
+        setCurrentLevel: (level: string) => dispatch(setCurrentLevel(level))
     };
 }
 
 const mapStateToCanvasProps = (state: any) => {
     return {
-      currentUser: state.currentUser
+      currentUser: state.currentUser,
+      currentLevelID: state.currentLevel
     }
   }
 
@@ -1207,14 +1226,39 @@ class _Play extends React.Component<PlayProps, PlayState> {
         return (
             <>
                 {this.state.mapsList.map((singleMap: any) => {
-                    return <Dropdown.Item key={`dropdown-map-button-${singleMap.name}`}>{singleMap.name}</Dropdown.Item>
+                    return (
+                        <Dropdown.Item
+                            key={`dropdown-map-button-${singleMap.name}`}
+                            eventKey={singleMap.name}
+                        >
+                            {singleMap.name}
+                        </Dropdown.Item>
+                    );
                 })}
             </>
         );
     }
+
+    selectMapDropdown = (eventKey: any, event: Object): any => {
+        console.log(eventKey);
+        console.log(event);
+        console.log(this.state.mapsList)
+        const selected = this.state.mapsList.find((map: any) => map.name === eventKey);
+        if (selected === undefined) {
+            console.error(`something is wrong, can't find the map with name: ${eventKey}`);
+            throw new Error(`something is wrong, can't find the map with name: ${eventKey}`);
+        }
+        this.props.setCurrentLevel(selected.id)
+        // debugger;
+    }
+
     renderMapDropdown = () => {
         return (
-            <DropdownButton id='map-selector-dropdown-button' title={`Select map ${this.props.currentLevel}`}>
+            <DropdownButton
+                id='map-selector-dropdown-button'
+                title={`Select map ${this.props.currentLevel}`}
+                onSelect={this.selectMapDropdown}
+            >
                 
                     {this.renderAllMapDropdownButtons()}
                 
@@ -1233,6 +1277,10 @@ class _Play extends React.Component<PlayProps, PlayState> {
         );
     }
     render = () => {
+        if (this.props.currentUser === '') {
+            // avoid bug where ya can't log in because keystrokes are captured :D
+            return null;
+        }
         if (this.props.playing) {
             return (
                 <>
