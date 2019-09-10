@@ -150,6 +150,10 @@ const GOOD_SOUNDS: Array<HTMLAudioElement> = initGoodSounds();
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 
+
+const FPS_COUNTER_ID = 'fps-counter';
+const FPS_COUNTER_ELEM = getFPSCounter();
+
 const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '################################' +
 '#                              #' +
@@ -183,6 +187,14 @@ const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '#                              #' +
 '################################';
+
+function getFPSCounter(): HTMLElement {
+    const elem = document.getElementById(FPS_COUNTER_ID);
+    if (elem === null) {
+        throw new Error("expected a p for the FPS in index!")
+    }
+    return elem;
+}
 
 
 function deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying(): Player {
@@ -356,8 +368,8 @@ function randomSoundPlay(event: React.MouseEvent<HTMLButtonElement, MouseEvent>)
 }
 
 function initCanvasData(): CanvasData {
-    const CANVAS_WIDTH: number = 400;
-    const CANVAS_HEIGHT: number = 400;
+    const CANVAS_WIDTH: number = 800;
+    const CANVAS_HEIGHT: number = 600;
     const CANVAS_PIXELS: number = (CANVAS_WIDTH * CANVAS_HEIGHT);
     const CANVAS_CONTAINER_ID: string = "game-canvas-container";
     const container: HTMLDivElement = document.getElementById(CANVAS_CONTAINER_ID) as HTMLDivElement;
@@ -387,7 +399,7 @@ function eachSoundTag(soundIDTag: string): Array<HTMLAudioElement> {
         if (sound === null) {
             break;
         }
-        console.warn(sound);
+        console.log(`loaded sound for sound tag: ${soundIDTag}, at ID: ${i}: `, sound);
         SOUNDS.push(sound);
     }
     return SOUNDS;
@@ -944,7 +956,8 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     player: Player;
     scoreSubscription: Unsubscribe;
     timeout: any;
-    gameState: GameState
+    gameState: GameState;
+    renderTime: number;
 
     constructor(props: CanvasProps) {
         super(props);
@@ -954,6 +967,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.player = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying()); // Fucking javascript;
         this.scoreSubscription = store.subscribe(this.updateScore);
         this.gameState = initGameState();
+        this.renderTime = performance.now();
     }
 
     endPlay = async () => {
@@ -984,6 +998,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if (jeopardy !== null) {
             jeopardy.play()
         }
+        FPS_COUNTER_ELEM.hidden = true;
         this.player.coordinates = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying().coordinates);
     }
 
@@ -995,6 +1010,14 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     }
 
     step() {
+        const lastRenderTime = this.renderTime;
+        this.renderTime = performance.now();
+        const difference = (this.renderTime - lastRenderTime);
+        const fps = (1000/difference);
+        // console.log(fps);
+        if (fps < 20) {
+            FPS_COUNTER_ELEM.textContent = `FPS: ${ Math.floor(fps)}`;
+        }
         if (CANVAS.offscreenCanvas === null) {
             console.warn("null canvas");
             return;
@@ -1065,7 +1088,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // this.renderToContextFromBitmap();
 
         document.addEventListener('keydown', this.keydown)
-
+        FPS_COUNTER_ELEM.hidden = false;
     }
 
     turnLeft = (event: KeyboardEvent) => {

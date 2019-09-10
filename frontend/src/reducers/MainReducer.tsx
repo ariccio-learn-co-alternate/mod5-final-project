@@ -27,7 +27,7 @@ export function reducer(state: AppState = initialState, action: any): any {
     // console.log(state);
     switch(action.type) {
         case LOGIN_ACTION:
-            console.log("login action");
+            console.log(`login action username: '${action.username}', email: '${action.email}'`);
             return {
                 ...state,
                 currentUser: action.jwt,
@@ -35,7 +35,7 @@ export function reducer(state: AppState = initialState, action: any): any {
                 email: action.email
             };
         case SIGNUP_ACTION:
-            console.log('signup action');
+            console.log(`signup action username: '${action.username}', email: '${action.email}'`);
             return {
                 ...state,
                 currentUser: action.jwt,
@@ -43,14 +43,14 @@ export function reducer(state: AppState = initialState, action: any): any {
                 email: action.email
             };
         case SET_USERNAME_AND_EMAIL:
-            console.log('setting username and email');
+            console.log(`setting username and email username: '${action.username}', email: '${action.email}'`);
             return {
                 ...state,
                 username: action.username,
                 email: action.email
             };
         case SET_USER_SCORES:
-            console.log('setting user scores');
+            console.log(`setting user scores '${action.scores}'`);
             return {
                 ...state,
                 scores: action.scores
@@ -65,7 +65,7 @@ export function reducer(state: AppState = initialState, action: any): any {
                 currentUser: action.currentUser
             };
         case SET_CURRENT_SCORE:
-            console.log('setting current score');
+            console.log(`setting current score '${action.currentScore}'`);
             return {
                 ...state,
                 currentScore: action.currentScore
