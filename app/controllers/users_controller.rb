@@ -46,24 +46,6 @@ class UsersController < ApplicationController
     }, status: :unauthorized
   end
 
-  def show_by_username
-    username_encoded = user_id_params[:username]
-    username = Base64.urlsafe_decode64(username_encoded)
-    user = User.find_by(username: username)
-    render json: {
-      user_info: user.as_json(only: [:username]),
-      user_scores: user.my_scores
-    }, status: :ok
-  rescue ActiveRecord::RecordNotFound => e
-    render json: {
-      errors: create_activerecord_notfound_error('user somehow not found?', e)
-    }, status: :bad_request
-  rescue ActiveRecord::RecordInvalid => e
-    render json: {
-      errors: create_activerecord_error('User somehow not found.', e)
-    }, status: :unauthorized
-  end
-
   def search
     users = User.where(username: user_search_params[:username]).where.not(id: current_user.id);
     if users == nil
@@ -91,9 +73,4 @@ class UsersController < ApplicationController
     # byebug
     params.require(:user).permit(:username)
   end
-
-  def user_id_params
-    params.require(:user).permit(:username);
-  end
-
 end
