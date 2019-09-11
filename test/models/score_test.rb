@@ -14,6 +14,20 @@ class ScoreTest < ActiveSupport::TestCase
   end
 
   test 'cannot create giant score' do
-    Score.create!(user_id: 1, score: 10000, level_id: 1)
+    assert_raise ActiveRecord::RecordInvalid do
+      Score.create!(user_id: 1, score: 10000, level_id: 1)
+    end
+  end
+
+  test 'cannot create score without level' do
+    assert_raise ActiveRecord::RecordInvalid do
+      Score.create!(user_id: 1, score: 5)
+    end
+  end
+
+  test 'cannot create score without user' do
+    assert_raise ActiveRecord::RecordInvalid do
+      Score.create!(score: 5, level_id: 1)
+    end
   end
 end

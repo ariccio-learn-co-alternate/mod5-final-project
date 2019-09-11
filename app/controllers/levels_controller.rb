@@ -240,12 +240,12 @@ class LevelsController < ApplicationController
   ]
 
   def self.target_count(id)
-    id = id.to_i
+    id = id.to_s
     map = @@MAPS.find_index{|this_map| this_map[:id] == id }
-    puts id
-    byebug
+    # puts id
+    # byebug
     if map == nil
-      raise 'whoops'
+      raise "whoops id: #{id}"
     end
     return @@MAPS[map][:map][:targets].length
   end

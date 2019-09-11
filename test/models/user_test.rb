@@ -22,6 +22,9 @@ class UserTest < ActiveSupport::TestCase
       User.create!(username: nil, password: 'f', email: 'f')
     end
     assert_raise ActiveRecord::RecordInvalid do
+      User.create!(username: '', password: 'f', email: 'f')
+    end
+    assert_raise ActiveRecord::RecordInvalid do
       User.create!(password: 'f', email: 'f')
     end
   end
