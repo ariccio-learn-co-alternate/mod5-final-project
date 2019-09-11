@@ -50,14 +50,6 @@ interface Map {
     MAP_ID: string
 }
 
-interface Colors {
-    red: number,
-    green: number,
-    blue: number,
-    alpha: number
-}
-
-
 type pixelBufferIndicies = {
     redIndex: number,
     greenIndex: number,
@@ -87,11 +79,9 @@ interface Player {
     coordinates: ObjectCoordinateVector,
     score: number,
     velocity: ObjectCoordinateVector
-    // fieldOfView: number
 }
 
 interface CanvasProps {
-    // currentScore: number
     readonly setCurrentScore: any,
     readonly setPlaying: any,
     readonly currentUser: string,
@@ -120,8 +110,6 @@ const _DEFAULT_PLAYER: Player = {
     }
 }
 const DEFAULT_CANVAS_STATE: CanvasState = {
-    // ctx: null
-    // currentUser: ''
 }
 
 const DEFAULT_PLAY_STATE: PlayState = {
@@ -139,7 +127,6 @@ enum HitType {
     HIT_ERR,
     HIT_WALL,
     HIT_DYN
-
 }
 
 const FRICTION_COEFFICIENT: number = 0.8;
@@ -148,13 +135,14 @@ const BEEP_BOOP_SOUNDS: Array<HTMLAudioElement> = initBeepBoopSounds();
 const ALL_SOUND_EFFECTS: Array<HTMLAudioElement> = initAllSoundEffects();
 const BAD_SOUNDS: Array<HTMLAudioElement> = initBadSounds();
 const GOOD_SOUNDS: Array<HTMLAudioElement> = initGoodSounds();
+const OH_MAN_SOUNDS: Array<HTMLAudioElement> = initOhManSounds();
+
 // https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
 // Imagedata needs an 8 bit R value, G value, b value, and a A value;
 const SCREEN_BUFFER_SIZE = CANVAS.CANVAS_PIXELS *4
 
-
-const FPS_COUNTER_ID = 'fps-counter';
-const FPS_COUNTER_ELEM = getFPSCounter();
+// const FPS_COUNTER_ID = 'fps-counter';
+// const FPS_COUNTER_ELEM = getFPSCounter();
 
 const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '################################' +
@@ -190,14 +178,13 @@ const DEFAULT_LEVEL_MAP_STRING: string = '' +
 '#                              #' +
 '################################';
 
-function getFPSCounter(): HTMLElement {
-    const elem = document.getElementById(FPS_COUNTER_ID);
-    if (elem === null) {
-        throw new Error("expected a p for the FPS in index!")
-    }
-    return elem;
-}
-
+// function getFPSCounter(): HTMLElement {
+//     const elem = document.getElementById(FPS_COUNTER_ID);
+//     if (elem === null) {
+//         throw new Error("expected a p for the FPS in index!")
+//     }
+//     return elem;
+// }
 
 function deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying(): Player {
     const DEFAULT_PLAYER: Player = {
@@ -394,6 +381,14 @@ function initCanvasData(): CanvasData {
     }
 }
 
+function getSound(soundID: string): HTMLAudioElement {
+    const sound = document.getElementById(soundID) as HTMLAudioElement;
+    if (sound === null) {
+        throw new Error(`${soundID} sound effect missing.`)
+    }
+    return sound;
+}
+
 function eachSoundTag(soundIDTag: string): Array<HTMLAudioElement> {
     const SOUNDS = []
     for (let i = 0; true; i++) {
@@ -406,7 +401,6 @@ function eachSoundTag(soundIDTag: string): Array<HTMLAudioElement> {
     }
     return SOUNDS;
 }
-
 
 function initBeepBoopSounds(): Array<HTMLAudioElement> {
     const BEEP_BOOP_SOUNDS = eachSoundTag('beepboop');
@@ -430,6 +424,12 @@ function initBadSounds(): Array<HTMLAudioElement> {
     BAD_SOUNDS.push(...eachSoundTag('kidding'));
     BAD_SOUNDS.push(...eachSoundTag('rethink'));
     BAD_SOUNDS.push(...eachSoundTag('hmm'));
+    BAD_SOUNDS.push(...eachSoundTag('ohman'));
+    BAD_SOUNDS.push(...eachSoundTag('smell'));
+    BAD_SOUNDS.push(...eachSoundTag('whoops'));
+    BAD_SOUNDS.push(...eachSoundTag('hip'));
+    BAD_SOUNDS.push(...eachSoundTag('no'));
+    BAD_SOUNDS.push(...eachSoundTag('whomp'));
     return BAD_SOUNDS;
 }
 
@@ -440,9 +440,19 @@ function initGoodSounds(): Array<HTMLAudioElement> {
     GOOD_SOUNDS.push(...eachSoundTag('hey'));
     GOOD_SOUNDS.push(...eachSoundTag('seed'));
     GOOD_SOUNDS.push(...eachSoundTag('classy'));
+    GOOD_SOUNDS.push(...eachSoundTag('noice'));
+    GOOD_SOUNDS.push(...eachSoundTag('swaglord'));
+    GOOD_SOUNDS.push(...eachSoundTag('fire'));
+    GOOD_SOUNDS.push(...eachSoundTag('like-a-g-0'));
+    GOOD_SOUNDS.push(...eachSoundTag('magical'));
+    GOOD_SOUNDS.push(...eachSoundTag('spicy'));
+    GOOD_SOUNDS.push(...eachSoundTag('megabless'));
     return GOOD_SOUNDS;
 }
 
+function initOhManSounds(): Array<HTMLAudioElement> {
+    return eachSoundTag('ohman');
+}
 function randomSoundFromHTMLAudioElementArray(sounds: Array<HTMLAudioElement>): HTMLAudioElement {
     const rand = Math.random()*sounds.length;
     const index = Math.floor(rand);
@@ -450,6 +460,7 @@ function randomSoundFromHTMLAudioElementArray(sounds: Array<HTMLAudioElement>): 
     if (sound === null) {
         throw new Error("Sound not valid");
     }
+    console.log(`returning random sound: ${sound.id}`)
     return sound;
 }
 
@@ -900,7 +911,6 @@ function castRays(MAP: Map, objectsOnMap: Array<ObjectCoordinateVector>, screenB
     }
 }
 
-
 function clampAngularMomentum(angle: number): number {
     // 0.15 seems fine
     const MAX_TURNING = 0.15
@@ -956,7 +966,6 @@ function updatePlayerMomentum(player: Player): void {
     player.coordinates.y += player.velocity.y;
     player.coordinates.angle += player.velocity.angle;
     // console.log(player.velocity.angle);
-
 }
 
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
@@ -968,8 +977,9 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
     player: Player;
     scoreSubscription: Unsubscribe;
     timeout: any;
+    ohManTimeout: any;
     gameState: GameState;
-    renderTime: number;
+    // renderTime: number;
 
     constructor(props: CanvasProps) {
         super(props);
@@ -979,7 +989,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.player = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying()); // Fucking javascript;
         this.scoreSubscription = store.subscribe(this.updateScore);
         this.gameState = initGameState();
-        this.renderTime = performance.now();
+        // this.renderTime = performance.now();
     }
 
     endPlay = async () => {
@@ -1010,7 +1020,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if (jeopardy !== null) {
             jeopardy.play()
         }
-        FPS_COUNTER_ELEM.hidden = true;
+        // FPS_COUNTER_ELEM.hidden = true;
         this.player.coordinates = Object.assign({}, deepCopyDefaultPlayerBecauseJavascriptIsReallyAnnoying().coordinates);
     }
 
@@ -1083,6 +1093,10 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         console.log('level loaded');
     }
 
+    ohMan() {
+        randomSoundFromHTMLAudioElementArray(OH_MAN_SOUNDS).play()
+    }
+
     async componentDidMount() {
         console.log("canvas mounted");
         this.gameState = initGameState();
@@ -1091,7 +1105,10 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         }
         console.log("loading level...");
         await this.fetchLevel();
-        this.timeout = setTimeout(this.endPlay, 20000);
+        const TIMEOUT = 20000;
+        const ALMOST_OVER = (TIMEOUT - (TIMEOUT/4));
+        this.ohManTimeout = setTimeout(this.ohMan, ALMOST_OVER);
+        this.timeout = setTimeout(this.endPlay, TIMEOUT);
         console.log('game timeout set...')
 
         // this.animationLoopHandle = setInterval(this.step.bind(this), 1);
@@ -1100,7 +1117,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         // this.renderToContextFromBitmap();
 
         document.addEventListener('keydown', this.keydown)
-        FPS_COUNTER_ELEM.hidden = false;
+        // FPS_COUNTER_ELEM.hidden = false;
     }
 
     turnLeft = (event: KeyboardEvent) => {
@@ -1196,6 +1213,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
                 this.shoot(event);
                 break
             default:
+                getSound('whoops-0').play();
                 console.log(`canvas component ignoring keystroke: ${event.key}`)
         }
         // console.log(`Player x,y: ${this.player.coordinates.x}, ${this.player.coordinates.y}`);
@@ -1212,6 +1230,10 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         if (this.timeout !== null) {
             clearTimeout(this.timeout);
             this.timeout = null;
+        }
+        if (this.ohManTimeout !== null) {
+            clearTimeout(this.ohManTimeout);
+            this.ohManTimeout = null;
         }
     }
 
@@ -1271,7 +1293,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
             <>
                 Current Score: {this.props.currentScore} Max score possible for this level: {this.props.maxScore}
                 <Canvas/>
-                <button onClick={randomSoundPlay}>Random Evans sound</button>
+                <button onClick={randomSoundPlay}>Random Evans sound (total: {ALL_SOUND_EFFECTS.length})</button>
             </>
         );
 
