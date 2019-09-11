@@ -239,6 +239,17 @@ class LevelsController < ApplicationController
     }
   ]
 
+  def self.target_count(id)
+    id = id.to_i
+    map = @@MAPS.find_index{|this_map| this_map[:id] == id }
+    puts id
+    byebug
+    if map == nil
+      raise 'whoops'
+    end
+    return @@MAPS[map][:map][:targets].length
+  end
+
   def show
     id = levels_params
     # byebug
@@ -266,7 +277,6 @@ class LevelsController < ApplicationController
     render json: {
       maps: maps
     }, status: :ok
-
   end
 
   # def create

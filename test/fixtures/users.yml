@@ -1,6 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  id: 1
   username: FirstUser
   email: firstUser@icloud.com
   password_digest: fart
+  created_at: "2019-08-27 19:31:09"
+  updated_at: "2019-08-27 19:31:09"
