@@ -12,9 +12,12 @@ Rails.application.routes.draw do
   
   post '/levels', to:'levels#create'
   get '/levels', to:'levels#list'
-  get '/levels/:id', to: 'levels#show'
+  
 
   get '/scoreboard', to: 'scores#show'
   post '/scoreboard', to: 'scores#create'
+  
+  get '/levels/:id', to: 'levels#show'
+  get '/users/show/:username', to: 'users#username'
   # end
 end

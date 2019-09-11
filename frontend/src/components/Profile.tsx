@@ -1,18 +1,19 @@
-import React from 'react';
+import React, {FunctionComponent} from 'react';
 import { connect } from 'react-redux';
 import Table from 'react-bootstrap/Table';
 
 import {setUsernameAndEmail, setUserScores} from '../Actions'
-import {queryUserInfo, UserInfoType} from '../utils/QueryUserInfo'
+import {queryUserInfo, UserInfoType, queryOtherUserInfo} from '../utils/QueryUserInfo'
 import {formatErrors} from '../utils/ErrorObject';
 
 interface ProfileProps {
     username: string,
     email: string,
     currentUser: string,
-    setUsernameAndEmail: any,
-    setUserScores: any,
-    scores: any
+    setUsernameAndEmail?: any,
+    setUserScores?: any,
+    scores: any,
+    otherUser?: boolean // Being reused to display other user.
 }
 
 interface UserType {
@@ -133,8 +134,16 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
         );
     }
 
+    async mountOtherUser() {
+
+    }
+
 
     async componentDidMount() {
+        if ((this.props.otherUser !== null) && (!this.props.otherUser)) {
+            this.mountOtherUser();
+            return;
+        } 
         if ((this.props.email === '') || (this.props.username === '')) {
             const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
             console.log("setting username and email: ", userInfo);
@@ -146,8 +155,14 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             // const data: UserInfoType = userInfoToStrongType(userInfo);
             // console.log(data);
             // debugger;
-            this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
-            this.props.setUserScores(userInfo.user_scores);
+            
+            // If being reused for someone else, will be null.
+            if (this.props.setUsernameAndEmail !== null) {
+                this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
+            }
+            if (this.props.setUserScores !== null) {
+                this.props.setUserScores(userInfo.user_scores);
+            }
             // console.log(userInfo.user_scores);
         }
     }
@@ -200,5 +215,27 @@ const mapStateToProps = (state: any): any => {
         scores: state.scores
     }
 }
+
+// export const otherPersonProfile = _Profile; 
+
+const OtherProfile: FunctionComponent<{currentUser: string, username: string}> = async (props: any) => {
+    const userInfo: UserInfoType = await queryOtherUserInfo(props.currentUser, props.username);
+    console.log("setting username and email: ", userInfo);
+    // debugger;
+    if (userInfo.errors !== undefined) {
+        console.error(formatErrors(userInfo.errors));
+        alert(formatErrors(userInfo.errors));
+        return;
+    }
+
+    if (userInfo.user_info === undefined) {
+        // debugger;
+        console.error('failed to query other user')
+        return;
+    }
+
+}
+
+
 
 export const Profile = connect(mapStateToProps, {setUsernameAndEmail, setUserScores})(_Profile);

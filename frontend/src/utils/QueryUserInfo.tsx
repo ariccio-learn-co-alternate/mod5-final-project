@@ -50,3 +50,16 @@ export async function queryUserInfo(jwt: string): Promise<UserInfoType> {
     return userInfoToStrongType(response);
     // return response;
 }
+
+export async function queryOtherUserInfo(jwt: string, username: string): Promise<UserInfoType> {
+    const urlSafeStr = btoa(username);
+    const rawResponse: Promise<Response> = fetch(`/users/show/${urlSafeStr}`, userRequestOptions(jwt));
+    // console.log("body: ", (await rawResponse).body)
+    const awaitedResponse = await rawResponse;
+    const jsonResponse = awaitedResponse.json();
+    const response = await jsonResponse;
+    console.log(response);
+    return userInfoToStrongType(response);
+    // return response;
+}
+
