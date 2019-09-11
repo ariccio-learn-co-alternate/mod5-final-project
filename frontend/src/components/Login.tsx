@@ -49,9 +49,9 @@ class _Login extends React.Component<LoginProps, LoginState> {
 
     inputField = () =>
         <input
-            name="username"
+            name="email"
             type="text"
-            placeholder="username"
+            placeholder="email"
             value={this.state.username}
             onChange={this.usernameChange}
         />

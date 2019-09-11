@@ -9,7 +9,7 @@ class AuthController < ApplicationController
   include Errors
 
   def create
-    @user = User.find_by(email: user_login_params[:username])
+    @user = User.find_by(email: user_login_params[:email])
     # User#authenticate comes from BCrypt
     if @user && @user.authenticate(user_login_params[:password])
       # encode token comes from ApplicationController
@@ -33,6 +33,6 @@ class AuthController < ApplicationController
 
   def user_login_params
     # params { user: {username: 'Chandler Bing', password: 'hi' } }
-    params.require(:user).permit(:username, :password)
+    params.require(:user).permit(:email, :password)
   end
 end

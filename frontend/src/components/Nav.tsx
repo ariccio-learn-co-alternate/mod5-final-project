@@ -27,8 +27,10 @@ const UserNav: FunctionComponent<{username: string}> = (props: any) =>
 
 const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
     if (props.currentUser === '') {
+        console.log('empty user, redirecting...');
         return <Redirect to='/'/>;
     }
+    console.log(`Current username: ${props.username}`)
     return <UserNav username={props.username}/>;
 }
 

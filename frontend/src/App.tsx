@@ -36,20 +36,29 @@ class _App extends React.Component<AppProps, AppState> {
         );
     }
 
-    renderLoginOrHome = () => {
+    checkEmptyUsernameOrEmail = () => {
         if (this.props.currentUser === '') {
-            console.log("No cached credentials");
-            return renderLogin();
+            // another function needs to handle that.
+            return;
         }
         if ((this.props.username === '') || (this.props.email === '') ) {
             console.log('username or email empty.');
             //const userInfo = await queryUserInfo(this.props.currentUser)
             queryUserInfo(this.props.currentUser).then(userInfo => {
                 console.log("setting username and email: ", userInfo);
-                debugger;
+                // debugger;
                 this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
             })
         }
+
+    }
+    renderLoginOrHome = () => {
+        if (this.props.currentUser === '') {
+            console.log("No cached credentials");
+            return renderLogin();
+        }
+        this.checkEmptyUsernameOrEmail();
+
         const redirect = <Redirect to="/play"/>;
         return redirect;
     }
@@ -71,6 +80,7 @@ class _App extends React.Component<AppProps, AppState> {
         </>
 
     render () {
+        this.checkEmptyUsernameOrEmail();
         return (
             <>
                 <div className="App">
