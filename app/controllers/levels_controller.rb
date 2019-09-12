@@ -226,6 +226,10 @@ LEVEL_TWO_MAP_STRING = {
 
 
 class LevelsController < ApplicationController
+
+  # TODO: I need this else the map show/list fails on first load after signup. Why?
+  skip_before_action :authorized, only:[:list, :show]
+
   @@MAPS = [
     {
       name: 'one',

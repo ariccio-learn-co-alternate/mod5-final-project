@@ -1071,6 +1071,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
     async fetchLevel() {
         const options: RequestInit = mapFetchOptions(this.props.currentUser);
+        console.log(`fetching level for user: ${this.props.currentUser}`)
         console.log(`redux currentLevel: ${this.props.currentLevelID}`);
         const fetchLevelURL: string = `/levels/${this.props.currentLevelID}`
         const rawResponse: Promise<Response> = fetch(fetchLevelURL, options);
