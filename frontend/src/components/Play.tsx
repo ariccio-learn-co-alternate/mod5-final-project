@@ -1183,6 +1183,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
 
         removeFromObjects(this.gameState.MAP, this.gameState.objectsOnMap, testHitShot.coordinates);
         this.props.setCurrentScore(this.player.score + 1);
+        randomSoundFromHTMLAudioElementArray(GOOD_SOUNDS).play()
         return;
 
     }

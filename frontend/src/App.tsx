@@ -45,6 +45,9 @@ class _App extends React.Component<AppProps, AppState> {
             console.log('username or email empty.');
             //const userInfo = await queryUserInfo(this.props.currentUser)
             queryUserInfo(this.props.currentUser).then(userInfo => {
+                if (userInfo.user_info === undefined) {
+                    return; 
+                }
                 console.log("setting username and email: ", userInfo);
                 // debugger;
                 this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);

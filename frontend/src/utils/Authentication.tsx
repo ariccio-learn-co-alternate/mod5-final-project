@@ -12,7 +12,7 @@ export function loginRequestOptions(username: string, password: string): Request
         },
         body: JSON.stringify({
             user: {
-                username,
+                email: username,
                 password
             }
         })
