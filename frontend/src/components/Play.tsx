@@ -968,6 +968,21 @@ function updatePlayerMomentum(player: Player): void {
     // console.log(player.velocity.angle);
 }
 
+const instructions = () =>
+    <p className='instructions-p'>
+        w -> forward<br/>
+        a -> strafe left<br/>
+        s -> backwards<br/>
+        d -> strafe right<br/>
+
+        left arrow -> turn left<br/>
+        right arrow -> turn right<br/>
+
+        spacebar -> shoot<br/>
+
+        You have 20 seconds.<br/>
+    </p>
+
 // https://blog.cloudboost.io/using-html5-canvas-with-react-ff7d93f5dc76
 class _Canvas extends React.Component<CanvasProps, CanvasState> {
     state: any;
@@ -1372,6 +1387,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
                 <>
                     {this.renderMapDropdown()}
                     {this.renderPlaying()}
+
                 </>
             );
         }
@@ -1379,6 +1395,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
             <>
                 {this.renderMapDropdown()}
                 {this.renderGameOver()}
+                {instructions()}
             </>
         );
     }

@@ -12,6 +12,13 @@ code {
     monospace;
 }
 
+.instructions-p {
+  position: absolute;
+  right: 10em;
+  top: 200px;
+}
+
+
 /* #game-canvas-element-id {
   border: 10px;
   border-color: black;
