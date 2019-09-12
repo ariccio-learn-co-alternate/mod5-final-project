@@ -1387,7 +1387,7 @@ class _Play extends React.Component<PlayProps, PlayState> {
                 <>
                     {this.renderMapDropdown()}
                     {this.renderPlaying()}
-
+                    {instructions()}
                 </>
             );
         }
@@ -1395,7 +1395,6 @@ class _Play extends React.Component<PlayProps, PlayState> {
             <>
                 {this.renderMapDropdown()}
                 {this.renderGameOver()}
-                {instructions()}
             </>
         );
     }
