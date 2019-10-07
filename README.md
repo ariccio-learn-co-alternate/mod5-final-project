@@ -1,24 +1,18 @@
-# README
+# Yeet-for-cheats
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
 
-Things you may want to cover:
+A simple FPS with friend management, score tracking, and custom Typescript/Javascript 3d rendering. I'm rendering to a canvas element at 60 fps. I'd originally intended to use WebAssembly and C++ for the rendering, but it turns out I can squeeze 60 fps from Javascript! In theory, I could add more rendering features by intensively reusing variables (to reduce insanely expensive JS heap allocations), but at that point I'd rather go the WebAssembly route.
 
-* Ruby version
+To build and launch:
 
-* System dependencies
+* bundle install the dependencies for the Rails backend
 
-* Configuration
+* install yarn dependencies for the React frontend
 
-* Database creation
+* launch the backend with rails s --port 3001
 
-* Database initialization
+* launch the frontend in the frontend directory with yarn start
 
-* How to run the test suite
+WASD control player movement, the left and right arrows turn, and spacebar shoots. All sound effects are authentic @EvansJWang , sampled from live Flatiron School lectures.
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+See @ariccio for my non-flatiron work!
