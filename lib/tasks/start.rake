@@ -1,6 +1,9 @@
 namespace :start do
-  desc "Run rails s and yarn start"
+  # Why'd it work for https://blog.heroku.com/a-rock-solid-modern-web-stack# and not me
   task :development do
-    puts "Waaaaaah this doesn't seem to work yet!"
+    exec 'heroku local -f procfile'
   end
 end
+
+desc 'Start development server'
+task :start => 'start:development'
