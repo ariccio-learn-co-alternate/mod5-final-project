@@ -12,8 +12,11 @@
 
 ActiveRecord::Schema.define(version: 2019_09_07_213807) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "levels", force: :cascade do |t|
-    t.integer "score_id"
+    t.bigint "score_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "level_name"
@@ -21,20 +24,20 @@ ActiveRecord::Schema.define(version: 2019_09_07_213807) do
   end
 
   create_table "scores", force: :cascade do |t|
-    t.integer "user_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "score"
-    t.integer "level_id"
+    t.bigint "level_id"
     t.index ["level_id"], name: "index_scores_on_level_id"
     t.index ["user_id"], name: "index_scores_on_user_id"
   end
 
   create_table "user_friends", force: :cascade do |t|
-    t.integer "user_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "friend_id"
+    t.bigint "friend_id"
     t.index ["friend_id"], name: "index_user_friends_on_friend_id"
     t.index ["user_id"], name: "index_user_friends_on_user_id"
   end
