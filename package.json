@@ -2,8 +2,8 @@
     "name" : "yeet-for-cheats",
     "license" : "",
     "engines" : {
-        "yarn" : "1.17.3",
-        "node" : "12.9.1"
+        "node" : "12.9.1",
+        "yarn" : "1.17.3"
     },
     "build" : "yarn -cwd frontend install && yarn --cwd frontend build",
     "deploy" : "cp -a frontend/build/. public/",
