@@ -54,6 +54,13 @@ class UsersController < ApplicationController
       }, status: :ok
       return
     end
+
+    if users.length == 0
+      render json: {
+        users: []
+      }, status: :ok
+      return
+    end
     render json: {
       users: users.each.map do |user|
         {
@@ -61,7 +68,7 @@ class UsersController < ApplicationController
           user_id: user.id
         }
       end
-    }
+    }, status: :ok
     # byebug
   end
 
