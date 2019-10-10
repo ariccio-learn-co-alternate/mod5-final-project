@@ -15,6 +15,12 @@ end
 
 class ScoresController < ApplicationController
   def create
+    #for when Level is initially unpopulated, instead of seeding, because IDC rn.
+    if Level.count == 0
+      Level.create!(level_name: 'one')
+      Level.create!(level_name: 'two')
+    end
+
     @user = current_user
     @params_strong = score_create_params
     @all_params = {
