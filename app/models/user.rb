@@ -28,7 +28,7 @@ class User < ApplicationRecord
 
   def my_scores
     # byebug
-    sorted_score = Score.find_by(user_id: current_user.id).sort_by{|s| s.score}.reverse
+    sorted_score = Score.find_by(user_id: @user.id).sort_by{|s| s.score}.reverse
     sorted_score.each.map do |single_score|
       single_score.as_json(only: [:level_id, :score])
     end
