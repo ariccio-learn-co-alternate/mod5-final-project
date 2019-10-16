@@ -135,7 +135,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
 
 
     async componentDidMount() {
-        if ((this.props.email === '') || (this.props.username === '')) {
+        // if ((this.props.email === '') || (this.props.username === '')) {
             const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
             console.log("setting username and email: ", userInfo);
             // debugger;
@@ -149,7 +149,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
             this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
             this.props.setUserScores(userInfo.user_scores);
             // console.log(userInfo.user_scores);
-        }
+        // }
     }
 
     scoreBody() {
