@@ -7,5 +7,5 @@
     },
     "build" : "yarn install && yarn build",
     "deploy" : "cp -a frontend/build/. public/",
-    "heroku-postbuild": "pushd frontend;yarn run build && yarn deploy"
+    "heroku-postbuild": "pushd frontend;ls;yarn run build && yarn deploy;ls"
 }
