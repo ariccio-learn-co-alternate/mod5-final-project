@@ -6,6 +6,6 @@
         "yarn" : "1.19.1"
     },
     "build" : "yarn install && yarn build",
-    "deploy" : "cp -a frontend/build/. public/",
+    "deploy" : "cp -a node_modules/. frontend/node_modules/.;cp -a frontend/build/. public/",
     "heroku-postbuild": "pushd frontend;ls;yarn run build && yarn deploy;ls"
 }
