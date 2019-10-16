@@ -5,6 +5,9 @@ require_relative '../utils/errors.rb'
 KEY_PATH = Rails.root.join('config', 'keys', 'private_key.key')
 
 def encode_with_jwt(payload)
+  # should begin/rescue/end here for ENOENT when private key not generated yet for better debugging.
+  # Error as seen in logs: 
+  # `Errno::ENOENT (No such file or directory @ rb_sysopen - /app/config/keys/private_key.key)`
   key = IO.binread(KEY_PATH)
   if key.nil? || key.empty?
     raise StandardError
