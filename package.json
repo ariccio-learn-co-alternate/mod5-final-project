@@ -5,7 +5,7 @@
         "node" : "12.9.1",
         "yarn" : "1.19.1"
     },
-    "build" : "yarn install && yarn build",
-    "deploy" : "cp -a ../node_modules/. node_modules/.;cp -a build/. ../public/",
-    "heroku-postbuild": "pushd frontend;ls;yarn run build && yarn deploy;ls"
+    "build" : "yarn -cwd frontend install && yarn -cwd frontend build",
+    "deploy" : "cp -R node_modules frontend/node_modules;cp -a frontend/build/. public/",
+    "heroku-postbuild": "yarn run build && yarn deploy;ls"
 }
