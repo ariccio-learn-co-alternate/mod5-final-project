@@ -73,7 +73,7 @@ class ApplicationController < ActionController::API
 
   # https://stackoverflow.com/a/48172520/625687
   def fallback_index_html
-    logger.debug 'rendering public/index.html...'
+    logger.info 'rendering public/index.html...'
     respond_to do |format|
       format.html { render body: Rails.root.join('public/index.html').read }
     end
