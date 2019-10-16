@@ -70,7 +70,6 @@ class ApplicationController < ActionController::API
       logger.info "rendering public/index.html from #{request.url}..."
       respond_to do |format|
         format.html { render body: Rails.root.join('public/index.html').read }
-        return
       end
     end
     if !(logged_in?)
