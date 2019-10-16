@@ -27,6 +27,7 @@ class ApplicationController < ActionController::API
   before_action :authorized
 
   include Errors
+  include ActionController::MimeResponds
 
   def encode_token(payload)
     encode_with_jwt(payload)
@@ -69,8 +70,12 @@ class ApplicationController < ActionController::API
     end
   end
   
+
+  # https://stackoverflow.com/a/48172520/625687
   def fallback_index_html
     logger.debug 'rendering public/index.html...'
-    render :file => 'public/index.html'
+    respond_to do |format|
+      format.html { render body: Rails.root.join('public/index.html').read }
+    end
   end
 end
