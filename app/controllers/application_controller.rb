@@ -65,6 +65,13 @@ class ApplicationController < ActionController::API
   end
 
   def authorized
+    if auth_header == nil
+      logger.debug 'maybe coming from a browser request...'
+      logger.info "rendering public/index.html from #{request.url}..."
+      respond_to do |format|
+        format.html { render body: Rails.root.join('public/index.html').read }
+      end
+    end
     if !(logged_in?)
       render json: {
         errors: create_error('Please log in', :unauthorized.to_s),
