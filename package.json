@@ -5,7 +5,9 @@
         "node" : "12.9.1",
         "yarn" : "1.19.1"
     },
-    "build" : "echo '---yarn install---';yarn --verbose --cwd frontend install && yarn --verbose --cwd frontend build",
-    "deploy" : "echo '---yarn deploy---';cp -R node_modules frontend/node_modules;cp -a frontend/build/. public/",
-    "heroku-postbuild": "yarn --verbose run build && yarn --verbose deploy;ls"
+    "scripts": {
+        "build" : "echo '---yarn install---';yarn --verbose --cwd frontend install && yarn --verbose --cwd frontend build",
+        "deploy" : "echo '---yarn deploy---';cp -R node_modules frontend/node_modules;cp -a frontend/build/. public/",
+        "heroku-postbuild": "yarn --verbose --cwd frontend run build && yarn --cwd frontend--verbose deploy;ls"
+    }
 }
