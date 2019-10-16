@@ -6,7 +6,7 @@
         "yarn" : "1.19.1"
     },
     "scripts": {
-        "build" : "echo '---yarn install---';yarn --verbose --cwd frontend install && yarn --verbose --cwd frontend build",
+        "build" : "echo '---yarn install---';yarn --cwd frontend install && yarn --verbose --cwd frontend build",
         "deploy" : "echo '---yarn deploy---';cp -R node_modules frontend/node_modules;cp -a frontend/build/. public/",
         "heroku-postbuild": "yarn --verbose run build && yarn --verbose deploy;ls"
     }
