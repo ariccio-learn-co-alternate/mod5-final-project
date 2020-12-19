@@ -1,5 +1,6 @@
-import React from 'react';
-import { connect, useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import {useState} from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import Table from 'react-bootstrap/Table';
 
 import {setUsernameAndEmail, setUserScores} from '../Actions'
@@ -178,46 +179,55 @@ function profileRender(username: string, email: string, response: ShowFriendResp
     );
 
 }
+const fetchAndDispatch = async (dispatch: any /*Dispatch<any>*/, currentUser: string) => {
+    const userInfo: UserInfoType = await queryUserInfo(currentUser);
+    console.log("setting username and email: ", userInfo);
+    if (userInfo.user_info === undefined) {
+        return;
+    }
+    dispatch(setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email));
+    dispatch(setUserScores(userInfo.user_scores));    
+};
 
-class _Profile extends React.Component<ProfileProps, ProfileState> {
-    state = defaultState;
-    fetchFriends = async () => {
-            // debugger;
-            const response = showFriends(this.props.currentUser)
-            this.setState({response: await response});
+
+export const Profile : React.FC<ProfileProps> = () => {
+    const [response, setResponse] = useState(null as ShowFriendResponseType | null);
+    const email = useSelector((state: any) => state.email);
+    const username = useSelector((state: any) => state.username);
+    const currentUser = useSelector((state: any) => state.currentUser);
+    const scores = useSelector((state: any) => state.scores);
+
+    const dispatch = useDispatch();
+    useEffect(() => {
+        fetchAndDispatch(dispatch, currentUser);
+    }, []);
+
+    const fetchFriends = async () => {
+        // debugger;
+        const newResponse = showFriends(currentUser)
+        setResponse(await newResponse);
     }
 
-
-    async componentDidMount() {
-        const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
-        console.log("setting username and email: ", userInfo);
-        if (userInfo.user_info === undefined) {
-            return;
-        }
-        this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
-        this.props.setUserScores(userInfo.user_scores);
+    if (response === null) {
+        fetchFriends();
     }
-
-    render = (): JSX.Element => {
-        if (this.state.response === null) {
-            this.fetchFriends();
-        }
-        return profileRender(this.props.username, this.props.email, this.state.response);
-    }
+    return profileRender(username, email, response);
 }
 
-// const mspSelector = useSelector((state) => {
+// class _Profile extends React.Component<ProfileProps, ProfileState> {
+//     state = defaultState;
+//     async componentDidMount() {
+//     }
+// }
 
-// })
+// const mapStateToProps = (state: any): any => {
+//     console.log(state);
+//     return {
+//         email: state.email,
+//         username: state.username,
+//         currentUser: state.currentUser,
+//         scores: state.scores
+//     }
+// }
 
-const mapStateToProps = (state: any): any => {
-    console.log(state);
-    return {
-        email: state.email,
-        username: state.username,
-        currentUser: state.currentUser,
-        scores: state.scores
-    }
-}
-
-export const Profile = connect(mapStateToProps, {setUsernameAndEmail, setUserScores})(_Profile);
+// export const Profile = connect(mapStateToProps, {setUsernameAndEmail, setUserScores})(_Profile);
