@@ -1,10 +1,11 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import Table from 'react-bootstrap/Table';
 
 import {setUsernameAndEmail, setUserScores} from '../Actions'
 import {queryUserInfo, UserInfoType} from '../utils/QueryUserInfo'
 import {formatErrors} from '../utils/ErrorObject';
+import { profile } from 'console';
 
 interface ProfileProps {
     username: string,
@@ -99,98 +100,115 @@ const tableBody = (response: ShowFriendResponseType | null) =>
             {mapper(response)}
         </tbody>
 
+const ScoreBody = (props: any) => {
+    const scores = useSelector((state: any) => state.scores);
+    //console.log("used hook!");
+    //console.log(scores);
+    return scores.map((score: any, index: number) => {
+        return <tr key={rowKeyScore(index)}>
+            <td>{index}</td>
+            <td>{score.score}</td>
+            <td>{score.level_id}</td>
+        </tr>
+
+    })
+}
+
+const showFriends = async (currentUser: string): Promise<ShowFriendResponseType> => {
+    const rawResponse: Promise<Response> =
+        fetch('/users/showfriends', listFriendsOptions(currentUser));
+    const jsonResponse = (await rawResponse).json();
+    const responseParsed = await jsonResponse;
+    const response = showFriendResponseToStrongType(responseParsed);
+    if (response.errors !== undefined) {
+        console.error(formatErrors(response.errors));
+        alert(formatErrors(response.errors));
+        //return null;
+    }
+    return response;
+}
+
+const myScores = () => {
+    return (
+        <Table striped bordered hover>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>score</th>
+                    <th>map</th>
+                </tr>
+            </thead>
+            <tbody>
+                {<ScoreBody/>}
+            </tbody>
+
+        </Table>
+    );
+}
+
+const ProfileRenderTable = (response: ShowFriendResponseType) => {
+    return (
+        <>
+            <h3>Friends</h3>
+            <Table striped bordered hover>
+                {tableHeader()}
+                {tableBody(response)}
+            </Table>
+        </>
+    );
+
+}
+
+function friendsTable(response: ShowFriendResponseType | null) {
+    if (response === null) {
+        return null;
+    }
+    return ProfileRenderTable(response);
+}
+
+function profileRender(username: string, email: string, response: ShowFriendResponseType | null): JSX.Element {
+    return (
+        <>
+            <h1>{username}'s profile</h1>
+            <p>Email: {email}</p>
+            {friendsTable(response)}
+            <h2>My scores</h2>
+            {myScores()}
+        </>
+    );
+
+}
+
 class _Profile extends React.Component<ProfileProps, ProfileState> {
     state = defaultState;
-
     fetchFriends = async () => {
-        const rawResponse: Promise<Response> =
-            fetch('/users/showfriends', listFriendsOptions(this.props.currentUser));
-            const jsonResponse = (await rawResponse).json();
-            const responseParsed = await jsonResponse;
-            const response = showFriendResponseToStrongType(responseParsed);
-            if (response.errors !== undefined) {
-                console.error(formatErrors(response.errors));
-                alert(formatErrors(response.errors));
-                return;
-            }
             // debugger;
-            this.setState({response: response});
-    }
-
-    friendsTable() {
-        if (this.state.response === null) {
-            this.fetchFriends();
-            return null;
-        }
-        return (
-            <>
-                <h3>Friends</h3>
-                <Table striped bordered hover>
-                    {tableHeader()}
-                    {tableBody(this.state.response)}
-                </Table>
-            </>
-        );
+            const response = showFriends(this.props.currentUser)
+            this.setState({response: await response});
     }
 
 
     async componentDidMount() {
-        // Will not necessarily update scores because email and username are set already if coming from different pane.
-        //if ((this.props.email === '') || (this.props.username === '')) {
-            const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
-            console.log("setting username and email: ", userInfo);
-            // debugger;
-            if (userInfo.user_info === undefined) {
-                // debugger;
-                return;
-            }
-            // const data: UserInfoType = userInfoToStrongType(userInfo);
-            // console.log(data);
-            // debugger;
-            this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
-            this.props.setUserScores(userInfo.user_scores);
-            // console.log(userInfo.user_scores);
-        //}
+        const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
+        console.log("setting username and email: ", userInfo);
+        if (userInfo.user_info === undefined) {
+            return;
+        }
+        this.props.setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email);
+        this.props.setUserScores(userInfo.user_scores);
     }
 
-    scoreBody() {
-        return this.props.scores.map((score: any, index: number) => {
-            return <tr key={rowKeyScore(index)}>
-                <td>{index}</td>
-                <td>{score.score}</td>
-                <td>{score.level_id}</td>
-            </tr>
-
-        })
+    render = (): JSX.Element => {
+        if (this.state.response === null) {
+            this.fetchFriends();
+        }
+        return profileRender(this.props.username, this.props.email, this.state.response);
     }
-
-    myScores() {
-        return (
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>score</th>
-                        <th>map</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.scoreBody()}
-                </tbody>
-
-            </Table>
-        );
-    }
-
-    render = () =>
-        <>
-            <h1>{this.props.username}'s profile</h1>
-            <p>Email: {this.props.email}</p>
-            {this.friendsTable()}
-            <h2>My scores</h2>
-            {this.myScores()}
-        </>
 }
+
+// const mspSelector = useSelector((state) => {
+
+// })
 
 const mapStateToProps = (state: any): any => {
     console.log(state);
