@@ -135,6 +135,7 @@ class _Profile extends React.Component<ProfileProps, ProfileState> {
 
 
     async componentDidMount() {
+        // Will not necessarily update scores because email and username are set already if coming from different pane.
         if ((this.props.email === '') || (this.props.username === '')) {
             const userInfo: UserInfoType = await queryUserInfo(this.props.currentUser);
             console.log("setting username and email: ", userInfo);

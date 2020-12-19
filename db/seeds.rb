@@ -5,3 +5,6 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+Level.create({id: 1, level_name: 'one'})
+Level.create({id: 2, level_name: 'two'})
