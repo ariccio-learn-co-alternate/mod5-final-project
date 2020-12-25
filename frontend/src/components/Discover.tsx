@@ -10,12 +10,12 @@ import {formatErrors} from '../utils/ErrorObject';
 
 interface DiscoverState {
     readonly usernameField: string,
-    readonly users: any
+    readonly users: Array<UserSearchResponseSingleUser>
 }
 
 const defaultDiscoverState: DiscoverState = {
     usernameField: '',
-    users: null
+    users: Array()
 }
 
 interface DiscoverProps {
@@ -52,8 +52,8 @@ function addFriendOptions(jwt: string, friend_id: string) {
     return requestOptions;
 }
 
-function rowKey(user: any): string {
-    return `discover-entry-key-user-${user.user}`;
+function rowKey(user: string): string {
+    return `discover-entry-key-user-${user}`;
 }
 
 const tableHeader = () =>
@@ -73,7 +73,7 @@ interface UserSearchResponseSingleUser {
 }
 
 interface UsersSearchResponseType {
-    users: UserSearchResponseSingleUser[],
+    users: Array<UserSearchResponseSingleUser>,
     errors?: any
 
 }
@@ -92,70 +92,84 @@ function usersSearchResponseToStrongType(usersSearchResponse: any): UsersSearchR
     return return_value;
 }
 
+function indexOfFriend(user_id: string, currentUser: string, users: Array<UserSearchResponseSingleUser>): number {
+    const userInUsers = users.findIndex((user: UserSearchResponseSingleUser) => user.user_id === user_id);
+    if (userInUsers === -1) {
+        console.error(`There's something wrong, ${user_id} isn't in users`);
+        throw new Error(`There's something wrong, ${user_id} isn't in users`);
+    }
+    return userInUsers;
+}
+
+async function queryAddFriend(user_id: string, currentUser: string): Promise<any> {
+    // debugger;
+    console.log("Clicked add friend for user_id: ", user_id);
+    const rawResponse: Promise<Response> =
+        fetch('/users/friends', addFriendOptions(currentUser, user_id));
+    const jsonResponse = (await rawResponse).json();
+    return jsonResponse;
+}
+
+async function fetchSearchResult(options: RequestInit): Promise<UsersSearchResponseType> {
+    const rawResponse: Promise<Response> =
+        fetch('/users/search', options);
+    const jsonResponse = (await rawResponse).json();
+    const responseParsed = await jsonResponse;
+    const response: UsersSearchResponseType = usersSearchResponseToStrongType(responseParsed);
+    if (response.errors !== undefined) {
+        console.error(formatErrors(response.errors));
+        alert(formatErrors(response.errors));
+        return response;
+    }
+    return response;
+}
+
+async function clickAddFriendAndRemoveUserFromArray(user_id: string, currentUser: string, users: Array<UserSearchResponseSingleUser>): Promise<Array<UserSearchResponseSingleUser>> {
+    const response = await queryAddFriend(user_id, currentUser);
+    if (response.errors !== undefined) {
+        console.error(formatErrors(response.errors));
+        alert(formatErrors(response.errors));
+        return users;
+    }
+    const userInUsers = indexOfFriend(user_id, currentUser, users);
+    
+    const newUsers = [...users];
+    newUsers.splice(userInUsers, 1);
+    return newUsers;
+}
+
 
 
 class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     state: DiscoverState = defaultDiscoverState;
 
     addFriendClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
-        // debugger;
-        console.log("Clicked add friend for user_id: ", user_id);
-        const rawResponse: Promise<Response> =
-            fetch('/users/friends', addFriendOptions(this.props.currentUser, user_id));
-        const jsonResponse = (await rawResponse).json();
-        const response = await jsonResponse;
-        if (response.errors !== undefined) {
-            console.error(formatErrors(response.errors));
-            alert(formatErrors(response.errors));
-            return;
-        }
-
-        const userInUsers = this.state.users.findIndex((user: any) => user.user_id === user_id);
-        if (userInUsers === -1) {
-            console.error(`There's something wrong, ${user_id} isn't in this.state.users`);
-            throw new Error(`There's something wrong, ${user_id} isn't in this.state.users`);
-        }
-        const newUsers = [...this.state.users];
-        newUsers.splice(userInUsers, 1);
+        const newUsers = await clickAddFriendAndRemoveUserFromArray(user_id, this.props.currentUser, this.state.users);
         this.setState({users: newUsers});
-
         return;
-    }
-    
+    }    
 
-    tableAddFriendButton = (user: any) =>
+    tableAddFriendButton = (user_id: string) =>
         <td>
             <Button
                 variant="primary"
                 onClick={
                     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
-                        this.addFriendClick(e, user.user_id)
+                        this.addFriendClick(e, user_id)
                 }
             >
                 Add Friend
             </Button>
         </td>
 
-    tableRow = (user: any, index: number) =>
-        <tr key={rowKey(user)}>
+    tableRow = (user: UserSearchResponseSingleUser, index: number) =>
+        <tr key={rowKey(user.user)}>
             <td>{index}</td>
             <td>{user.user}</td>
-            {this.tableAddFriendButton(user)}
+            {this.tableAddFriendButton(user.user_id)}
         </tr>
 
-    fetchSearchResult = async (options: RequestInit): Promise<UsersSearchResponseType> => {
-        const rawResponse: Promise<Response> =
-            fetch('/users/search', options);
-        const jsonResponse = (await rawResponse).json();
-        const responseParsed = await jsonResponse;
-        const response: UsersSearchResponseType = usersSearchResponseToStrongType(responseParsed);
-        if (response.errors !== undefined) {
-            console.error(formatErrors(response.errors));
-            alert(formatErrors(response.errors));
-            return response;
-        }
-        return response;
-    }
+    
     // See type here: 
     usernameFieldChange = async (event: React.FormEvent<FormControlProps & FormControl>) => {
         if (event.currentTarget.value === undefined) {
@@ -164,7 +178,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
         }
         const options: RequestInit = searchOptions(this.props.currentUser, event.currentTarget.value);
         this.setState({usernameField: event.currentTarget.value})
-        const response: UsersSearchResponseType = await this.fetchSearchResult(options);
+        const response: UsersSearchResponseType = await fetchSearchResult(options);
         // debugger;
         this.setState({users: response.users})
     }
@@ -186,7 +200,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     tableBody = () =>
         <tbody>
             {this.state.users.map(
-                (user: any, index: number) =>
+                (user: UserSearchResponseSingleUser, index: number) =>
                     {return this.tableRow(user, index)}
                 )
             }
@@ -216,7 +230,7 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
     }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: any): DiscoverProps => {
     return {
       currentUser: state.currentUser
     }
