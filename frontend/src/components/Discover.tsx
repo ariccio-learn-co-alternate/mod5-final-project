@@ -4,24 +4,9 @@ import Form from 'react-bootstrap/Form';
 import FormControl, {FormControlProps} from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import {formatErrors} from '../utils/ErrorObject';
-
-
-interface DiscoverState {
-    readonly usernameField: string,
-    readonly users: Array<UserSearchResponseSingleUser>
-}
-
-const defaultDiscoverState: DiscoverState = {
-    usernameField: '',
-    users: Array()
-}
-
-interface DiscoverProps {
-    currentUser: string
-}
 
 function searchOptions(jwt: string, searchParam: string): RequestInit {
     const bodyData = {
@@ -143,12 +128,12 @@ async function clickAddFriendAndRemoveUserFromArray(
 }
 
 const addFriendClick = async (
-    _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     user_id: string,
     currentUser: string,
     users: Array<UserSearchResponseSingleUser>,
     setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) => {
-    
+        e.preventDefault();
         const newUsers = await clickAddFriendAndRemoveUserFromArray(user_id, currentUser, users);
         setUsers(newUsers);
         return;

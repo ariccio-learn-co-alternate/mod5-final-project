@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import {useState} from 'react';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Table from 'react-bootstrap/Table';
 
 import {setUsernameAndEmail, setUserScores} from '../Actions'
 import {queryUserInfo, UserInfoType} from '../utils/QueryUserInfo'
 import {formatErrors} from '../utils/ErrorObject';
-import { profile } from 'console';
+// import { profile } from 'console';
 
 interface ProfileProps {
     username: string,
@@ -27,13 +27,13 @@ interface ShowFriendResponseType {
     errors?: any
 }
 
-interface ProfileState {
-    readonly response: ShowFriendResponseType | null
-}
+// interface ProfileState {
+//     readonly response: ShowFriendResponseType | null
+// }
 
-const defaultState: ProfileState = {
-    response: null
-} 
+// const defaultState: ProfileState = {
+//     response: null
+// } 
 
 function listFriendsOptions(jwt: string) {
     const requestOptions = {
@@ -197,7 +197,7 @@ export const Profile : React.FC<ProfileProps> = () => {
     const email = useSelector((state: any) => state.email);
     const username = useSelector((state: any) => state.username);
     const currentUser = useSelector((state: any) => state.currentUser);
-    const scores = useSelector((state: any) => state.scores);
+    // const scores = useSelector((state: any) => state.scores);
 
     const dispatch = useDispatch();
     useEffect(() => {

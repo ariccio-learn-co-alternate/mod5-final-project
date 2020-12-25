@@ -1,6 +1,6 @@
 import React from 'react';
 import {Redirect, Link} from 'react-router-dom';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 // import {Dispatch} from 'redux'
 import {loginUser} from '../Actions';
 import {login, LoginResponse} from '../utils/Authentication';
@@ -43,9 +43,9 @@ class _Login extends React.Component<LoginProps, LoginState> {
         // alert("TODO: redirect here. For now please refresh.")
     } 
 
-    componentDidMount() {
-        console.log("Login props: ", this.props);
-    }
+    // componentDidMount() {
+    //     console.log("Login props: ", this.props);
+    // }
 
     inputField = () =>
         <input
