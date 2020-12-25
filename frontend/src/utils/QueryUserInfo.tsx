@@ -1,5 +1,6 @@
 
 function userRequestOptions(jwt: string): RequestInit {
+    debugger;
     const requestOptions = {
         method: 'get',
         headers: {
@@ -47,6 +48,9 @@ export async function queryUserInfo(jwt: string): Promise<UserInfoType> {
     const jsonResponse = awaitedResponse.json();
     const response = await jsonResponse;
     console.log(response);
+    if (response.errors !== undefined) {
+        debugger;
+    }
     return userInfoToStrongType(response);
     // return response;
 }

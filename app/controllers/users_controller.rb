@@ -35,6 +35,7 @@ class UsersController < ApplicationController
   end
 
   def show
+    byebug
     @user = current_user
     render json: {
       user_info: @user.as_json(only: [:username, :email]),

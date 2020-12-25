@@ -8,6 +8,14 @@ module Errors
     }
   end
 
+  def create_jwt_error(message, jwtError)
+    errors = jwtError.message
+    {
+      message: [message],
+      error: errors
+    }
+  end
+
   def create_activerecord_error(message, activeRecordError)
     errors = activeRecordError.record.errors.full_messages;
     # puts "errors: #{errors}"
@@ -24,6 +32,13 @@ module Errors
       message: [message],
       error: errors
     }
+  end
 
+  def create_missing_auth_header(message)
+    errors = []
+    {
+      message: [message],
+      error: errors
+    }
   end
 end

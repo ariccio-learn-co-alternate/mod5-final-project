@@ -1011,7 +1011,7 @@ class _Canvas extends React.Component<CanvasProps, CanvasState> {
         this.props.setPlaying(false);
         if (this.player.score > 0) {
             const submitScoreRequestOptions = submitScoreOptions(this.props.currentUser, this.player.score, this.gameState.MAP.MAP_ID);
-    
+            console.log(`posting score ${this.player.score}, for user ${this.props.currentUser}, for map ${this.gameState.MAP.MAP_ID}`);
             const submitResult: Promise<Response> = fetch('/scoreboard', submitScoreRequestOptions);
             const jsonResponse = (await submitResult).json();
             const responseParsed = await jsonResponse;

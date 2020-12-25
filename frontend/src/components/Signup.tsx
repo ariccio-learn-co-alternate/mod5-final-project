@@ -44,6 +44,7 @@ class _Signup extends React.Component<SignupProps, SignupState> {
         const response: SignupResponse | null =
             await signup(this.state.username, this.state.email, this.state.password);
         if (response === null) {
+            console.log('invalid response');
             return;
         }
         console.log("signup props: ", this.props);

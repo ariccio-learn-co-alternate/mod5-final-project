@@ -183,6 +183,8 @@ const fetchAndDispatch = async (dispatch: any /*Dispatch<any>*/, currentUser: st
     const userInfo: UserInfoType = await queryUserInfo(currentUser);
     console.log("setting username and email: ", userInfo);
     if (userInfo.user_info === undefined) {
+        console.log('undefined user_info');
+        debugger;
         return;
     }
     dispatch(setUsernameAndEmail(userInfo.user_info.username, userInfo.user_info.email));
@@ -213,21 +215,3 @@ export const Profile : React.FC<ProfileProps> = () => {
     }
     return profileRender(username, email, response);
 }
-
-// class _Profile extends React.Component<ProfileProps, ProfileState> {
-//     state = defaultState;
-//     async componentDidMount() {
-//     }
-// }
-
-// const mapStateToProps = (state: any): any => {
-//     console.log(state);
-//     return {
-//         email: state.email,
-//         username: state.username,
-//         currentUser: state.currentUser,
-//         scores: state.scores
-//     }
-// }
-
-// export const Profile = connect(mapStateToProps, {setUsernameAndEmail, setUserScores})(_Profile);

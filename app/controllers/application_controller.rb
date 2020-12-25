@@ -34,6 +34,7 @@ class ApplicationController < ActionController::API
 
   def auth_header
     # { Authorization: 'Bearer <token>' }
+    # byebug
     request.headers['Authorization']
   end
 
@@ -41,18 +42,32 @@ class ApplicationController < ActionController::API
     if auth_header
       token = auth_header.split(' ')[1]
       # header: { 'Authorization': 'Bearer <token>' }
-      begin
-        decode_with_jwt(token)
-      rescue JWT::DecodeError
-        nil
-      end
+      decode_with_jwt(token)
+    else
+      raise Error
     end
   end
 
   def current_user
     if decoded_token
-      user_id = decoded_token[0]['user_id']
-      @user = User.find_by(id: user_id)
+      begin
+        # byebug
+        user_id = decoded_token[0]['user_id']
+        @user = User.find_by!(id: user_id)
+        return @user
+      rescue JWT::DecodeError => e
+        render json: {
+          errors: create_jwt_error('something went wrong with parsing the JWT', e)
+        }
+      rescue ActiveRecord::RecordNotFound => e
+        render json: {
+          errors: create_activerecord_notfound_error('user_id not found while looking up from decoded_token!', e)
+        }
+      end
+    else
+      render json: {
+        errors: create_missing_auth_header('hmmm, decoded_token is falsy')
+      }
     end
   end
 
