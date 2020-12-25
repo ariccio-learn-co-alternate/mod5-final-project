@@ -1,9 +1,10 @@
 import React from 'react';
+import {useState} from 'react';
 import Form from 'react-bootstrap/Form';
 import FormControl, {FormControlProps} from 'react-bootstrap/FormControl';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 
 import {formatErrors} from '../utils/ErrorObject';
 
@@ -124,7 +125,10 @@ async function fetchSearchResult(options: RequestInit): Promise<UsersSearchRespo
     return response;
 }
 
-async function clickAddFriendAndRemoveUserFromArray(user_id: string, currentUser: string, users: Array<UserSearchResponseSingleUser>): Promise<Array<UserSearchResponseSingleUser>> {
+async function clickAddFriendAndRemoveUserFromArray(
+    user_id: string,
+    currentUser: string,
+    users: Array<UserSearchResponseSingleUser>): Promise<Array<UserSearchResponseSingleUser>> {
     const response = await queryAddFriend(user_id, currentUser);
     if (response.errors !== undefined) {
         console.error(formatErrors(response.errors));
@@ -138,52 +142,73 @@ async function clickAddFriendAndRemoveUserFromArray(user_id: string, currentUser
     return newUsers;
 }
 
-
-
-class _Discover extends React.Component<DiscoverProps, DiscoverState> {
-    state: DiscoverState = defaultDiscoverState;
-
-    addFriendClick = async (_: React.MouseEvent<HTMLButtonElement, MouseEvent>, user_id: string) => {
-        const newUsers = await clickAddFriendAndRemoveUserFromArray(user_id, this.props.currentUser, this.state.users);
-        this.setState({users: newUsers});
-        return;
-    }    
-
-    tableAddFriendButton = (user_id: string) =>
-        <td>
-            <Button
-                variant="primary"
-                onClick={
-                    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
-                        this.addFriendClick(e, user_id)
-                }
-            >
-                Add Friend
-            </Button>
-        </td>
-
-    tableRow = (user: UserSearchResponseSingleUser, index: number) =>
-        <tr key={rowKey(user.user)}>
-            <td>{index}</td>
-            <td>{user.user}</td>
-            {this.tableAddFriendButton(user.user_id)}
-        </tr>
-
+const addFriendClick = async (
+    _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    user_id: string,
+    currentUser: string,
+    users: Array<UserSearchResponseSingleUser>,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) => {
     
-    // See type here: 
-    usernameFieldChange = async (event: React.FormEvent<FormControlProps & FormControl>) => {
-        if (event.currentTarget.value === undefined) {
-            console.warn("undefined target???");
-            return;
-        }
-        const options: RequestInit = searchOptions(this.props.currentUser, event.currentTarget.value);
-        this.setState({usernameField: event.currentTarget.value})
-        const response: UsersSearchResponseType = await fetchSearchResult(options);
-        // debugger;
-        this.setState({users: response.users})
-    }
+        const newUsers = await clickAddFriendAndRemoveUserFromArray(user_id, currentUser, users);
+        setUsers(newUsers);
+        return;
+}    
 
-    formRender = () =>
+const tableAddFriendButton = (
+    user_id: string,
+    currentUser: string,
+    users: Array<UserSearchResponseSingleUser>,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) =>
+    <td>
+        <Button
+            variant="primary"
+            onClick={
+                (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) =>
+                    addFriendClick(e, user_id, currentUser, users, setUsers)
+            }
+        >
+            Add Friend
+        </Button>
+    </td>
+
+const tableRow = (
+    user: UserSearchResponseSingleUser, 
+    index: number,
+    currentUser: string,
+    users: Array<UserSearchResponseSingleUser>,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) =>
+    <tr key={rowKey(user.user)}>
+        <td>{index}</td>
+        <td>{user.user}</td>
+        {tableAddFriendButton(user.user_id, currentUser, users, setUsers)}
+    </tr>
+
+const usernameFieldChange = async (
+    event: React.FormEvent<FormControlProps & FormControl>,
+    currentUser: string,
+    setUsernameField: React.Dispatch<React.SetStateAction<string>>,
+    users: Array<UserSearchResponseSingleUser>,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) => {
+    if (event.currentTarget.value === undefined) {
+        console.warn("undefined target???");
+        return;
+    }
+    const options: RequestInit = searchOptions(currentUser, event.currentTarget.value);
+    setUsernameField(event.currentTarget.value);
+    const response: UsersSearchResponseType = await fetchSearchResult(options);
+    // debugger;
+    setUsers(response.users)
+}
+
+
+const formRender = (
+    usernameField: string,
+    currentUser: string,
+    setUsernameField: React.Dispatch<React.SetStateAction<string>>,
+    users: Array<UserSearchResponseSingleUser>,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>) => {
+    
+    return (
         <Form>
             <Form.Group controlId="formUserSearch">
                 <Form.Label>
@@ -191,50 +216,61 @@ class _Discover extends React.Component<DiscoverProps, DiscoverState> {
                 </Form.Label>
                 <Form.Control
                     type="text"
-                    value={this.state.usernameField}
-                    onChange={this.usernameFieldChange}
+                    value={usernameField}
+                    onChange={(event: React.FormEvent<FormControlProps & FormControl>) => { usernameFieldChange(event, currentUser, setUsernameField, users, setUsers) }}
                 />
             </Form.Group>
         </Form>
-
-    tableBody = () =>
-        <tbody>
-            {this.state.users.map(
-                (user: UserSearchResponseSingleUser, index: number) =>
-                    {return this.tableRow(user, index)}
-                )
-            }
-        </tbody>
-    
-    table() {
-        if (this.state.users === null) {
-            return null;
-        }
-        return (
-            <>
-                <Table striped bordered hover>
-                    {tableHeader()}
-                    {this.tableBody()}
-                </Table>
-            </>
-        );
-    }
-
-    render() {
-        return (
-            <>
-                {this.formRender()}
-                {this.table()}
-            </>
-        );
-    }
+    );
 }
 
-const mapStateToProps = (state: any): DiscoverProps => {
-    return {
-      currentUser: state.currentUser
+
+const tableBody = (
+    users: Array<UserSearchResponseSingleUser>,
+    currentUser: string,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>
+    ) =>
+    <tbody>
+        {users.map(
+            (user: UserSearchResponseSingleUser, index: number) =>
+                {return tableRow(user, index, currentUser, users, setUsers)}
+            )
+        }
+    </tbody>
+
+
+const table = (
+    users: Array<UserSearchResponseSingleUser>,
+    currentUser: string,
+    setUsers: React.Dispatch<React.SetStateAction<UserSearchResponseSingleUser[]>>
+    ) => {
+    if (users === null) {
+        return null;
     }
-  }
+    return (
+        <>
+            <Table striped bordered hover>
+                {tableHeader()}
+                {tableBody(users, currentUser, setUsers)}
+            </Table>
+        </>
+    );
+}
 
+interface empty {
 
-export const Discover = connect(mapStateToProps, null)(_Discover);
+}
+
+export const Discover: React.FC<empty> = () => {
+    const [usernameField, setUsernameField] = useState('');
+    const [users, setUsers] = useState(Array<UserSearchResponseSingleUser>());
+    const currentUser = useSelector((state: any) => state.currentUser);
+
+    return (
+        <>
+            {formRender(usernameField, currentUser, setUsernameField, users, setUsers)}
+            {table(users, currentUser, setUsers)}
+        </>
+    );
+
+}
