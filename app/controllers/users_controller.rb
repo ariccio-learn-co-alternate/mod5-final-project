@@ -9,7 +9,7 @@ class UsersController < ApplicationController
 
   def create
     @user = User.create!(user_params)
-    token = encode_token(user_id: @user_id)
+    token = encode_token(user_id: @user.id)
     render json: { jwt: token }, status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: {
@@ -35,7 +35,6 @@ class UsersController < ApplicationController
   end
 
   def show
-    byebug
     @user = current_user
     render json: {
       user_info: @user.as_json(only: [:username, :email]),

@@ -1,6 +1,5 @@
 
 function userRequestOptions(jwt: string): RequestInit {
-    debugger;
     const requestOptions = {
         method: 'get',
         headers: {

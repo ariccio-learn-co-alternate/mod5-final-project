@@ -53,7 +53,7 @@ class ApplicationController < ActionController::API
       begin
         # byebug
         user_id = decoded_token[0]['user_id']
-        @user = User.find_by!(id: user_id)
+        @user = User.find(user_id)
         return @user
       rescue JWT::DecodeError => e
         render json: {

@@ -40,6 +40,7 @@ class _Signup extends React.Component<SignupProps, SignupState> {
 
     onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        debugger;
         console.log("signup state: ", this.state)
         const response: SignupResponse | null =
             await signup(this.state.username, this.state.email, this.state.password);

@@ -27,7 +27,7 @@ export function reducer(state: AppState = initialState, action: any): any {
     // console.log(state);
     switch(action.type) {
         case LOGIN_ACTION:
-            console.log(`login action username: '${action.username}', email: '${action.email}'`);
+            console.log(`login action username: '${action.username}', email: '${action.email}', jwt: '${action.jwt}'`);
             return {
                 ...state,
                 currentUser: action.jwt,
@@ -35,7 +35,7 @@ export function reducer(state: AppState = initialState, action: any): any {
                 email: action.email
             };
         case SIGNUP_ACTION:
-            console.log(`signup action username: '${action.username}', email: '${action.email}'`);
+            console.log(`signup action username: '${action.username}', email: '${action.email}', jwt: '${action.jwt}'`);
             return {
                 ...state,
                 currentUser: action.jwt,
