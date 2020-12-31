@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {Redirect} from 'react-router-dom';
 import NavItem from 'react-bootstrap/NavItem';
 import Navbar from 'react-bootstrap/Navbar';
@@ -7,8 +7,6 @@ import Nav from 'react-bootstrap/Nav';
 import { LinkContainer } from 'react-router-bootstrap';
 
 type NavBarProps = {
-    currentUser: string,
-    username: string
 }
 const UserNav: FunctionComponent<{username: string}> = (props: any) =>
     <Navbar bg="light" variant="dark" expand="lg">
@@ -25,20 +23,13 @@ const UserNav: FunctionComponent<{username: string}> = (props: any) =>
         </Navbar.Collapse>
     </Navbar>
 
-const _NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
-    if (props.currentUser === '') {
+export const NavBar: FunctionComponent<NavBarProps> = (props: NavBarProps) => {
+    const currentUser = useSelector((state: any) => state.currentUser);
+    const username = useSelector((state: any) => state.username);
+    if (currentUser === '') {
         console.log('empty user, redirecting...');
         return <Redirect to='/'/>;
     }
-    console.log(`Current username: ${props.username}`)
-    return <UserNav username={props.username}/>;
+    console.log(`Current username: ${username}`)
+    return <UserNav username={username}/>;
 }
-
-const mapStateToProps = (state: any) => {
-    return {
-        currentUser: state.currentUser,
-        username: state.username
-    }
-}
-
-export const NavBar = connect(mapStateToProps, null)(_NavBar);

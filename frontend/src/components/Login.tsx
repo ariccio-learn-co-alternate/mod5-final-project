@@ -43,10 +43,6 @@ class _Login extends React.Component<LoginProps, LoginState> {
         // alert("TODO: redirect here. For now please refresh.")
     } 
 
-    // componentDidMount() {
-    //     console.log("Login props: ", this.props);
-    // }
-
     inputField = () =>
         <input
             name="email"
