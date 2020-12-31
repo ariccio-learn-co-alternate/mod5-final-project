@@ -139,6 +139,7 @@ const addFriendClick = async (
         return;
 }    
 
+//WARNING: DATABASE DOESN'T ENFORCE UNIQUENESS
 const tableAddFriendButton = (
     user_id: string,
     currentUser: string,
