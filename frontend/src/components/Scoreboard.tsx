@@ -1,6 +1,6 @@
-import React from 'react'
-import Table from 'react-bootstrap/Table'
-import { connect } from 'react-redux';
+import React, {useState, useEffect} from 'react';
+import Table from 'react-bootstrap/Table';
+import { useSelector } from 'react-redux';
 
 import {formatErrors} from '../utils/ErrorObject';
 
@@ -22,29 +22,7 @@ type score = {
     level: string
 }
 
-interface ScoreboardState {
-    readonly responseTopTen: Array<score>,
-    readonly scores_friend_top_ten: Array<score>
-}
-
 interface ScoreboardProps {
-    currentUser: string
-}
-
-const initScoreboardState: ScoreboardState = {
-    responseTopTen: [{
-        user: '',
-        user_id: '',
-        score: '',
-        level: ''
-    }],
-    scores_friend_top_ten: [{
-        user: '',
-        user_id: '',
-        score: '',
-        level: ''
-    }]
-
 }
 
 const tableHeader = () => 
@@ -85,11 +63,40 @@ const tableFriendRow = (score: any, index: number) =>
         </tr>
 
 
-class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
-    state = initScoreboardState
-    async componentDidMount() {
+// created_at: "2019-09-09T19:35:56.099Z"
+// id: 20
+// level_id: 1
+// score: 5
+// updated_at: "2019-09-09T19:35:56.099Z"
+// user_id: 7
+const friendTable = (scores: any) => 
+    <>
+        <Table striped bordered hover>
+        {tableHeader()}
+                <tbody>
+                    {scores.map((score: any, index: number) => {return tableFriendRow(score, index)})}
+                </tbody>
+
+        </Table>
+    </>
+
+const tenTable = (scoresHash: any) =>
+    <>
+        <Table striped bordered hover>
+            {tableHeader()}
+            <tbody>
+                {scoresHash.map((score: any, index: number) => {return tableRow(score, index)})}
+            </tbody>
+        </Table>
+    </>
+
+
+const fetchScoreboard = async (
+    setResponseTopTen: React.Dispatch<React.SetStateAction<Array<score>>>,
+    setscores_friend_top_ten: React.Dispatch<React.SetStateAction<Array<score>>>,
+    currentUser: string) => {
         console.error("note to self, there's something wrong with the friends display. It seems to show duplicates.")
-        const rawResponse: Promise<Response> = fetch('/scoreboard', scoreboardOptions(this.props.currentUser));
+        const rawResponse: Promise<Response> = fetch('/scoreboard', scoreboardOptions(currentUser));
         const jsonResponse = (await rawResponse).json();
         const response = await jsonResponse;
         if (response.errors !== undefined) {
@@ -100,67 +107,36 @@ class _Scoreboard extends React.Component<ScoreboardProps, ScoreboardState> {
         // debugger;
         if (response.scores_top_ten_all === undefined) {
             console.error('bad server data');
-            this.setState({
-                responseTopTen: initScoreboardState.responseTopTen,
-                scores_friend_top_ten: response.scores_friend_top_ten
-            })
+            setscores_friend_top_ten(response.scores_friend_top_ten);
             return;
         }
         else if (response.scores_friend_top_ten === undefined) {
             console.error('bad server data');
-            this.setState({
-                responseTopTen: response.scores_top_ten_all,
-                scores_friend_top_ten: initScoreboardState.scores_friend_top_ten
-            })
+            setResponseTopTen(response.scores_top_ten_all);
+            setscores_friend_top_ten(Array<score>());
             return;
         }
-        this.setState({
-            responseTopTen: response.scores_top_ten_all,
-            scores_friend_top_ten: response.scores_friend_top_ten
-        });
-    }
+        
+        setResponseTopTen(response.scores_top_ten_all);
+        setscores_friend_top_ten(response.scores_friend_top_ten);
 
-    tenTable = (scoresHash: any) =>
-            <>
-                <Table striped bordered hover>
-                    {tableHeader()}
-                    <tbody>
-                        {scoresHash.map((score: any, index: number) => {return tableRow(score, index)})}
-                    </tbody>
-                </Table>
-            </>
-
-
-// created_at: "2019-09-09T19:35:56.099Z"
-// id: 20
-// level_id: 1
-// score: 5
-// updated_at: "2019-09-09T19:35:56.099Z"
-// user_id: 7
-    friendTable = (scores: any) => 
-        <>
-            <Table striped bordered hover>
-            {tableHeader()}
-                    <tbody>
-                        {scores.map((score: any, index: number) => {return tableFriendRow(score, index)})}
-                    </tbody>
-
-            </Table>
-        </>
-
-    render = () =>
-        <>
-            <h1>Top ten scores:</h1>
-            {this.tenTable(this.state.responseTopTen)}
-            <h1>Friend scores</h1>
-            {this.friendTable(this.state.scores_friend_top_ten)}
-        </>
 }
 
-const mapStateToProps = (state: any) => {
-    return {
-      currentUser: state.currentUser,
-    }
-  }
+export const Scoreboard : React.FC<ScoreboardProps> = () => {
+    const [responseTopTen, setResponseTopTen] = useState(Array<score>());
+    const [scores_friend_top_ten, setscores_friend_top_ten] = useState(Array<score>());
+    const currentUser = useSelector((state: any) => state.currentUser);
 
-export const Scoreboard = connect(mapStateToProps, {})(_Scoreboard);
+    useEffect(() => {
+        fetchScoreboard(setResponseTopTen, setscores_friend_top_ten, currentUser);
+        }, []);
+
+    return (
+        <>
+            <h1>Top ten scores:</h1>
+            {tenTable(responseTopTen)}
+            <h1>Friend scores</h1>
+            {friendTable(scores_friend_top_ten)}
+        </>
+    );
+}

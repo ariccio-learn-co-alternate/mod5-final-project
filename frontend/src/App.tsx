@@ -46,6 +46,7 @@ class _App extends React.Component<AppProps, AppState> {
             //const userInfo = await queryUserInfo(this.props.currentUser)
             queryUserInfo(this.props.currentUser).then(userInfo => {
                 if (userInfo.user_info === undefined) {
+                    console.log('undefined user_info');
                     return; 
                 }
                 console.log("setting username and email: ", userInfo);
@@ -64,10 +65,6 @@ class _App extends React.Component<AppProps, AppState> {
 
         const redirect = <Redirect to="/play"/>;
         return redirect;
-    }
-
-    componentDidMount() {
-        console.log("currentUser at mount: ", this.props.currentUser);
     }
 
     routes = () =>
